@@ -5,16 +5,20 @@ import { FaEye } from "react-icons/fa";
 import { BsPrinter } from "react-icons/bs";
 import userImg from "./Images/profile.png";
 import { GoPaperclip } from "react-icons/go";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const CandidatesCV = () => {
   // Form state
   const [form, setForm] = useState({});
   // Toast state
-  const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
-  const showToast = (message, type = 'info', duration = 2500) => {
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "info",
+  });
+  const showToast = (message, type = "info", duration = 2500) => {
     setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type }), duration);
+    setTimeout(() => setToast({ show: false, message: "", type }), duration);
   };
 
   const handleInputChange = (e) => {
@@ -62,8 +66,12 @@ const CandidatesCV = () => {
   const [docs, setDocs] = useState(() => documentTitles.map(() => null));
   const docFileInputRefs = useRef(documentTitles.map(() => React.createRef()));
   // Per-document done/passed toggles
-  const [documentDone, setDocumentDone] = useState(() => documentTitles.map(() => false));
-  const [documentPassed, setDocumentPassed] = useState(() => documentTitles.map(() => false));
+  const [documentDone, setDocumentDone] = useState(() =>
+    documentTitles.map(() => false)
+  );
+  const [documentPassed, setDocumentPassed] = useState(() =>
+    documentTitles.map(() => false)
+  );
 
   // Example processing steps state (Done / Passed)
   const exampleSteps = [
@@ -119,6 +127,9 @@ const CandidatesCV = () => {
     setOverlayFiles([{ name: file.name, type: file.type }]);
     setOverlayOpen(true);
   };
+
+  // navigate to candidates page after successful save
+  const navigate = useNavigate();
 
   const removeDoc = (index) => {
     setDocs((prev) => {
@@ -184,21 +195,35 @@ const CandidatesCV = () => {
     // step docs
     stepDocs.forEach((f, i) => {
       if (f) {
-        uploadMeta.push({ title: `${exampleSteps[i]}-${f.name}`, file: f, done: stepsStatus[i]?.done || false, passed: stepsStatus[i]?.passed || false });
+        uploadMeta.push({
+          title: `${exampleSteps[i]}-${f.name}`,
+          file: f,
+          done: stepsStatus[i]?.done || false,
+          passed: stepsStatus[i]?.passed || false,
+        });
       }
     });
 
     // main documents
     docs.forEach((f, i) => {
       if (f) {
-        uploadMeta.push({ title: `${documentTitles[i]}-${f.name}`, file: f, done: documentDone[i] || false, passed: documentPassed[i] || false });
+        uploadMeta.push({
+          title: `${documentTitles[i]}-${f.name}`,
+          file: f,
+          done: documentDone[i] || false,
+          passed: documentPassed[i] || false,
+        });
       }
     });
 
     // Append files and collect metadata arrays for backend
-    const metadata = uploadMeta.map((m) => ({ title: m.title, done: m.done, passed: m.passed }));
-    uploadMeta.forEach((m) => formData.append('documents', m.file, m.title));
-    formData.append('documentsMeta', JSON.stringify(metadata));
+    const metadata = uploadMeta.map((m) => ({
+      title: m.title,
+      done: m.done,
+      passed: m.passed,
+    }));
+    uploadMeta.forEach((m) => formData.append("documents", m.file, m.title));
+    formData.append("documentsMeta", JSON.stringify(metadata));
     Object.entries(form).forEach(([key, value]) => {
       formData.append(key, value);
     });
@@ -215,7 +240,7 @@ const CandidatesCV = () => {
         import.meta.env &&
         import.meta.env.VITE_API_URL
           ? import.meta.env.VITE_API_URL
-          : "http://localhost:3001";
+          : "http://213.199.41.219:3001";
       const res = await fetch(apiUrl + "/api/candidates/", {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -232,6 +257,10 @@ const CandidatesCV = () => {
       setProfileFile(null);
       setProfilePreview(userImg);
       console.log("created candidate", data.candidate);
+      // navigate to Candidate list and pass the created candidate so it shows immediately
+      if (data && data.candidate) {
+        navigate("/candidate", { state: { newCandidate: data.candidate } });
+      }
     } catch (err) {
       console.error(err);
       showToast("Upload failed: " + (err.message || err), "error");
@@ -240,12 +269,14 @@ const CandidatesCV = () => {
   // Toast component
   const Toast = ({ show, message, type }) => {
     if (!show) return null;
-    let bg = 'bg-gray-800';
-    if (type === 'error') bg = 'bg-red-600';
-    if (type === 'success') bg = 'bg-green-600';
+    let bg = "bg-gray-800";
+    if (type === "error") bg = "bg-red-600";
+    if (type === "success") bg = "bg-green-600";
     return (
-      <div className={`fixed top-6 right-6 z-[100] px-4 py-2 rounded text-white shadow-lg ${bg} animate-fade-in`}
-        style={{ minWidth: 180, maxWidth: 320 }}>
+      <div
+        className={`fixed top-6 right-6 z-[100] px-4 py-2 rounded text-white shadow-lg ${bg} animate-fade-in`}
+        style={{ minWidth: 180, maxWidth: 320 }}
+      >
         {message}
       </div>
     );
@@ -510,7 +541,7 @@ const CandidatesCV = () => {
                       </label>
                     </div>
 
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => attachStepFile(idx)}

@@ -121,7 +121,7 @@ const Sidebar = () => {
       )}
 
       {/* Report */}
-      {canAccess("/report") && (
+      {/* {canAccess("/report") && (
         <div
           className={`${baseStyle} mt-2 ${
             isActive("/report")
@@ -135,7 +135,7 @@ const Sidebar = () => {
       )}
 
       {/* Settings */}
-      {canAccess("/settings") && (
+      {/* {canAccess("/settings") && (
         <div
           className={`${baseStyle} mt-2 ${
             isActive("/settings")
@@ -146,7 +146,7 @@ const Sidebar = () => {
           <MdOutlineSettings size={20} />
           <span className="text-sm font-semibold">Settings</span>
         </div>
-      )}
+      )}  */}
     </div>
   );
 };

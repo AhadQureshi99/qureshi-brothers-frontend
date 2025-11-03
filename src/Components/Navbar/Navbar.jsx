@@ -284,7 +284,7 @@ const Navbar = () => {
   };
 
   // Build profile picture URL safely. The backend may return a full absolute URL
-  // (e.g. http://localhost:3001/Uploads/...) or a relative path. Avoid
+  // (e.g. http://213.199.41.219:3001/Uploads/...) or a relative path. Avoid
   // concatenating API_URL with an already-absolute URL which causes invalid
   // requests.
   const getProfileImageUrl = (profilePicture) => {
@@ -297,7 +297,7 @@ const Navbar = () => {
     } catch (e) {
       // profilePicture is not an absolute URL. Build using API origin.
       try {
-        const origin = new URL(API_URL).origin; // e.g. http://localhost:3001
+        const origin = new URL(API_URL).origin; // e.g. http://213.199.41.219:3001
         const path = profilePicture.startsWith("/")
           ? profilePicture
           : `/${profilePicture}`;

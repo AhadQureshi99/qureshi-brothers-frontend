@@ -7,6 +7,7 @@ import {
   getAllUsers,
 } from "../../features/users/userService";
 import axios from "axios";
+import AdminNavbar from "../AdminNavbar/AdminNavbar";
 
 const SuperAdmin = () => {
   const { user } = useSelector((state) => state.user);
@@ -110,6 +111,7 @@ const SuperAdmin = () => {
 
   return (
     <div className="p-6">
+      <AdminNavbar />
       <h2 className="text-2xl font-semibold mb-4">Super Admin Panel</h2>
 
       <section className="mb-6">
