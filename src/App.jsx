@@ -93,6 +93,10 @@ import BulkFlightCancel from "./Components/BulkFlightCancel";
 import CandidateLedgerExpenses from "./Components/CandidateLedgerExpenses";
 import CandidateLedgerSummary from "./Components/CandidateLedgerSummary";
 import CandidateAgentLedger from "./Components/CandidateAgentLedger";
+import ProtectorPrintCandidates from "./Components/ProtectorPrintCandidates";
+import CandidateFilterReport from "./Components/CandidateFilterReport";
+import TravelledCandidatesReport from "./Components/TravelledCandidatesReport";
+import CandidateApplicationStatusReport from "./Components/CandidateApplicationStatusReport";
 import Login from "./features/users/components/Login";
 import Signup from "./features/users/components/Signup";
 import VerifyOTP from "./features/users/components/VerifyOTP";
@@ -1035,6 +1039,46 @@ function App() {
                 <Layout>
                   <ProtectedRoute>
                     <CandidateAgentLedger />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/protector-print-candidates"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ProtectorPrintCandidates />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/candidate-filter-report"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateFilterReport />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/traveled-candidates-report"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <TravelledCandidatesReport />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/candidate-application-status-report"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateApplicationStatusReport />
                   </ProtectedRoute>
                 </Layout>
               }
