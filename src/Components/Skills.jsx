@@ -14,7 +14,7 @@ const Skills = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  const API_BASE_URL = "http://213.199.41.219:3001/api/skills";
+  const API_BASE_URL = "https://api.cloudandroots.com/api/skills";
 
   useEffect(() => {
     fetchSkills();

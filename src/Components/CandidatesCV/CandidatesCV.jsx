@@ -240,7 +240,7 @@ const CandidatesCV = () => {
         import.meta.env &&
         import.meta.env.VITE_API_URL
           ? import.meta.env.VITE_API_URL
-          : "http://213.199.41.219:3001";
+          : "https://api.cloudandroots.com";
       const res = await fetch(apiUrl + "/api/candidates/", {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},

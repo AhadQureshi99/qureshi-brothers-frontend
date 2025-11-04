@@ -17,7 +17,7 @@ const ExperienceRanges = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "http://213.199.41.219:3001/api/config/experience-ranges";
+  const API_URL = "https://api.cloudandroots.com/api/config/experience-ranges";
 
   const fetchExperienceRanges = async () => {
     try {

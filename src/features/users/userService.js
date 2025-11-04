@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_URL = "http://213.199.41.219:3001/api/users";
+export const API_URL = "https://api.cloudandroots.com/api/users";
 
 // Configure axios interceptors
 axios.interceptors.request.use(

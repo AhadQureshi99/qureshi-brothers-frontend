@@ -46,7 +46,7 @@ const Candidate = () => {
           import.meta.env &&
           import.meta.env.VITE_API_URL
             ? import.meta.env.VITE_API_URL
-            : "http://213.199.41.219:3001";
+            : "https://api.cloudandroots.com";
         const res = await fetch(`${apiUrl}/api/candidates/`);
         if (!res.ok) throw new Error("Failed to fetch candidates");
         const data = await res.json();
@@ -113,7 +113,7 @@ const Candidate = () => {
         import.meta.env &&
         import.meta.env.VITE_API_URL
           ? import.meta.env.VITE_API_URL
-          : "http://213.199.41.219:3001";
+          : "https://api.cloudandroots.com";
       const res = await fetch(`${apiUrl}/api/candidates/${candidate._id}`);
       if (!res.ok) throw new Error("Failed to fetch candidate details");
       const data = await res.json();

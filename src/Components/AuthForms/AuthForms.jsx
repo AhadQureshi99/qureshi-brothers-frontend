@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 const logo = "/components_logo.png";
 
-const API_URL = "http://213.199.41.219:3001/api/users";
+const API_URL = "https://api.cloudandroots.com/api/users";
 
 // Axios interceptor to attach token
 axios.interceptors.request.use(
