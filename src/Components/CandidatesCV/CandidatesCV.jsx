@@ -3,7 +3,7 @@ import Sidebar from "../Sidebar/Sidebar";
 import { IoIosArrowBack } from "react-icons/io";
 import { FaEye } from "react-icons/fa";
 import { BsPrinter } from "react-icons/bs";
-import userImg from "./Images/profile.png";
+const userImg = "/candidatescv_profile.png";
 import { GoPaperclip } from "react-icons/go";
 import { Link, useNavigate } from "react-router-dom";
 

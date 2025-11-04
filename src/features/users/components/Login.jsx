@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { login, clearMessages, getAuthUser } from "../userSlice";
-import logo from "../../../Components/Images/logo.png";
+const logo = "/components_logo.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");

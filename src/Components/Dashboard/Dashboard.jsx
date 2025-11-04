@@ -1,91 +1,90 @@
-import React from 'react';
-import Sidebar from '../Sidebar/Sidebar';
-import { FaArrowUp, FaPlus } from 'react-icons/fa';
+import React from "react";
+import Sidebar from "../Sidebar/Sidebar";
+import { FaArrowUp, FaPlus } from "react-icons/fa";
 
-
-import bg1 from './Images/bg1.jpeg';
-import bg2 from './Images/bg2.jpeg';
-import visa from './Images/visa.png';
-import protector from './Images/protector.png';
-import active from './Images/Active.png';
-import navtac from './Images/NAVTTC.png';
-import profile from './Images/profile.jpeg';
+const bg1 = "/dashboard_bg1.jpeg";
+const bg2 = "/dashboard_bg2.jpeg";
+const visa = "/dashboard_visa.png";
+const protector = "/dashboard_protector.png";
+const active = "/dashboard_Active.png";
+const navtac = "/dashboard_NAVTTC.png";
+const profile = "/dashboard_profile.jpeg";
 
 const Dashboard = () => {
   const summaryCards = [
     {
-      title: 'Total Candidates',
+      title: "Total Candidates",
       value: 256,
-      percent: '+12% from last month',
-      buttonLabel: 'UPLOAD CV',
+      percent: "+12% from last month",
+      buttonLabel: "UPLOAD CV",
       bgImage: bg1,
-      accept: '.pdf,.doc,.docx', 
+      accept: ".pdf,.doc,.docx",
     },
     {
-      title: 'Monthly Expense',
-      value: '256,300',
-      percent: '+12% from last month',
-      buttonLabel: 'ADD EXPENSE',
+      title: "Monthly Expense",
+      value: "256,300",
+      percent: "+12% from last month",
+      buttonLabel: "ADD EXPENSE",
       bgImage: bg2,
-      accept: '.xlsx,.csv',
+      accept: ".xlsx,.csv",
     },
     {
-      title: 'Completed Visas',
+      title: "Completed Visas",
       value: 256,
-      percent: '+12% from last month',
+      percent: "+12% from last month",
       image: visa,
     },
     {
-      title: 'Pending Protector',
+      title: "Pending Protector",
       value: 256,
-      percent: '+12% from last month',
+      percent: "+12% from last month",
       image: protector,
     },
     {
-      title: 'Active Cases',
+      title: "Active Cases",
       value: 256,
-      percent: '+12% from last month',
+      percent: "+12% from last month",
       image: active,
     },
     {
-      title: 'NAVTTC Tests',
+      title: "NAVTTC Tests",
       value: 256,
-      percent: '+12% from last month',
+      percent: "+12% from last month",
       image: navtac,
     },
   ];
 
   const recentCases = [
     {
-      name: 'Ahmed Khan',
-      code: 'CN000001',
-      detail: 'Visa approved for Saudi Arabia',
-      time: '2 hours ago',
-      status: 'Pending',
+      name: "Ahmed Khan",
+      code: "CN000001",
+      detail: "Visa approved for Saudi Arabia",
+      time: "2 hours ago",
+      status: "Pending",
       avatar: null,
     },
     {
-      name: 'Fatima Ali',
-      code: 'CN000002',
-      detail: 'NAVTTC test scheduled for Electrician',
-      time: '4 hours ago',
-      status: 'Approved',
+      name: "Fatima Ali",
+      code: "CN000002",
+      detail: "NAVTTC test scheduled for Electrician",
+      time: "4 hours ago",
+      status: "Approved",
       avatar: profile,
     },
     {
-      name: 'Ahmed Khan',
-      code: 'CN000003',
-      detail: 'Visa approved for Saudi Arabia',
-      time: '2 hours ago',
-      status: 'Pending',
+      name: "Ahmed Khan",
+      code: "CN000003",
+      detail: "Visa approved for Saudi Arabia",
+      time: "2 hours ago",
+      status: "Pending",
       avatar: profile,
     },
     {
-      name: 'Fatima Ali',
-      code: 'CN000004',
-      detail: 'NAVTTC test scheduled for Electrician',
-      time: '4 hours ago',
-      status: 'REJECTED',
+      name: "Fatima Ali",
+      code: "CN000004",
+      detail: "NAVTTC test scheduled for Electrician",
+      time: "4 hours ago",
+      status: "REJECTED",
       avatar: profile,
     },
   ];
@@ -94,22 +93,18 @@ const Dashboard = () => {
     const file = e.target.files[0];
     if (file) {
       console.log(`${label} file selected:`, file.name);
-     
     }
   };
 
   return (
     <div className="flex min-h-screen">
-  
       <div className="w-[25%] bg-white border-r border-gray-200">
         <Sidebar />
       </div>
 
-    
       <div className="flex-1 p-6">
         <h2 className="text-xl font-bold mb-4">Summary</h2>
 
-     
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {summaryCards.slice(0, 2).map((card, idx) => (
             <div
@@ -117,8 +112,8 @@ const Dashboard = () => {
               className="relative h-44 text-white rounded-xl overflow-hidden shadow-md"
               style={{
                 backgroundImage: `url(${card.bgImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                backgroundSize: "cover",
+                backgroundPosition: "center",
               }}
             >
               <div className="absolute inset-0 bg-black bg-opacity-40 p-4 flex flex-col justify-between">
@@ -131,7 +126,6 @@ const Dashboard = () => {
                   </p>
                 </div>
 
-               
                 <label className="self-start mt-2 bg-white text-black text-sm font-medium px-3 py-1 rounded-full cursor-pointer flex items-center">
                   <FaPlus className="inline mr-1" />
                   {card.buttonLabel}
@@ -147,8 +141,6 @@ const Dashboard = () => {
           ))}
         </div>
 
-      
-      
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {summaryCards.slice(2).map((card, idx) => (
             <div
@@ -156,8 +148,12 @@ const Dashboard = () => {
               className="bg-white p-4 rounded-xl shadow-md flex justify-between items-center"
             >
               <div>
-                <h3 className="text-md font-semibold text-gray-700">{card.title}</h3>
-                <p className="text-2xl font-bold text-black mt-1">{card.value}</p>
+                <h3 className="text-md font-semibold text-gray-700">
+                  {card.title}
+                </h3>
+                <p className="text-2xl font-bold text-black mt-1">
+                  {card.value}
+                </p>
                 <p className="text-green-500 text-sm mt-1">{card.percent}</p>
               </div>
               {card.image && (
@@ -171,18 +167,18 @@ const Dashboard = () => {
           ))}
         </div>
 
-     
-     
         <div className="bg-white shadow-lg rounded-xl p-6 mt-10">
-          <h3 className="text-lg font-semibold text-green-600 mb-4">Total Candidates</h3>
+          <h3 className="text-lg font-semibold text-green-600 mb-4">
+            Total Candidates
+          </h3>
           {[
-            'CV Collection',
-            'Medical Process',
-            'NAVTTC Tests',
-            'E-Number Issued',
-            'Embassy Submission',
-            'Visa Approved',
-            'Protector Completed',
+            "CV Collection",
+            "Medical Process",
+            "NAVTTC Tests",
+            "E-Number Issued",
+            "Embassy Submission",
+            "Visa Approved",
+            "Protector Completed",
           ].map((step, idx) => (
             <div key={idx} className="mb-4">
               <div className="flex justify-between items-center mb-1">
@@ -199,10 +195,10 @@ const Dashboard = () => {
           ))}
         </div>
 
-      
-      
         <div className="mt-10 bg-gradient-to-b from-green-200 to-green-100 p-4 rounded-xl shadow-md">
-          <h3 className="text-md font-semibold text-green-600 mb-4">Recent Cases</h3>
+          <h3 className="text-md font-semibold text-green-600 mb-4">
+            Recent Cases
+          </h3>
           <div className="grid gap-4">
             {recentCases.map((item, idx) => (
               <div
@@ -221,7 +217,7 @@ const Dashboard = () => {
                   )}
                   <div>
                     <p className="font-medium text-sm text-gray-800">
-                      {item.name}{' '}
+                      {item.name}{" "}
                       <span className="text-xs text-gray-500 ml-2">
                         Code: {item.code}
                       </span>
@@ -232,11 +228,11 @@ const Dashboard = () => {
                 </div>
                 <button
                   className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                    item.status === 'Pending'
-                      ? 'bg-orange-100 text-orange-500'
-                      : item.status === 'Approved'
-                      ? 'bg-green-100 text-green-600'
-                      : 'bg-red-100 text-red-500'
+                    item.status === "Pending"
+                      ? "bg-orange-100 text-orange-500"
+                      : item.status === "Approved"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-red-100 text-red-500"
                   }`}
                 >
                   {item.status}
@@ -246,10 +242,10 @@ const Dashboard = () => {
           </div>
         </div>
 
-       
-       
         <div className="bg-green-100 p-6 rounded-xl mt-8 shadow-md">
-          <h3 className="text-md font-semibold text-green-800 mb-4">Monthly Expenses</h3>
+          <h3 className="text-md font-semibold text-green-800 mb-4">
+            Monthly Expenses
+          </h3>
           <p className="text-3xl font-bold text-black mb-6">
             PKR 2,450,000 <span className="text-yellow-500">🟡</span>
           </p>

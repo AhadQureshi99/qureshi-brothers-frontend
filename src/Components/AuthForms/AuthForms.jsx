@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import logo from "../Images/logo.png";
+const logo = "/components_logo.png";
 
 const API_URL = "http://213.199.41.219:3001/api/users";
 

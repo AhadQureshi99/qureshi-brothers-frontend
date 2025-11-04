@@ -10,7 +10,7 @@ import {
   uploadProfilePicture,
 } from "../../features/users/userSlice";
 import { API_URL } from "../../features/users/userService";
-import logo from "./Images/logo.png";
+const logo = "/components_logo.png";
 import { TiBell } from "react-icons/ti";
 import { BsFileEarmarkArrowUp } from "react-icons/bs";
 import { Link } from "react-router-dom";

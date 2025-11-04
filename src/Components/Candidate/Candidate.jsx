@@ -5,8 +5,8 @@ import Sidebar from "../Sidebar/Sidebar";
 import { FaPrint, FaFilter, FaEye } from "react-icons/fa";
 import { BsCalendar } from "react-icons/bs";
 import { MdEmail } from "react-icons/md";
-import img1 from "./Images/img1.png";
-import img2 from "./Images/img2.png";
+const img1 = "/candidate_img1.png";
+const img2 = "/candidate_img2.png";
 import { Link } from "react-router-dom";
 
 const getStatusColor = (status) => {

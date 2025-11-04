@@ -1,11 +1,10 @@
 import React from "react";
 import Sidebar from "../Sidebar/Sidebar";
-import logo from "./Images/banklogo.png";
+const logo = "/alliedform_banklogo.png";
 
 const AlliedForm = () => {
   return (
     <div>
-  
       <div className="flex min-h-screen">
         {/* Sidebar */}
         <div className="w-[20%] border-r border-gray-300">
@@ -124,14 +123,12 @@ const AlliedForm = () => {
               type="text"
               className="border-b border-black bg-transparent outline-none px-2 py-1"
             />
-<p className="border-r border-black flex items-center justify-center px-2 py-1">
- 
-</p>
-<input
-  type="text"
-  className="col-span-3 bg-transparent outline-none px-2 py-1 w-full"
-  style={{ borderBottom: '1px solid black' }} // Optional if you want bottom border
-/>
+            <p className="border-r border-black flex items-center justify-center px-2 py-1"></p>
+            <input
+              type="text"
+              className="col-span-3 bg-transparent outline-none px-2 py-1 w-full"
+              style={{ borderBottom: "1px solid black" }} // Optional if you want bottom border
+            />
 
             {/* Row 3 & 4 combined: Address spans two rows (cols 1 and 2), Passport Number on right */}
             <p className="border-r border-black flex items-center justify-center px-2 py-1 row-span-2">
@@ -150,57 +147,55 @@ const AlliedForm = () => {
             />
           </div>
 
-        {/* Section C: Overseas Employment Promoter */}
-<div className="mb-6 grid-row-3 font-[times]">
-  <div className="px-3 grid grid-cols-2 py-1 font-semibold">
-    B. Overseas Employment Promoter (O.E.P) Details
-  </div>
+          {/* Section C: Overseas Employment Promoter */}
+          <div className="mb-6 grid-row-3 font-[times]">
+            <div className="px-3 grid grid-cols-2 py-1 font-semibold">
+              B. Overseas Employment Promoter (O.E.P) Details
+            </div>
 
-<div className="font-[times] p-1">
-  <div className="grid border border-black">
-    {/* Row 1 - Name */}
-    <div className="grid grid-cols-2">
-      <p className="border-r border-black text-left px-2 font-normal flex items-center h-[28px] leading-none">
-        Name
-      </p>
-      <input
-        type="text"
-        className="w-full bg-transparent outline-none text-center px-2 h-[28px] leading-none"
-      />
-    </div>
+            <div className="font-[times] p-1">
+              <div className="grid border border-black">
+                {/* Row 1 - Name */}
+                <div className="grid grid-cols-2">
+                  <p className="border-r border-black text-left px-2 font-normal flex items-center h-[28px] leading-none">
+                    Name
+                  </p>
+                  <input
+                    type="text"
+                    className="w-full bg-transparent outline-none text-center px-2 h-[28px] leading-none"
+                  />
+                </div>
 
-    {/* Row 2 & 3 - Address & O.E.P License Number */}
-    <div className="grid grid-cols-4 border-t border-black">
-      {/* Empty row above Address */}
-      <p className="border-r border-black flex items-center justify-center px-2 py-1"></p>
-      <input
-        type="text"
-        className="col-span-3 bg-transparent outline-none px-2 w-full border-b border-black flex items-center py-1"
-      />
+                {/* Row 2 & 3 - Address & O.E.P License Number */}
+                <div className="grid grid-cols-4 border-t border-black">
+                  {/* Empty row above Address */}
+                  <p className="border-r border-black flex items-center justify-center px-2 py-1"></p>
+                  <input
+                    type="text"
+                    className="col-span-3 bg-transparent outline-none px-2 w-full border-b border-black flex items-center py-1"
+                  />
 
-      {/* Address row */}
-      <p className="border-r border-black flex items-center justify-center px-2 py-1 row-span-2">
-        Address
-      </p>
-      <input
-        type="text"
-        className="border-r border-black bg-transparent outline-none px-2 row-span-2 flex items-center py-1"
-      />
+                  {/* Address row */}
+                  <p className="border-r border-black flex items-center justify-center px-2 py-1 row-span-2">
+                    Address
+                  </p>
+                  <input
+                    type="text"
+                    className="border-r border-black bg-transparent outline-none px-2 row-span-2 flex items-center py-1"
+                  />
 
-      {/* O.E.P License Number */}
-      <p className="border-r border-black flex items-center justify-center px-2 py-1">
-        O.E.P License Number
-      </p>
-      <input
-        type="text"
-        className="bg-transparent outline-none px-2 flex items-center py-1"
-      />
-    </div>
-  </div>
-</div>
-
-</div>
-
+                  {/* O.E.P License Number */}
+                  <p className="border-r border-black flex items-center justify-center px-2 py-1">
+                    O.E.P License Number
+                  </p>
+                  <input
+                    type="text"
+                    className="bg-transparent outline-none px-2 flex items-center py-1"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Section D: Deposit Details */}
           <div className="mb-6 font-[times]">

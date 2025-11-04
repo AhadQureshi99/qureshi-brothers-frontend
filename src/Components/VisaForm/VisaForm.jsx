@@ -1,6 +1,6 @@
 import React from "react";
 import Sidebar from "../Sidebar/Sidebar";
-import logo from "./images/logo.png"; // Replace with your Saudi emblem image
+const logo = "/visaform_logo.png";
 import { FaEye } from "react-icons/fa";
 
 const VisaForm = () => {
@@ -744,7 +744,7 @@ const VisaForm = () => {
           </div>
 
           {/* Office Use Only Row */}
-          <div className="bg-gray-400 border-b border-green-700 bg-gray-100 p-2">
+          <div className="bg-gray-400 border-b border-green-700  p-2">
             <div className="flex flex-col items-center">
               للإستعمال الرسمي فقط
               <div className="text-sm">{/* Arabic text placeholder */}</div>
