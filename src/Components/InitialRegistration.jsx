@@ -5,10 +5,26 @@ import { toast } from "react-hot-toast";
 
 const InitialRegistration = () => {
   const [formData, setFormData] = useState({
+    date: "",
     firstName: "",
     lastName: "",
+    fatherName: "",
+    dateOfBirth: "",
+    age: "",
+    placeOfBirth: "",
     email: "",
     mobile: "",
+    passportIssueDate: "",
+    passportExpiryDate: "",
+    maritalStatus: "",
+    companyNameEnglish: "",
+    companyNameArabic: "",
+    tradeEnglish: "",
+    tradeArabic: "",
+    visaId: "",
+    visaNo: "",
+    eNo: "",
+    salary: "",
     profession: "",
     address: "",
     experience: "",
@@ -60,9 +76,25 @@ const InitialRegistration = () => {
     try {
       const token = localStorage.getItem("token");
       const candidateData = {
+        date: formData.date,
         name: `${formData.firstName} ${formData.lastName}`,
+        fatherName: formData.fatherName,
+        dateOfBirth: formData.dateOfBirth,
+        age: formData.age,
+        placeOfBirth: formData.placeOfBirth,
         email: formData.email,
         contact: formData.mobile,
+        passportIssueDate: formData.passportIssueDate,
+        passportExpiryDate: formData.passportExpiryDate,
+        maritalStatus: formData.maritalStatus,
+        companyNameEnglish: formData.companyNameEnglish,
+        companyNameArabic: formData.companyNameArabic,
+        tradeEnglish: formData.tradeEnglish,
+        tradeArabic: formData.tradeArabic,
+        visaId: formData.visaId,
+        visaNo: formData.visaNo,
+        eNo: formData.eNo,
+        salary: formData.salary,
         profession: formData.profession,
         address: formData.address,
         experience: formData.experience,
@@ -87,10 +119,26 @@ const InitialRegistration = () => {
 
       // Reset form
       setFormData({
+        date: "",
         firstName: "",
         lastName: "",
+        fatherName: "",
+        dateOfBirth: "",
+        age: "",
+        placeOfBirth: "",
         email: "",
         mobile: "",
+        passportIssueDate: "",
+        passportExpiryDate: "",
+        maritalStatus: "",
+        companyNameEnglish: "",
+        companyNameArabic: "",
+        tradeEnglish: "",
+        tradeArabic: "",
+        visaId: "",
+        visaNo: "",
+        eNo: "",
+        salary: "",
         profession: "",
         address: "",
         experience: "",
@@ -111,10 +159,26 @@ const InitialRegistration = () => {
 
   const handleCancel = () => {
     setFormData({
+      date: "",
       firstName: "",
       lastName: "",
+      fatherName: "",
+      dateOfBirth: "",
+      age: "",
+      placeOfBirth: "",
       email: "",
       mobile: "",
+      passportIssueDate: "",
+      passportExpiryDate: "",
+      maritalStatus: "",
+      companyNameEnglish: "",
+      companyNameArabic: "",
+      tradeEnglish: "",
+      tradeArabic: "",
+      visaId: "",
+      visaNo: "",
+      eNo: "",
+      salary: "",
       profession: "",
       address: "",
       experience: "",
@@ -125,10 +189,26 @@ const InitialRegistration = () => {
   const handleEdit = (candidate) => {
     const nameParts = candidate.name.split(" ");
     setFormData({
+      date: candidate.date || "",
       firstName: nameParts[0] || "",
       lastName: nameParts.slice(1).join(" ") || "",
+      fatherName: candidate.fatherName || "",
+      dateOfBirth: candidate.dateOfBirth || "",
+      age: candidate.age || "",
+      placeOfBirth: candidate.placeOfBirth || "",
       email: candidate.email || "",
       mobile: candidate.contact || "",
+      passportIssueDate: candidate.passportIssueDate || "",
+      passportExpiryDate: candidate.passportExpiryDate || "",
+      maritalStatus: candidate.maritalStatus || "",
+      companyNameEnglish: candidate.companyNameEnglish || "",
+      companyNameArabic: candidate.companyNameArabic || "",
+      tradeEnglish: candidate.tradeEnglish || "",
+      tradeArabic: candidate.tradeArabic || "",
+      visaId: candidate.visaId || "",
+      visaNo: candidate.visaNo || "",
+      eNo: candidate.eNo || "",
+      salary: candidate.salary || "",
       profession: candidate.profession || "",
       address: candidate.address || "",
       experience: candidate.experience || "",
@@ -162,7 +242,23 @@ const InitialRegistration = () => {
               {editingCandidate ? "Edit Candidate" : "Add/Edit Candidate"}
             </h2>
             <div className="space-y-4">
+              {/* Personal Information */}
+              <h3 className="text-lg font-semibold text-gray-800">
+                Personal Information
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     First Name *
@@ -189,48 +285,282 @@ const InitialRegistration = () => {
                     placeholder="Last Name"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Father Name
+                  </label>
+                  <input
+                    type="text"
+                    name="fatherName"
+                    value={formData.fatherName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Father Name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={formData.dateOfBirth}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Age
+                  </label>
+                  <input
+                    type="number"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Age"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Place of Birth
+                  </label>
+                  <input
+                    type="text"
+                    name="placeOfBirth"
+                    value={formData.placeOfBirth}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Place of Birth"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Marital Status
+                  </label>
+                  <select
+                    name="maritalStatus"
+                    value={formData.maritalStatus}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Status</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Widowed">Widowed</option>
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Email"
-                />
+              {/* Contact Information */}
+              <h3 className="text-lg font-semibold text-gray-800">
+                Contact Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Email"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Mobile *
+                  </label>
+                  <input
+                    type="tel"
+                    name="mobile"
+                    value={formData.mobile}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Mobile"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mobile *
-                </label>
-                <input
-                  type="tel"
-                  name="mobile"
-                  value={formData.mobile}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Mobile"
-                />
+              {/* Passport Information */}
+              <h3 className="text-lg font-semibold text-gray-800">
+                Passport Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Passport Issue Date
+                  </label>
+                  <input
+                    type="date"
+                    name="passportIssueDate"
+                    value={formData.passportIssueDate}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Passport Expiry Date
+                  </label>
+                  <input
+                    type="date"
+                    name="passportExpiryDate"
+                    value={formData.passportExpiryDate}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Profession
-                </label>
-                <input
-                  type="text"
-                  name="profession"
-                  value={formData.profession}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Profession"
-                />
+              {/* Employment Information */}
+              <h3 className="text-lg font-semibold text-gray-800">
+                Employment Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Name (English)
+                  </label>
+                  <input
+                    type="text"
+                    name="companyNameEnglish"
+                    value={formData.companyNameEnglish}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Company Name (English)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Name (Arabic)
+                  </label>
+                  <input
+                    type="text"
+                    name="companyNameArabic"
+                    value={formData.companyNameArabic}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Company Name (Arabic)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Trade (English)
+                  </label>
+                  <input
+                    type="text"
+                    name="tradeEnglish"
+                    value={formData.tradeEnglish}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Trade (English)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Trade (Arabic)
+                  </label>
+                  <input
+                    type="text"
+                    name="tradeArabic"
+                    value={formData.tradeArabic}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Trade (Arabic)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Visa ID
+                  </label>
+                  <input
+                    type="text"
+                    name="visaId"
+                    value={formData.visaId}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Visa ID"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Visa No
+                  </label>
+                  <input
+                    type="text"
+                    name="visaNo"
+                    value={formData.visaNo}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Visa No"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    E No
+                  </label>
+                  <input
+                    type="text"
+                    name="eNo"
+                    value={formData.eNo}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="E No"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Salary
+                  </label>
+                  <input
+                    type="number"
+                    name="salary"
+                    value={formData.salary}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Salary"
+                  />
+                </div>
+              </div>
+
+              {/* Additional Information */}
+              <h3 className="text-lg font-semibold text-gray-800">
+                Additional Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Profession
+                  </label>
+                  <input
+                    type="text"
+                    name="profession"
+                    value={formData.profession}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Profession"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Experience
+                  </label>
+                  <input
+                    type="text"
+                    name="experience"
+                    value={formData.experience}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Experience"
+                  />
+                </div>
               </div>
 
               <div>
@@ -244,20 +574,6 @@ const InitialRegistration = () => {
                   rows="3"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Address"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Experience
-                </label>
-                <input
-                  type="text"
-                  name="experience"
-                  value={formData.experience}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Experience"
                 />
               </div>
 
@@ -301,6 +617,9 @@ const InitialRegistration = () => {
                       Candidate No
                     </th>
                     <th className="border border-gray-300 px-4 py-2 text-left">
+                      Date
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
                       Name
                     </th>
                     <th className="border border-gray-300 px-4 py-2 text-left">
@@ -308,6 +627,18 @@ const InitialRegistration = () => {
                     </th>
                     <th className="border border-gray-300 px-4 py-2 text-left">
                       Mobile
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      DOB
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Company (EN)
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Trade (EN)
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Visa No
                     </th>
                     <th className="border border-gray-300 px-4 py-2 text-left">
                       Experience
@@ -325,6 +656,11 @@ const InitialRegistration = () => {
                           {String(index + 1).padStart(2, "0")}
                         </td>
                         <td className="border border-gray-300 px-4 py-2">
+                          {candidate.date
+                            ? new Date(candidate.date).toLocaleDateString()
+                            : "N/A"}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
                           {candidate.name}
                         </td>
                         <td className="border border-gray-300 px-4 py-2">
@@ -332,6 +668,22 @@ const InitialRegistration = () => {
                         </td>
                         <td className="border border-gray-300 px-4 py-2">
                           {candidate.contact}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {candidate.dateOfBirth
+                            ? new Date(
+                                candidate.dateOfBirth
+                              ).toLocaleDateString()
+                            : "N/A"}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {candidate.companyNameEnglish || "N/A"}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {candidate.tradeEnglish || "N/A"}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {candidate.visaNo || "N/A"}
                         </td>
                         <td className="border border-gray-300 px-4 py-2">
                           {candidate.experience || "N/A"}
@@ -349,7 +701,7 @@ const InitialRegistration = () => {
                   ) : (
                     <tr>
                       <td
-                        colSpan="6"
+                        colSpan="11"
                         className="border border-gray-300 px-4 py-8 text-center text-gray-500"
                       >
                         No data available in table

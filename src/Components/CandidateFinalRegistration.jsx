@@ -1593,6 +1593,7 @@ const CandidateFinalRegistration = () => {
                   <th className="border px-4 py-2 text-left">Name</th>
                   <th className="border px-4 py-2 text-left">Email</th>
                   <th className="border px-4 py-2 text-left">Mobile</th>
+                  <th className="border px-4 py-2 text-left">Status</th>
                   <th className="border px-4 py-2 text-left">Actions</th>
                 </tr>
               </thead>
@@ -1604,6 +1605,7 @@ const CandidateFinalRegistration = () => {
                       <td className="border px-4 py-2">{c.name}</td>
                       <td className="border px-4 py-2">{c.email}</td>
                       <td className="border px-4 py-2">{c.contact}</td>
+                      <td className="border px-4 py-2">{c.status}</td>
                       <td className="border px-4 py-2">
                         <button
                           onClick={() => handleEdit(c)}
@@ -1617,7 +1619,7 @@ const CandidateFinalRegistration = () => {
                 ) : (
                   <tr>
                     <td
-                      colSpan="5"
+                      colSpan="6"
                       className="border px-4 py-8 text-center text-gray-500"
                     >
                       No data available
