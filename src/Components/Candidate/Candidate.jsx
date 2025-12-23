@@ -1,3 +1,18 @@
+// Helper to get correct candidate image URL
+function getCandidateImageUrl(profilePicture) {
+  if (!profilePicture) return img1;
+  // If already a full URL, use as-is
+  if (profilePicture.startsWith("http")) return profilePicture;
+  // If contains 'candidates/', treat as candidate image
+  if (profilePicture.includes("candidates/")) {
+    const filename = profilePicture.split("candidates/").pop();
+    return `https://api.cloudandroots.com/Uploads/candidates/${filename}`;
+  }
+  // Otherwise, treat as profile picture
+  const cleanPath = profilePicture.replace(/^\/+/, "");
+  return `https://api.cloudandroots.com/Uploads/profilePictures/${cleanPath}`;
+}
+
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -10,21 +25,23 @@ const img1 = "/candidate_img1.png";
 const img2 = "/candidate_img2.png";
 import { Link } from "react-router-dom";
 
-const getStatusColor = (status) => {
-  if (status === "Medical Pending" || status === "Collect VISA")
-    return "text-green-600";
-  if (status === "VISA pending") return "text-orange-500";
-  if (status === "Failed Medical Test") return "text-red-600";
-  return "text-gray-600";
+// Helper to get unique values for filters
+const uniqueValues = (array, key) => {
+  return [...new Set(array.map((item) => item[key]).filter(Boolean))];
 };
 
-const uniqueValues = (arr, key) => [...new Set(arr.map((item) => item[key]))];
-
-const parseDate = (dateStr) => {
-  const parts = dateStr.split("-");
-  if (parts.length !== 3) return null;
-  const [d, m, y] = parts;
-  return new Date(`${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`);
+// Helper to get status color class
+const getStatusColor = (status) => {
+  switch (status) {
+    case "Initial Registration":
+      return "text-blue-600";
+    case "Shortlisted":
+      return "text-green-600";
+    case "Rejected":
+      return "text-red-600";
+    default:
+      return "text-gray-600";
+  }
 };
 
 const Candidate = () => {
@@ -42,31 +59,28 @@ const Candidate = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editingDateId, setEditingDateId] = useState(null);
   const [editingDateValue, setEditingDateValue] = useState("");
-  const [updatingDateIds, setUpdatingDateIds] = useState([]); // array of ids being updated
+  const [updatingDateIds, setUpdatingDateIds] = useState([]);
 
-  // Check if user has access to this page
+  // Check if user has access
   const canAccess =
     user?.role === "superadmin" ||
     user?.permissions?.candidateManagement?.candidateManagement?.view === true;
 
+  const location = useLocation();
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
         const apiUrl =
-          typeof import.meta !== "undefined" &&
-          import.meta.env &&
-          import.meta.env.VITE_API_URL
-            ? import.meta.env.VITE_API_URL
-            : "https://api.cloudandroots.com";
-        const res = await fetch(`${apiUrl}/api/candidates/`);
+          import.meta.env.VITE_API_URL || "https://api.cloudandroots.com";
+        const res = await fetch(`${apiUrl}/api/candidates`);
         if (!res.ok) throw new Error("Failed to fetch candidates");
         const data = await res.json();
-        // if navigated with a newCandidate in location.state, prepend it
-        const loc = locationStateRef?.current?.state?.newCandidate;
-        if (loc) {
-          // avoid duplicate if server includes same record
-          const exists = data.some((d) => d._id === loc._id);
-          setCandidate(exists ? data : [loc, ...data]);
+
+        // Handle new candidate from location state (if passed)
+        if (location.state?.newCandidate) {
+          const newCand = location.state.newCandidate;
+          const exists = data.some((c) => c._id === newCand._id);
+          setCandidate(exists ? data : [newCand, ...data]);
         } else {
           setCandidate(data);
         }
@@ -77,14 +91,11 @@ const Candidate = () => {
       }
     };
     fetchCandidates();
+    // Only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // read location state once (to avoid reactivity issues)
-  const location = useLocation();
-  const locationStateRef = { current: location };
-
   const filteredCandidate = candidate.filter((c) => {
-    // Name search filter (applies on name and profession)
     const searchLower = searchText.toLowerCase();
     const name = c.name || "";
     const profession = c.profession || "";
@@ -93,14 +104,10 @@ const Candidate = () => {
       profession.toLowerCase().includes(searchLower);
     if (!matchesSearch) return false;
 
-    // Profession filter
     if (filterProfession !== "all" && profession !== filterProfession)
       return false;
-
-    // Status filter
     if (filterStatus !== "all" && c.status !== filterStatus) return false;
 
-    // Date filter
     const cDate = c.receiveDate ? new Date(c.receiveDate) : null;
     const fromDate = filterDateFrom ? new Date(filterDateFrom) : null;
     const toDate = filterDateTo ? new Date(filterDateTo) : null;
@@ -132,21 +139,16 @@ const Candidate = () => {
 
   const handleSaveDate = async (id) => {
     try {
-      setUpdatingDateIds((s) => [...s, id]);
+      setUpdatingDateIds((prev) => [...prev, id]);
       const apiUrl =
-        typeof import.meta !== "undefined" &&
-        import.meta.env &&
-        import.meta.env.VITE_API_URL
-          ? import.meta.env.VITE_API_URL
-          : "";
-      const res = await fetch((apiUrl || "") + `/api/candidates/${id}`, {
-        method: "PUT",
+        import.meta.env.VITE_API_URL || "https://api.cloudandroots.com";
+      const res = await fetch(`${apiUrl}/api/candidates/${id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ receiveDate: editingDateValue || null }),
       });
       if (!res.ok) throw new Error("Failed to update date");
       const data = await res.json();
-      // update local list
       setCandidate((prev) =>
         prev.map((p) => (p._id === id ? data.candidate : p))
       );
@@ -155,30 +157,23 @@ const Candidate = () => {
       console.error(err);
       alert("Failed to save date: " + (err.message || err));
     } finally {
-      setUpdatingDateIds((s) => s.filter((x) => x !== id));
+      setUpdatingDateIds((prev) => prev.filter((x) => x !== id));
     }
   };
 
   const handleMoveToInitial = async (id) => {
-    if (!window.confirm("Move this candidate to Initial Registration?")) {
-      return;
-    }
+    if (!window.confirm("Move this candidate to Initial Registration?")) return;
     try {
-      setUpdatingDateIds((s) => [...s, id]);
+      setUpdatingDateIds((prev) => [...prev, id]);
       const apiUrl =
-        typeof import.meta !== "undefined" &&
-        import.meta.env &&
-        import.meta.env.VITE_API_URL
-          ? import.meta.env.VITE_API_URL
-          : "";
-      const res = await fetch((apiUrl || "") + `/api/candidates/${id}`, {
-        method: "PUT",
+        import.meta.env.VITE_API_URL || "https://api.cloudandroots.com";
+      const res = await fetch(`${apiUrl}/api/candidates/${id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "Initial Registration" }),
       });
       if (!res.ok) throw new Error("Failed to move candidate");
       const data = await res.json();
-      // update local list
       setCandidate((prev) =>
         prev.map((p) => (p._id === id ? data.candidate : p))
       );
@@ -187,7 +182,7 @@ const Candidate = () => {
       console.error(err);
       alert("Failed to move candidate: " + (err.message || err));
     } finally {
-      setUpdatingDateIds((s) => s.filter((x) => x !== id));
+      setUpdatingDateIds((prev) => prev.filter((x) => x !== id));
     }
   };
 
@@ -201,11 +196,7 @@ const Candidate = () => {
   const handleViewCandidate = async (candidate) => {
     try {
       const apiUrl =
-        typeof import.meta !== "undefined" &&
-        import.meta.env &&
-        import.meta.env.VITE_API_URL
-          ? import.meta.env.VITE_API_URL
-          : "https://api.cloudandroots.com";
+        import.meta.env.VITE_API_URL || "https://api.cloudandroots.com";
       const res = await fetch(`${apiUrl}/api/candidates/${candidate._id}`);
       if (!res.ok) throw new Error("Failed to fetch candidate details");
       const data = await res.json();
@@ -379,16 +370,7 @@ const Candidate = () => {
 
                           <td className="p-2 border flex items-center gap-2">
                             <img
-                              src={
-                                c.profilePicture
-                                  ? c.profilePicture.startsWith("http")
-                                    ? c.profilePicture
-                                    : `https://api.cloudandroots.com/Uploads/profilePictures/${c.profilePicture.replace(
-                                        /^\/+/,
-                                        ""
-                                      )}`
-                                  : img1
-                              }
+                              src={getCandidateImageUrl(c.profilePicture)}
                               alt="profile"
                               className="w-8 h-8 rounded-full"
                             />
@@ -533,18 +515,9 @@ const Candidate = () => {
                     {/* Profile Picture */}
                     <div className="flex flex-col items-center">
                       <img
-                        src={
+                        src={getCandidateImageUrl(
                           selectedCandidate.profilePicture
-                            ? selectedCandidate.profilePicture.startsWith(
-                                "http"
-                              )
-                              ? selectedCandidate.profilePicture
-                              : `https://api.cloudandroots.com/Uploads/profilePictures/${selectedCandidate.profilePicture.replace(
-                                  /^\/+/,
-                                  ""
-                                )}`
-                            : img1
-                        }
+                        )}
                         alt="Profile"
                         className="w-32 h-32 rounded-full object-cover border-4 border-green-200"
                       />

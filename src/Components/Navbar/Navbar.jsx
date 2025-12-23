@@ -296,8 +296,9 @@ const Navbar = () => {
   const getProfileImageUrl = (profilePicture) => {
     const placeholder = "https://via.placeholder.com/150?text=Profile";
     if (!profilePicture) return placeholder;
-    // Always use the full backend URL for profile pictures
-    // Remove any leading slashes to avoid double slashes
+    // If already a full URL, use as-is
+    if (profilePicture.startsWith("http")) return profilePicture;
+    // Otherwise, treat as profile picture
     const cleanPath = profilePicture.replace(/^\/+/, "");
     return `https://api.cloudandroots.com/uploads/profilePictures/${cleanPath}`;
   };
