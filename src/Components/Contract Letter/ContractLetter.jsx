@@ -78,7 +78,7 @@ const ContractLetter = () => {
 
   // Keep candidate in-sync when currentIndex or candidates change
   useEffect(() => {
-        if (Array.isArray(candidates) && candidates.length > 0) {
+    if (Array.isArray(candidates) && candidates.length > 0) {
       if (currentIndex >= 0 && currentIndex < candidates.length) {
         setCandidate(candidates[currentIndex]);
       }
@@ -305,8 +305,6 @@ const ContractLetter = () => {
             .contract-preview-open .no-print{display:none !important}
             .contract-preview-open .contract-printable{position:fixed !important; left:0 !important; top:0 !important; width:100% !important; height:100% !important; overflow:auto !important; background:#fff !important; z-index:9999 !important; padding:18px !important; box-shadow:0 0 0 9999px rgba(0,0,0,0.4) !important;}
           `}</style>
-
-
 
           {/* print toolbar - not printed (no-print) */}
           <div className="flex justify-end gap-2 no-print mb-4 items-center">

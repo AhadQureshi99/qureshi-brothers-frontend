@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import Sidebar from "../Sidebar/Sidebar";
-import {
-} from "../../utils/barcodeGenerator";
+import {} from "../../utils/barcodeGenerator";
 
 const UndertakingLetter = () => {
   const [candidates, setCandidates] = useState([]);
@@ -79,7 +78,7 @@ const UndertakingLetter = () => {
 
   // Keep candidate in-sync when currentIndex or candidates change
   useEffect(() => {
-      if (Array.isArray(candidates) && candidates.length > 0) {
+    if (Array.isArray(candidates) && candidates.length > 0) {
       if (currentIndex >= 0 && currentIndex < candidates.length) {
         setCandidate(candidates[currentIndex]);
       }
@@ -349,7 +348,6 @@ const UndertakingLetter = () => {
               box-shadow:0 0 0 9999px rgba(0,0,0,0.4) !important;
             }
           `}</style>
-
 
           {/* Toolbar (no-print) */}
           <div className="flex justify-end gap-2 no-print mb-2 items-center">

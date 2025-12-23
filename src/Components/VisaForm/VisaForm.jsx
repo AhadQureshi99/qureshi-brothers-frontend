@@ -49,15 +49,15 @@ const VisaForm = () => {
         localStorage.getItem("visaCandidateIndex") || "0",
         10
       );
-        if (raw) {
+      if (raw) {
         const list = JSON.parse(raw);
         setCandidates(list || []);
         if (!isNaN(idx) && idx >= 0 && idx < (list || []).length) {
           setCurrentIndex(idx);
           setCandidate(list[idx]);
-            // Populate IDs from candidate initial registration fields
-            setFormID(list[idx]?.visaId || "");
-            setUniqueNo(list[idx]?.eNo || "");
+          // Populate IDs from candidate initial registration fields
+          setFormID(list[idx]?.visaId || "");
+          setUniqueNo(list[idx]?.eNo || "");
         }
       } else {
         // fallback: if no local list but URL has ?id=... try fetching that candidate

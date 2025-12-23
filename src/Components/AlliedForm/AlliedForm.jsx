@@ -75,7 +75,7 @@ const AlliedForm = () => {
   // Keep candidate in-sync when currentIndex or candidates change
   useEffect(() => {
     if (Array.isArray(candidates) && candidates.length > 0) {
-        if (currentIndex >= 0 && currentIndex < candidates.length) {
+      if (currentIndex >= 0 && currentIndex < candidates.length) {
         setCandidate(candidates[currentIndex]);
       }
     }

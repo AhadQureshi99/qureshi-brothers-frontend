@@ -300,7 +300,8 @@ const AdminNavbar = () => {
                       </NavLink>
                     </div>
                     {hoveredItem === "/admin" && (
-                      <div className="absolute left-0 mt-2 w-56 bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
+                      <div
+                        className="absolute left-0 mt-2 w-56 bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
                         onMouseEnter={() => handleMouseEnter("/admin")}
                         onMouseLeave={handleMouseLeave}
                       >
@@ -328,7 +329,9 @@ const AdminNavbar = () => {
                   <div
                     key={it.to}
                     className="relative"
-                    onMouseEnter={() => handleMouseEnter("/admin/configuration")}
+                    onMouseEnter={() =>
+                      handleMouseEnter("/admin/configuration")
+                    }
                     onMouseLeave={handleMouseLeave}
                     style={{ display: "inline-block" }}
                   >
@@ -362,8 +365,11 @@ const AdminNavbar = () => {
                       </NavLink>
                     </div>
                     {hoveredItem === "/admin/configuration" && (
-                      <div className="absolute left-0 mt-2 w-[760px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
-                        onMouseEnter={() => handleMouseEnter("/admin/configuration")}
+                      <div
+                        className="absolute left-0 mt-2 w-[760px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
+                        onMouseEnter={() =>
+                          handleMouseEnter("/admin/configuration")
+                        }
                         onMouseLeave={handleMouseLeave}
                       >
                         <div className="p-4">
@@ -425,8 +431,11 @@ const AdminNavbar = () => {
                       </NavLink>
                     </div>
                     {hoveredItem === "/admin/accounting" && (
-                      <div className="absolute left-0 mt-2 w-[800px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
-                        onMouseEnter={() => handleMouseEnter("/admin/accounting")}
+                      <div
+                        className="absolute left-0 mt-2 w-[800px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
+                        onMouseEnter={() =>
+                          handleMouseEnter("/admin/accounting")
+                        }
                         onMouseLeave={handleMouseLeave}
                       >
                         <div className="p-4">
@@ -454,7 +463,9 @@ const AdminNavbar = () => {
                   <div
                     key={it.to}
                     className="relative"
-                    onMouseEnter={() => handleMouseEnter("/admin/employer-management")}
+                    onMouseEnter={() =>
+                      handleMouseEnter("/admin/employer-management")
+                    }
                     onMouseLeave={handleMouseLeave}
                     style={{ display: "inline-block" }}
                   >
@@ -488,8 +499,11 @@ const AdminNavbar = () => {
                       </NavLink>
                     </div>
                     {hoveredItem === "/admin/employer-management" && (
-                      <div className="absolute left-0 mt-2 w-64 bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
-                        onMouseEnter={() => handleMouseEnter("/admin/employer-management")}
+                      <div
+                        className="absolute left-0 mt-2 w-64 bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
+                        onMouseEnter={() =>
+                          handleMouseEnter("/admin/employer-management")
+                        }
                         onMouseLeave={handleMouseLeave}
                       >
                         <ul className="py-2">
@@ -516,7 +530,9 @@ const AdminNavbar = () => {
                   <div
                     key={it.to}
                     className="relative"
-                    onMouseEnter={() => handleMouseEnter("/admin/candidate-management")}
+                    onMouseEnter={() =>
+                      handleMouseEnter("/admin/candidate-management")
+                    }
                     onMouseLeave={handleMouseLeave}
                     style={{ display: "inline-block" }}
                   >
@@ -550,8 +566,11 @@ const AdminNavbar = () => {
                       </NavLink>
                     </div>
                     {hoveredItem === "/admin/candidate-management" && (
-                      <div className="absolute right-0 mt-2 w-[800px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
-                        onMouseEnter={() => handleMouseEnter("/admin/candidate-management")}
+                      <div
+                        className="absolute right-0 mt-2 w-[800px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
+                        onMouseEnter={() =>
+                          handleMouseEnter("/admin/candidate-management")
+                        }
                         onMouseLeave={handleMouseLeave}
                       >
                         <div className="p-4">

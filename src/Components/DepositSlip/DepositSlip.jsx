@@ -80,7 +80,7 @@ const DepositSlip = () => {
 
   // Keep candidate in-sync and generate IDs when currentIndex changes
   useEffect(() => {
-        if (Array.isArray(candidates) && candidates.length > 0) {
+    if (Array.isArray(candidates) && candidates.length > 0) {
       if (currentIndex >= 0 && currentIndex < candidates.length) {
         setCandidate(candidates[currentIndex]);
       }
@@ -611,8 +611,6 @@ const DepositSlip = () => {
             )}
           </div>
         </div>
-
-
 
         {/* Three Forms Container */}
         <div className="space-y-0">

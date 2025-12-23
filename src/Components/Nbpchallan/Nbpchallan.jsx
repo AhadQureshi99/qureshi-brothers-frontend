@@ -78,7 +78,7 @@ const NBPChallan = () => {
   }, []);
 
   useEffect(() => {
-        if (Array.isArray(candidates) && candidates.length > 0) {
+    if (Array.isArray(candidates) && candidates.length > 0) {
       if (currentIndex >= 0 && currentIndex < candidates.length) {
         setCandidate(candidates[currentIndex]);
       }
@@ -500,8 +500,6 @@ const NBPChallan = () => {
             )}
           </div>
         </div>
-
-
 
         {/* Three Challan Forms */}
         <div className="space-y-0">
