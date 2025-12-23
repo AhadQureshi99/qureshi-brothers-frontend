@@ -39,14 +39,20 @@ const Navbar = () => {
   const fetchNotifCount = async () => {
     try {
       const token = localStorage.getItem("token");
-      const reqs = await fetch("/api/expenses/requests", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      const reqs = await fetch(
+        "https://api.cloudandroots.com/api/expenses/requests",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
         .then((r) => r.json())
         .catch(() => ({ requests: [] }));
-      const expensesRes = await fetch("/api/expenses/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      const expensesRes = await fetch(
+        "https://api.cloudandroots.com/api/expenses/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
         .then((r) => r.json())
         .catch(() => ({ expenses: [] }));
       const pending = (reqs.requests || []).length;
@@ -73,12 +79,12 @@ const Navbar = () => {
     try {
       const token = localStorage.getItem("token");
       const reqsRes = await axios
-        .get("/api/expenses/requests", {
+        .get("https://api.cloudandroots.com/api/expenses/requests", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .catch(() => ({ data: { requests: [] } }));
       const expensesRes = await axios
-        .get("/api/expenses/", {
+        .get("https://api.cloudandroots.com/api/expenses/", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .catch(() => ({ data: { expenses: [] } }));
@@ -131,7 +137,7 @@ const Navbar = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `/api/expenses/requests/${requestId}/handle`,
+        `https://api.cloudandroots.com/api/expenses/requests/${requestId}/handle`,
         { action },
         { headers: { Authorization: `Bearer ${token}` } }
       );
