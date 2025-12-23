@@ -70,9 +70,12 @@ const InitialRegistration = () => {
   const fetchCandidates = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("/api/candidates", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        "https://api.cloudandroots.com/api/candidates",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setCandidates(response.data?.candidates || response.data || []);
     } catch (error) {
       toast.error("Failed to fetch candidates");
@@ -93,16 +96,24 @@ const InitialRegistration = () => {
       const token = localStorage.getItem("token");
       if (editingCandidate) {
         // Update existing candidate
-        await axios.put(`/api/candidates/${editingCandidate._id}`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.put(
+          `https://api.cloudandroots.com/api/candidates/${editingCandidate._id}`,
+          formData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         toast.success("Candidate updated successfully");
         setEditingCandidate(null);
       } else {
         // Create new candidate
-        await axios.post("/api/candidates", formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.post(
+          "https://api.cloudandroots.com/api/candidates",
+          formData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         toast.success("Candidate registered successfully");
       }
       setFormData({

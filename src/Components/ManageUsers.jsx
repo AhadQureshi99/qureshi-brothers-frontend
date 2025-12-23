@@ -1313,7 +1313,7 @@ const ManageUsers = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("/api/users", {
+      const res = await axios.get("https://api.cloudandroots.com/api/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data?.users || []);
@@ -1330,7 +1330,7 @@ const ManageUsers = () => {
   const fetchRoles = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("/api/roles", {
+      const res = await axios.get("https://api.cloudandroots.com/api/roles", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRoles(Array.isArray(res.data) ? res.data : []);
@@ -1359,12 +1359,20 @@ const ManageUsers = () => {
       const token = localStorage.getItem("token");
       const payload = { ...form };
       const res = editing
-        ? await axios.put(`/api/users/users/${editing._id}`, payload, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-        : await axios.post("/api/users/create-admin", payload, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+        ? await axios.put(
+            `https://api.cloudandroots.com/api/users/users/${editing._id}`,
+            payload,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          )
+        : await axios.post(
+            "https://api.cloudandroots.com/api/users/create-admin",
+            payload,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
       toast.success(editing ? "User updated" : "User created");
       resetForm();
       fetchUsers();
@@ -1400,9 +1408,12 @@ const ManageUsers = () => {
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`/api/users/users/${deleteId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `https://api.cloudandroots.com/api/users/users/${deleteId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       toast.success("User deleted");
       fetchUsers();
       setShowModal(false);
@@ -1445,7 +1456,7 @@ const ManageUsers = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `/api/users/users/${user._id}/permissions`,
+        `https://api.cloudandroots.com/api/users/users/${user._id}/permissions`,
         { permissions: perms },
         { headers: { Authorization: `Bearer ${token}` } }
       );
