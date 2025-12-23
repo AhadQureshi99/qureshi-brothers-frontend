@@ -222,7 +222,7 @@ const InitialRegistration = () => {
       setMovingId(candidateId);
       const token = localStorage.getItem("token");
       await axios.put(
-        `/api/candidates/${candidateId}`,
+        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
         { status: "Final Registration" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
