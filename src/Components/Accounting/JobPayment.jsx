@@ -19,7 +19,7 @@ const JobPayment = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        "http://localhost:3001/api/accounting/job-payments/",
+        "https://api.cloudandroots.com/api/accounting/job-payments/",
         {
           headers: {
             Authorization: `Bearer ${token}`,

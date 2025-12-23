@@ -880,37 +880,92 @@ const PermissionsEditor = ({
     }));
   };
 
+  const handleAllowAll = (moduleTitle, items, checked) => {
+    setPermissions((prev) => {
+      const newPermissions = { ...prev };
+      items.forEach((item) => {
+        newPermissions[item.key] = checked;
+      });
+      return newPermissions;
+    });
+  };
+
+  const isAllSelected = (items) => {
+    return items.every((item) => permissions[item.key]);
+  };
+
   const renderModule = (module) => {
     if (module.subModules) {
       return (
         <div key={module.title} className="mb-6">
           <h3 className="text-lg font-semibold mb-4">{module.title}</h3>
-          {module.subModules.map((subModule) => (
-            <div key={subModule.title} className="mb-4 ml-4">
-              <h4 className="text-md font-medium mb-2">{subModule.title}</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                {subModule.items.map((item) => (
-                  <label key={item.key} className="flex items-center space-x-2">
+          {module.subModules.map((subModule) => {
+            const allItems = subModule.items;
+            return (
+              <div key={subModule.title} className="mb-4 ml-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-md font-medium">{subModule.title}</h4>
+                  <label className="flex items-center space-x-2 bg-blue-50 px-3 py-1 rounded border border-blue-200">
                     <input
                       type="checkbox"
-                      checked={permissions[item.key] || false}
+                      checked={isAllSelected(allItems)}
                       onChange={(e) =>
-                        handlePermissionChange(item.key, e.target.checked)
+                        handleAllowAll(
+                          subModule.title,
+                          allItems,
+                          e.target.checked
+                        )
                       }
                       className="form-checkbox"
                     />
-                    <span className="text-sm">{item.label}</span>
+                    <span className="text-sm font-medium text-blue-700">
+                      Allow All
+                    </span>
                   </label>
-                ))}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {subModule.items.map((item) => (
+                    <label
+                      key={item.key}
+                      className="flex items-center space-x-2"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={permissions[item.key] || false}
+                        onChange={(e) =>
+                          handlePermissionChange(item.key, e.target.checked)
+                        }
+                        className="form-checkbox"
+                      />
+                      <span className="text-sm">{item.label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       );
     } else {
+      const allItems = module.items;
       return (
         <div key={module.title} className="mb-6">
-          <h3 className="text-lg font-semibold mb-4">{module.title}</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">{module.title}</h3>
+            <label className="flex items-center space-x-2 bg-blue-50 px-3 py-1 rounded border border-blue-200">
+              <input
+                type="checkbox"
+                checked={isAllSelected(allItems)}
+                onChange={(e) =>
+                  handleAllowAll(module.title, allItems, e.target.checked)
+                }
+                className="form-checkbox"
+              />
+              <span className="text-sm font-medium text-blue-700">
+                Allow All
+              </span>
+            </label>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {module.items.map((item) => (
               <label key={item.key} className="flex items-center space-x-2">

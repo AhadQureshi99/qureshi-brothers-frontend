@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { AiOutlineSetting, AiOutlineUser, AiOutlineTeam } from "react-icons/ai";
 import { FiLayers, FiGrid } from "react-icons/fi";
 
@@ -208,6 +209,44 @@ const candidateSub = [
 
 const AdminNavbar = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
+  const hoverTimeout = React.useRef();
+
+  // Helper to handle hover with delay
+  const handleMouseEnter = (item) => {
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+    setHoveredItem(item);
+  };
+  const handleMouseLeave = () => {
+    hoverTimeout.current = setTimeout(() => setHoveredItem(null), 120);
+  };
+  const location = useLocation();
+  const { user } = useSelector((state) => state.user || {});
+
+  // Hide navbar for all admin users, only show for superadmin
+  if (user?.role !== "superadmin") {
+    return null;
+  }
+
+  // Helper: check if admin has permission for a given path
+  const hasPermission = (path) => {
+    if (user?.role === "superadmin") return true;
+    if (!user?.permissions) return false;
+    // Example: permissions structure: { candidateManagement: { initialRegistration: { view: true } } }
+    // You may need to adjust this logic to match your permissions structure
+    if (path.includes("candidate-management")) {
+      if (path.includes("initial-registration")) {
+        return user.permissions?.candidateManagement?.initialRegistration?.view;
+      }
+      if (path.includes("candidate-final-registration")) {
+        return user.permissions?.candidateManagement?.candidateFinalRegistration
+          ?.view;
+      }
+      // Add more candidate management checks as needed
+      return true; // fallback
+    }
+    // Add more section checks as needed (employerManagement, accounting, etc.)
+    return true; // fallback: allow
+  };
 
   return (
     <nav className="bg-white rounded-lg shadow-sm mb-6 px-4 py-3">
@@ -227,39 +266,44 @@ const AdminNavbar = () => {
                   <div
                     key={it.to}
                     className="relative"
-                    onMouseEnter={() => setHoveredItem("/admin")}
-                    onMouseLeave={() => setHoveredItem(null)}
+                    onMouseEnter={() => handleMouseEnter("/admin")}
+                    onMouseLeave={handleMouseLeave}
+                    style={{ display: "inline-block" }}
                   >
-                    <NavLink
-                      to={it.to}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-sm font-medium ${
-                          isActive
-                            ? "bg-emerald-600 text-white shadow"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`
-                      }
-                    >
-                      <Icon className="text-base" />
-                      <span>{it.label}</span>
-                      <svg
-                        className="ml-1 w-3 h-3 text-gray-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+                    <div>
+                      <NavLink
+                        to={it.to}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-sm font-medium ${
+                            isActive
+                              ? "bg-emerald-600 text-white shadow"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`
+                        }
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </NavLink>
-
+                        <Icon className="text-base" />
+                        <span>{it.label}</span>
+                        <svg
+                          className="ml-1 w-3 h-3 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </NavLink>
+                    </div>
                     {hoveredItem === "/admin" && (
-                      <div className="absolute left-0 mt-2 w-56 bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50">
+                      <div className="absolute left-0 mt-2 w-56 bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
+                        onMouseEnter={() => handleMouseEnter("/admin")}
+                        onMouseLeave={handleMouseLeave}
+                      >
                         <ul className="py-2">
                           {adminSub.map((s) => (
                             <li key={s.to}>
@@ -284,39 +328,44 @@ const AdminNavbar = () => {
                   <div
                     key={it.to}
                     className="relative"
-                    onMouseEnter={() => setHoveredItem("/admin/configuration")}
-                    onMouseLeave={() => setHoveredItem(null)}
+                    onMouseEnter={() => handleMouseEnter("/admin/configuration")}
+                    onMouseLeave={handleMouseLeave}
+                    style={{ display: "inline-block" }}
                   >
-                    <NavLink
-                      to={it.to}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-sm font-medium ${
-                          isActive
-                            ? "bg-emerald-600 text-white shadow"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`
-                      }
-                    >
-                      <Icon className="text-base" />
-                      <span>{it.label}</span>
-                      <svg
-                        className="ml-1 w-3 h-3 text-gray-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+                    <div>
+                      <NavLink
+                        to={it.to}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-sm font-medium ${
+                            isActive
+                              ? "bg-emerald-600 text-white shadow"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`
+                        }
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </NavLink>
-
+                        <Icon className="text-base" />
+                        <span>{it.label}</span>
+                        <svg
+                          className="ml-1 w-3 h-3 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </NavLink>
+                    </div>
                     {hoveredItem === "/admin/configuration" && (
-                      <div className="absolute left-0 mt-2 w-[760px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50">
+                      <div className="absolute left-0 mt-2 w-[760px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
+                        onMouseEnter={() => handleMouseEnter("/admin/configuration")}
+                        onMouseLeave={handleMouseLeave}
+                      >
                         <div className="p-4">
                           <div className="grid grid-cols-3 gap-2">
                             {configSub.map((s) => (
@@ -342,39 +391,44 @@ const AdminNavbar = () => {
                   <div
                     key={it.to}
                     className="relative"
-                    onMouseEnter={() => setHoveredItem("/admin/accounting")}
-                    onMouseLeave={() => setHoveredItem(null)}
+                    onMouseEnter={() => handleMouseEnter("/admin/accounting")}
+                    onMouseLeave={handleMouseLeave}
+                    style={{ display: "inline-block" }}
                   >
-                    <NavLink
-                      to={it.to}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-sm font-medium ${
-                          isActive
-                            ? "bg-emerald-600 text-white shadow"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`
-                      }
-                    >
-                      <Icon className="text-base" />
-                      <span>{it.label}</span>
-                      <svg
-                        className="ml-1 w-3 h-3 text-gray-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+                    <div>
+                      <NavLink
+                        to={it.to}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-sm font-medium ${
+                            isActive
+                              ? "bg-emerald-600 text-white shadow"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`
+                        }
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </NavLink>
-
+                        <Icon className="text-base" />
+                        <span>{it.label}</span>
+                        <svg
+                          className="ml-1 w-3 h-3 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </NavLink>
+                    </div>
                     {hoveredItem === "/admin/accounting" && (
-                      <div className="absolute left-0 mt-2 w-[800px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50">
+                      <div className="absolute left-0 mt-2 w-[800px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
+                        onMouseEnter={() => handleMouseEnter("/admin/accounting")}
+                        onMouseLeave={handleMouseLeave}
+                      >
                         <div className="p-4">
                           <div className="grid grid-cols-3 gap-2">
                             {accountingSub.map((s) => (
@@ -400,41 +454,44 @@ const AdminNavbar = () => {
                   <div
                     key={it.to}
                     className="relative"
-                    onMouseEnter={() =>
-                      setHoveredItem("/admin/employer-management")
-                    }
-                    onMouseLeave={() => setHoveredItem(null)}
+                    onMouseEnter={() => handleMouseEnter("/admin/employer-management")}
+                    onMouseLeave={handleMouseLeave}
+                    style={{ display: "inline-block" }}
                   >
-                    <NavLink
-                      to={it.to}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-sm font-medium ${
-                          isActive
-                            ? "bg-emerald-600 text-white shadow"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`
-                      }
-                    >
-                      <Icon className="text-base" />
-                      <span>{it.label}</span>
-                      <svg
-                        className="ml-1 w-3 h-3 text-gray-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+                    <div>
+                      <NavLink
+                        to={it.to}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-sm font-medium ${
+                            isActive
+                              ? "bg-emerald-600 text-white shadow"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`
+                        }
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </NavLink>
-
+                        <Icon className="text-base" />
+                        <span>{it.label}</span>
+                        <svg
+                          className="ml-1 w-3 h-3 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </NavLink>
+                    </div>
                     {hoveredItem === "/admin/employer-management" && (
-                      <div className="absolute left-0 mt-2 w-64 bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50">
+                      <div className="absolute left-0 mt-2 w-64 bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
+                        onMouseEnter={() => handleMouseEnter("/admin/employer-management")}
+                        onMouseLeave={handleMouseLeave}
+                      >
                         <ul className="py-2">
                           {employerSub.map((s) => (
                             <li key={s.to}>
@@ -459,41 +516,44 @@ const AdminNavbar = () => {
                   <div
                     key={it.to}
                     className="relative"
-                    onMouseEnter={() =>
-                      setHoveredItem("/admin/candidate-management")
-                    }
-                    onMouseLeave={() => setHoveredItem(null)}
+                    onMouseEnter={() => handleMouseEnter("/admin/candidate-management")}
+                    onMouseLeave={handleMouseLeave}
+                    style={{ display: "inline-block" }}
                   >
-                    <NavLink
-                      to={it.to}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-sm font-medium ${
-                          isActive
-                            ? "bg-emerald-600 text-white shadow"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`
-                      }
-                    >
-                      <Icon className="text-base" />
-                      <span>{it.label}</span>
-                      <svg
-                        className="ml-1 w-3 h-3 text-gray-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+                    <div>
+                      <NavLink
+                        to={it.to}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-sm font-medium ${
+                            isActive
+                              ? "bg-emerald-600 text-white shadow"
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`
+                        }
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </NavLink>
-
+                        <Icon className="text-base" />
+                        <span>{it.label}</span>
+                        <svg
+                          className="ml-1 w-3 h-3 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </NavLink>
+                    </div>
                     {hoveredItem === "/admin/candidate-management" && (
-                      <div className="absolute right-0 mt-2 w-[800px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50">
+                      <div className="absolute right-0 mt-2 w-[800px] bg-white border rounded-md shadow-lg opacity-100 transform scale-100 transition-all duration-150 origin-top z-50"
+                        onMouseEnter={() => handleMouseEnter("/admin/candidate-management")}
+                        onMouseLeave={handleMouseLeave}
+                      >
                         <div className="p-4">
                           <div className="grid grid-cols-3 gap-2">
                             {candidateSub.map((s) => (

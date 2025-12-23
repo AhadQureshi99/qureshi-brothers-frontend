@@ -1,9 +1,34 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
 const InitialRegistration = () => {
+  const { user } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  // Permission check
+  const canView =
+    user?.role === "superadmin" ||
+    user?.permissions?.candidateManagement?.initialRegistration?.view === true;
+
+  if (!canView) {
+    return (
+      <div className="p-6">
+        <AdminNavbar />
+        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded">
+          <p className="text-red-700">
+            <strong>Access Denied:</strong> You do not have permission to access
+            this page.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Form state
   const [formData, setFormData] = useState({
     date: "",
     firstName: "",
@@ -12,11 +37,12 @@ const InitialRegistration = () => {
     dateOfBirth: "",
     age: "",
     placeOfBirth: "",
+    maritalStatus: "",
     email: "",
     mobile: "",
+    passport: "",
     passportIssueDate: "",
     passportExpiryDate: "",
-    maritalStatus: "",
     companyNameEnglish: "",
     companyNameArabic: "",
     tradeEnglish: "",
@@ -26,14 +52,17 @@ const InitialRegistration = () => {
     eNo: "",
     salary: "",
     profession: "",
-    address: "",
     experience: "",
+    address: "",
   });
-  const [candidates, setCandidates] = useState([]);
+
   const [loading, setLoading] = useState(false);
+  const [candidates, setCandidates] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [movingId, setMovingId] = useState(null);
   const [editingCandidate, setEditingCandidate] = useState(null);
 
+  // Fetch candidates on mount
   useEffect(() => {
     fetchCandidates();
   }, []);
@@ -41,10 +70,9 @@ const InitialRegistration = () => {
   const fetchCandidates = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("/api/candidates/", {
+      const response = await axios.get("/api/candidates", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // backend may return { candidates: [...] } or the array directly
       setCandidates(response.data?.candidates || response.data || []);
     } catch (error) {
       toast.error("Failed to fetch candidates");
@@ -54,70 +82,29 @@ const InitialRegistration = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async () => {
-    // Validation
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.mobile
-    ) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
+
     try {
       const token = localStorage.getItem("token");
-      const candidateData = {
-        date: formData.date,
-        name: `${formData.firstName} ${formData.lastName}`,
-        fatherName: formData.fatherName,
-        dateOfBirth: formData.dateOfBirth,
-        age: formData.age,
-        placeOfBirth: formData.placeOfBirth,
-        email: formData.email,
-        contact: formData.mobile,
-        passportIssueDate: formData.passportIssueDate,
-        passportExpiryDate: formData.passportExpiryDate,
-        maritalStatus: formData.maritalStatus,
-        companyNameEnglish: formData.companyNameEnglish,
-        companyNameArabic: formData.companyNameArabic,
-        tradeEnglish: formData.tradeEnglish,
-        tradeArabic: formData.tradeArabic,
-        visaId: formData.visaId,
-        visaNo: formData.visaNo,
-        eNo: formData.eNo,
-        salary: formData.salary,
-        profession: formData.profession,
-        address: formData.address,
-        experience: formData.experience,
-        status: "Initial Registration",
-      };
-
       if (editingCandidate) {
-        await axios.put(
-          `/api/candidates/${editingCandidate._id}`,
-          candidateData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        // Update existing candidate
+        await axios.put(`/api/candidates/${editingCandidate._id}`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         toast.success("Candidate updated successfully");
+        setEditingCandidate(null);
       } else {
-        await axios.post("/api/candidates/", candidateData, {
+        // Create new candidate
+        await axios.post("/api/candidates", formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Candidate registered successfully");
       }
-
-      // Reset form
       setFormData({
         date: "",
         firstName: "",
@@ -126,11 +113,12 @@ const InitialRegistration = () => {
         dateOfBirth: "",
         age: "",
         placeOfBirth: "",
+        maritalStatus: "",
         email: "",
         mobile: "",
+        passport: "",
         passportIssueDate: "",
         passportExpiryDate: "",
-        maritalStatus: "",
         companyNameEnglish: "",
         companyNameArabic: "",
         tradeEnglish: "",
@@ -140,17 +128,12 @@ const InitialRegistration = () => {
         eNo: "",
         salary: "",
         profession: "",
-        address: "",
         experience: "",
+        address: "",
       });
-      setEditingCandidate(null);
-      fetchCandidates();
+      fetchCandidates(); // Refresh list
     } catch (error) {
-      toast.error(
-        editingCandidate
-          ? "Failed to update candidate"
-          : "Failed to register candidate"
-      );
+      toast.error(error.response?.data?.message || "Failed to save candidate");
       console.error(error);
     } finally {
       setLoading(false);
@@ -166,11 +149,12 @@ const InitialRegistration = () => {
       dateOfBirth: "",
       age: "",
       placeOfBirth: "",
+      maritalStatus: "",
       email: "",
       mobile: "",
+      passport: "",
       passportIssueDate: "",
       passportExpiryDate: "",
-      maritalStatus: "",
       companyNameEnglish: "",
       companyNameArabic: "",
       tradeEnglish: "",
@@ -180,27 +164,27 @@ const InitialRegistration = () => {
       eNo: "",
       salary: "",
       profession: "",
-      address: "",
       experience: "",
+      address: "",
     });
     setEditingCandidate(null);
   };
 
   const handleEdit = (candidate) => {
-    const nameParts = candidate.name.split(" ");
     setFormData({
       date: candidate.date || "",
-      firstName: nameParts[0] || "",
-      lastName: nameParts.slice(1).join(" ") || "",
+      firstName: candidate.firstName || "",
+      lastName: candidate.lastName || "",
       fatherName: candidate.fatherName || "",
       dateOfBirth: candidate.dateOfBirth || "",
       age: candidate.age || "",
       placeOfBirth: candidate.placeOfBirth || "",
+      maritalStatus: candidate.maritalStatus || "",
       email: candidate.email || "",
-      mobile: candidate.contact || "",
+      mobile: candidate.mobile || "",
+      passport: candidate.passport || "",
       passportIssueDate: candidate.passportIssueDate || "",
       passportExpiryDate: candidate.passportExpiryDate || "",
-      maritalStatus: candidate.maritalStatus || "",
       companyNameEnglish: candidate.companyNameEnglish || "",
       companyNameArabic: candidate.companyNameArabic || "",
       tradeEnglish: candidate.tradeEnglish || "",
@@ -210,43 +194,133 @@ const InitialRegistration = () => {
       eNo: candidate.eNo || "",
       salary: candidate.salary || "",
       profession: candidate.profession || "",
-      address: candidate.address || "",
       experience: candidate.experience || "",
+      address: candidate.address || "",
     });
     setEditingCandidate(candidate);
   };
 
+  const handleMoveToFinal = async (candidateId) => {
+    if (
+      !confirm(
+        "Are you sure you want to move this candidate to Final Registration?"
+      )
+    )
+      return;
+    try {
+      setMovingId(candidateId);
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `/api/candidates/${candidateId}`,
+        { status: "Final Registration" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Candidate moved to Final Registration");
+      // Find candidate and set form data
+      const candidate = candidates.find((c) => c._id === candidateId);
+      if (candidate) {
+        setFormData({
+          date: candidate.date || "",
+          firstName: candidate.firstName || "",
+          lastName: candidate.lastName || "",
+          fatherName: candidate.fatherName || "",
+          dateOfBirth: candidate.dateOfBirth || "",
+          age: candidate.age || "",
+          placeOfBirth: candidate.placeOfBirth || "",
+          maritalStatus: candidate.maritalStatus || "",
+          email: candidate.email || "",
+          mobile: candidate.mobile || "",
+          passport: candidate.passport || "",
+          passportIssueDate: candidate.passportIssueDate || "",
+          passportExpiryDate: candidate.passportExpiryDate || "",
+          companyNameEnglish: candidate.companyNameEnglish || "",
+          companyNameArabic: candidate.companyNameArabic || "",
+          tradeEnglish: candidate.tradeEnglish || "",
+          tradeArabic: candidate.tradeArabic || "",
+          visaId: candidate.visaId || "",
+          visaNo: candidate.visaNo || "",
+          eNo: candidate.eNo || "",
+          salary: candidate.salary || "",
+          profession: candidate.profession || "",
+          experience: candidate.experience || "",
+          address: candidate.address || "",
+        });
+        setEditingCandidate(candidate);
+      }
+      fetchCandidates();
+    } catch (error) {
+      toast.error("Failed to move candidate");
+      console.error(error);
+    } finally {
+      setMovingId(null);
+    }
+  };
+
+  const handleDelete = async (candidateId) => {
+    if (
+      !user?.permissions?.candidateManagement?.initialRegistration?.delete &&
+      user?.role !== "superadmin"
+    ) {
+      toast.error("You do not have permission to delete candidates");
+      return;
+    }
+
+    if (
+      !confirm(
+        "Are you sure you want to delete this candidate? This action cannot be undone."
+      )
+    )
+      return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.delete(`/api/candidates/${candidateId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success(res?.data?.message || "Candidate deleted");
+      fetchCandidates();
+    } catch (error) {
+      console.error("Failed to delete candidate", error);
+      if (error?.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Delete failed");
+      }
+      if (error?.response?.status === 404) {
+        setCandidates((prev) => prev.filter((c) => c._id !== candidateId));
+      }
+    }
+  };
+
   const filteredCandidates = candidates.filter((candidate) => {
-    const name = (candidate?.name || "").toString();
-    const email = (candidate?.email || "").toString();
-    const term = (searchTerm || "").toLowerCase();
-    return (
-      name.toLowerCase().includes(term) || email.toLowerCase().includes(term)
-    );
+    const name = (candidate?.name || "").toString().toLowerCase();
+    const email = (candidate?.email || "").toString().toLowerCase();
+    const term = searchTerm.toLowerCase();
+    const isInitialReg =
+      candidate.status === "Initial Registration" || !candidate.status;
+    return isInitialReg && (name.includes(term) || email.includes(term));
   });
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <AdminNavbar />
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Candidate Initial Registration
-          </h1>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Registration Form */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-4">
-              {editingCandidate ? "Edit Candidate" : "Add/Edit Candidate"}
-            </h2>
-            <div className="space-y-4">
-              {/* Personal Information */}
-              <h3 className="text-lg font-semibold text-gray-800">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* === FORM SECTION === */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-bold mb-6 text-gray-800">
+            {editingCandidate
+              ? "Edit Candidate - Initial Registration"
+              : "Initial Registration"}
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Personal Information */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Personal Information
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Date
@@ -270,6 +344,7 @@ const InitialRegistration = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="First Name"
+                    required
                   />
                 </div>
                 <div>
@@ -283,6 +358,7 @@ const InitialRegistration = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Last Name"
+                    required
                   />
                 </div>
                 <div>
@@ -353,10 +429,25 @@ const InitialRegistration = () => {
                     <option value="Widowed">Widowed</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Passport Number
+                  </label>
+                  <input
+                    type="text"
+                    name="passport"
+                    value={formData.passport}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Passport Number"
+                  />
+                </div>
               </div>
+            </div>
 
-              {/* Contact Information */}
-              <h3 className="text-lg font-semibold text-gray-800">
+            {/* Contact Information */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Contact Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -371,6 +462,7 @@ const InitialRegistration = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Email"
+                    required
                   />
                 </div>
                 <div>
@@ -384,12 +476,15 @@ const InitialRegistration = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Mobile"
+                    required
                   />
                 </div>
               </div>
+            </div>
 
-              {/* Passport Information */}
-              <h3 className="text-lg font-semibold text-gray-800">
+            {/* Passport Information */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Passport Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -418,12 +513,14 @@ const InitialRegistration = () => {
                   />
                 </div>
               </div>
+            </div>
 
-              {/* Employment Information */}
-              <h3 className="text-lg font-semibold text-gray-800">
+            {/* Employment Information */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Employment Information
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Company Name (English)
@@ -529,9 +626,11 @@ const InitialRegistration = () => {
                   />
                 </div>
               </div>
+            </div>
 
-              {/* Additional Information */}
-              <h3 className="text-lg font-semibold text-gray-800">
+            {/* Additional Information */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Additional Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -562,159 +661,183 @@ const InitialRegistration = () => {
                   />
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address
-                </label>
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Address"
-                />
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <button
-                  onClick={handleSave}
-                  disabled={loading}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
-                >
-                  {loading ? "Saving..." : "Save"}
-                </button>
-                <button
-                  onClick={handleCancel}
-                  className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
             </div>
-          </div>
 
-          {/* Record Listing */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-4">Record Listing</h2>
-
-            <div className="mb-4">
-              <input
-                type="text"
-                placeholder="Search by name or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+            {/* Address */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address
+              </label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                rows="3"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Address"
               />
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full table-auto">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      Candidate No
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      Date
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      Name
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      Email
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      Mobile
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      DOB
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      Company (EN)
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      Trade (EN)
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      Visa No
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      Experience
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCandidates.length > 0 ? (
-                    filteredCandidates.map((candidate, index) => (
-                      <tr key={candidate._id} className="hover:bg-gray-50">
-                        <td className="border border-gray-300 px-4 py-2">
-                          {String(index + 1).padStart(2, "0")}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {candidate.date
-                            ? new Date(candidate.date).toLocaleDateString()
-                            : "N/A"}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {candidate.name}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {candidate.email}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {candidate.contact}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {candidate.dateOfBirth
-                            ? new Date(
-                                candidate.dateOfBirth
-                              ).toLocaleDateString()
-                            : "N/A"}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {candidate.companyNameEnglish || "N/A"}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {candidate.tradeEnglish || "N/A"}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {candidate.visaNo || "N/A"}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {candidate.experience || "N/A"}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          <button
-                            onClick={() => handleEdit(candidate)}
-                            className="px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors text-sm"
-                          >
-                            Edit
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="11"
-                        className="border border-gray-300 px-4 py-8 text-center text-gray-500"
-                      >
-                        No data available in table
+            {/* Buttons */}
+            <div className="flex gap-4 pt-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {loading
+                  ? editingCandidate
+                    ? "Updating..."
+                    : "Saving..."
+                  : editingCandidate
+                  ? "Update"
+                  : "Save"}
+              </button>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* === CANDIDATES LIST === */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold mb-4 text-gray-800">
+            Candidates List
+          </h2>
+
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Search by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full table-auto">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Candidate No
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Date
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Name
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Email
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Mobile
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    DOB
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Company (EN)
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Trade (EN)
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Visa No
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Experience
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCandidates.length > 0 ? (
+                  filteredCandidates.map((candidate, index) => (
+                    <tr key={candidate._id} className="hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-2">
+                        {String(index + 1).padStart(2, "0")}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {candidate.date
+                          ? new Date(candidate.date).toLocaleDateString()
+                          : "N/A"}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {candidate.firstName} {candidate.lastName}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {candidate.email}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {candidate.mobile}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {candidate.dateOfBirth
+                          ? new Date(candidate.dateOfBirth).toLocaleDateString()
+                          : "N/A"}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {candidate.companyNameEnglish || "N/A"}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {candidate.tradeEnglish || "N/A"}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {candidate.visaNo || "N/A"}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {candidate.experience || "N/A"}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2 flex gap-2">
+                        <button
+                          onClick={() => handleEdit(candidate)}
+                          className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleMoveToFinal(candidate._id)}
+                          disabled={movingId === candidate._id}
+                          className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm disabled:opacity-50"
+                        >
+                          {movingId === candidate._id
+                            ? "Moving..."
+                            : "Move to Final"}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(candidate._id)}
+                          className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="11"
+                      className="border border-gray-300 px-4 py-8 text-center text-gray-500"
+                    >
+                      No data available in table
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-            <div className="mt-4 text-sm text-gray-600">
-              Showing {filteredCandidates.length} entries
-            </div>
+          <div className="mt-4 text-sm text-gray-600">
+            Showing {filteredCandidates.length} entries
           </div>
         </div>
       </div>

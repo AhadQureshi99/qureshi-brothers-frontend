@@ -661,7 +661,113 @@ const defaultPermissions = {
       authorize: false,
     },
   },
+  forms: {
+    visaForm: {
+      view: false,
+      add: false,
+      edit: false,
+      delete: false,
+      authorize: false,
+    },
+    depositSlip: {
+      view: false,
+      add: false,
+      edit: false,
+      delete: false,
+      authorize: false,
+    },
+    nbpChallan: {
+      view: false,
+      add: false,
+      edit: false,
+      delete: false,
+      authorize: false,
+    },
+    undertakingLetter: {
+      view: false,
+      add: false,
+      edit: false,
+      delete: false,
+      authorize: false,
+    },
+    contractLetter: {
+      view: false,
+      add: false,
+      edit: false,
+      delete: false,
+      authorize: false,
+    },
+    alliedBankForm: {
+      view: false,
+      add: false,
+      edit: false,
+      delete: false,
+      authorize: false,
+    },
+    expensesPage: {
+      view: false,
+      add: false,
+      edit: false,
+      delete: false,
+      authorize: false,
+    },
+  },
 };
+
+// Sub-component for users table
+const UsersTable = ({ users = [], onAssignRole }) => (
+  <div className="overflow-x-auto">
+    <table className="min-w-full bg-white border" aria-label="Users table">
+      <thead>
+        <tr>
+          <th className="py-2 px-4 border" scope="col">
+            Name
+          </th>
+          <th className="py-2 px-4 border" scope="col">
+            Email
+          </th>
+          <th className="py-2 px-4 border" scope="col">
+            Current Role
+          </th>
+          <th className="py-2 px-4 border" scope="col">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {Array.isArray(users) &&
+          users.map((u) => {
+            const userName =
+              u.name ||
+              `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
+              u.username ||
+              "Unknown";
+            const roleName = u.roleId?.name || u.role || "No role assigned";
+            return (
+              <tr key={u._id} aria-label={`User ${userName}`}>
+                <td className="py-2 px-4 border">{userName}</td>
+                <td className="py-2 px-4 border">{u.email}</td>
+                <td className="py-2 px-4 border">
+                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                    {roleName}
+                  </span>
+                </td>
+                <td className="py-2 px-4 border">
+                  <button
+                    onClick={() => onAssignRole(u)}
+                    className="bg-green-500 text-white px-3 py-1 rounded"
+                    aria-label={`Assign role to ${userName}`}
+                  >
+                    Assign Role
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+      </tbody>
+    </table>
+  </div>
+);
 
 // Sub-component for role table
 const RoleTable = ({ roles, onEdit, onDelete }) => (
@@ -671,6 +777,9 @@ const RoleTable = ({ roles, onEdit, onDelete }) => (
         <tr>
           <th className="py-2 px-4 border" scope="col">
             Role Name
+          </th>
+          <th className="py-2 px-4 border" scope="col">
+            Assigned Users
           </th>
           <th className="py-2 px-4 border" scope="col">
             Created At
@@ -684,6 +793,26 @@ const RoleTable = ({ roles, onEdit, onDelete }) => (
         {roles.map((r) => (
           <tr key={r._id} aria-label={`Role ${r.name}`}>
             <td className="py-2 px-4 border">{r.name}</td>
+            <td className="py-2 px-4 border">
+              {r.users && r.users.length > 0 ? (
+                <div className="text-sm">
+                  {r.users.map((user) => {
+                    const userName =
+                      user.name ||
+                      `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+                      user.username ||
+                      "Unknown";
+                    return (
+                      <div key={user._id} className="text-gray-700">
+                        {userName}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <span className="text-gray-400">No users assigned</span>
+              )}
+            </td>
             <td className="py-2 px-4 border">
               {new Date(r.createdAt).toLocaleDateString()}
             </td>
@@ -719,6 +848,7 @@ const RoleForm = ({
   onCancel,
   permissions,
   setPermissions,
+  users = [],
 }) => {
   const permissionLabels = {
     actions: {
@@ -836,6 +966,16 @@ const RoleForm = ({
       securityFeeRefundPrints: "Security Fee Refund Prints",
       travelAgentLedger: "Travel Agent Ledger",
     },
+    forms: {
+      forms: "Forms",
+      visaForm: "Visa Form",
+      depositSlip: "Deposit Slip",
+      nbpChallan: "NBP Challan",
+      undertakingLetter: "Undertaking Letter",
+      contractLetter: "Contract Letter",
+      alliedBankForm: "Allied Bank Form",
+      expensesPage: "Expenses Page",
+    },
   };
 
   return (
@@ -856,6 +996,35 @@ const RoleForm = ({
             required
           />
         </label>
+        <div className="mb-4">
+          <label htmlFor="users" className="block mb-2">
+            Assign Users to This Role
+          </label>
+          <select
+            id="users"
+            multiple
+            value={form.users || []}
+            onChange={(e) => {
+              const selectedOptions = Array.from(
+                e.target.selectedOptions,
+                (option) => option.value
+              );
+              setForm({ ...form, users: selectedOptions });
+            }}
+            className="w-full p-2 border rounded"
+            size={Math.min(Array.isArray(users) ? users.length : 0, 8) || 5}
+          >
+            {Array.isArray(users) &&
+              users.map((u) => (
+                <option key={u._id} value={u._id}>
+                  {u.name} ({u.email})
+                </option>
+              ))}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Hold Ctrl (or Cmd) to select multiple users
+          </p>
+        </div>
         <div className="border p-4 rounded">
           <h4 className="font-medium mb-2">Permissions</h4>
           {/* Actions */}
@@ -1028,8 +1197,10 @@ const RoleForm = ({
 const ManageRoles = () => {
   const { user } = useSelector((state) => state.user);
   const [roles, setRoles] = useState([]);
+  const [users, setUsers] = useState([]);
   const [form, setForm] = useState({
     name: "",
+    users: [],
   });
   const [permissions, setPermissions] = useState(defaultPermissions);
   const [editing, setEditing] = useState(null);
@@ -1038,11 +1209,14 @@ const ManageRoles = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showUserRoleModal, setShowUserRoleModal] = useState(false);
+  const [selectedUserForRole, setSelectedUserForRole] = useState(null);
   const itemsPerPage = 10;
 
   useEffect(() => {
     if (user?.role !== "superadmin") return;
     fetchRoles();
+    fetchUsers();
   }, [user]);
 
   useEffect(() => {
@@ -1063,6 +1237,19 @@ const ManageRoles = () => {
           ? "Unauthorized: Please log in again"
           : "Failed to fetch roles"
       );
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("/api/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUsers(Array.isArray(res.data) ? res.data : res.data.users || []);
+    } catch (err) {
+      console.error("fetch users error", err);
+      toast.error("Failed to fetch users");
     }
   };
 
@@ -1104,6 +1291,7 @@ const ManageRoles = () => {
   const handleEdit = (r) => {
     setForm({
       name: r.name,
+      users: r.users || [],
     });
     setPermissions(r.permissions || defaultPermissions);
     setEditing(r);
@@ -1126,11 +1314,43 @@ const ManageRoles = () => {
     }
   };
 
+  const handleAssignRole = async (roleId) => {
+    if (!selectedUserForRole) {
+      toast.error("Please select a role");
+      return;
+    }
+    try {
+      const token = localStorage.getItem("token");
+      const selectedRole = roles.find((r) => r._id === roleId);
+
+      // Update user with the roleId and permissions from the role
+      await axios.put(
+        `/api/users/users/${selectedUserForRole._id}`,
+        {
+          roleId: roleId,
+          role: "admin", // Set a default base role
+          permissions: selectedRole.permissions || {},
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      toast.success("Role assigned successfully");
+      fetchUsers();
+      setShowUserRoleModal(false);
+      setSelectedUserForRole(null);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to assign role");
+    }
+  };
+
   const handleAddRole = () => {
     setShowForm(true);
     setEditing(null);
     setForm({
       name: "",
+      users: [],
     });
     setPermissions(defaultPermissions);
   };
@@ -1138,6 +1358,7 @@ const ManageRoles = () => {
   const resetForm = () => {
     setForm({
       name: "",
+      users: [],
     });
     setEditing(null);
     setShowForm(false);
@@ -1156,14 +1377,38 @@ const ManageRoles = () => {
   );
 
   if (user?.role !== "superadmin") {
-    return <div className="p-6">Access denied.</div>;
+    // Check if user has permission to manage roles
+    const hasPermission =
+      user?.permissions?.adminArea?.manageRole?.view === true;
+    if (!hasPermission) {
+      return (
+        <div className="p-6">
+          Access denied. You do not have permission to access this page.
+        </div>
+      );
+    }
   }
 
   return (
     <div className="p-6">
       <AdminNavbar />
-      <h2 className="text-2xl font-semibold mb-4">Manage Roles</h2>
+      <h2 className="text-2xl font-semibold mb-4">Manage Roles & Users</h2>
       <div className="grid grid-cols-1 gap-6">
+        {/* Users Section */}
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">Users</h3>
+          </div>
+          <UsersTable
+            users={users}
+            onAssignRole={(user) => {
+              setSelectedUserForRole(user);
+              setShowUserRoleModal(true);
+            }}
+          />
+        </div>
+
+        {/* Roles Section */}
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">Role List</h3>
@@ -1227,6 +1472,7 @@ const ManageRoles = () => {
             onCancel={resetForm}
             permissions={permissions}
             setPermissions={setPermissions}
+            users={users}
           />
         )}
       </div>
@@ -1249,6 +1495,48 @@ const ManageRoles = () => {
               aria-label="Cancel delete"
             >
               No
+            </button>
+          </div>
+        </div>
+      )}
+      {showUserRoleModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              Assign Role to {selectedUserForRole?.name}
+            </h3>
+            <div className="mb-4">
+              <label htmlFor="roleSelect" className="block mb-2 font-medium">
+                Select Role
+              </label>
+              <select
+                id="roleSelect"
+                onChange={(e) => {
+                  const roleId = e.target.value;
+                  if (roleId) {
+                    handleAssignRole(roleId);
+                  }
+                }}
+                className="w-full p-2 border rounded"
+                defaultValue=""
+              >
+                <option value="">-- Select a role --</option>
+                {roles.map((r) => (
+                  <option key={r._id} value={r._id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={() => {
+                setShowUserRoleModal(false);
+                setSelectedUserForRole(null);
+              }}
+              className="w-full bg-gray-500 text-white px-4 py-2 rounded"
+              aria-label="Close"
+            >
+              Close
             </button>
           </div>
         </div>

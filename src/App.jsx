@@ -103,6 +103,7 @@ import VerifyOTP from "./features/users/components/VerifyOTP";
 import ForgotPassword from "./features/users/components/ForgotPassword";
 import ResetPassword from "./features/users/components/ResetPassword";
 
+
 // Component to handle Navbar visibility
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -325,6 +326,7 @@ function App() {
                 </Layout>
               }
             />
+          
             <Route
               path="/super-admin"
               element={

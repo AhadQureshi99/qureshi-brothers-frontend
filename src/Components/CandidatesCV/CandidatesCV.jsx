@@ -240,8 +240,8 @@ const CandidatesCV = () => {
         import.meta.env &&
         import.meta.env.VITE_API_URL
           ? import.meta.env.VITE_API_URL
-          : "https://api.cloudandroots.com";
-      const res = await fetch(apiUrl + "/api/candidates/", {
+          : ""; // default to relative path so Vite dev proxy handles /api requests
+      const res = await fetch((apiUrl || "") + "/api/candidates/", {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
@@ -454,37 +454,43 @@ const CandidatesCV = () => {
                   alt="Candidate"
                   className="w-40 h-40 object-fill rounded-md border-2 border-blue-300 shadow-md mb-2"
                 />
-                <div className="flex gap-2 items-center">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      profileInputRef.current && profileInputRef.current.click()
-                    }
-                    className="px-3 py-1 bg-green-600 text-white rounded"
-                  >
-                    Attach
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      profileFile
-                        ? viewFile(profileFile)
-                        : alert("No profile picture attached")
-                    }
-                    className="px-3 py-1 bg-green-600 text-white rounded"
-                  >
-                    View
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProfileFile(null);
-                      setProfilePreview(userImg);
-                    }}
-                    className="px-3 py-1 bg-red-500 text-white rounded"
-                  >
-                    Remove
-                  </button>
+                <div className="flex flex-col items-center">
+                  <div className="text-xs text-gray-600 mb-2">
+                    {profileFile ? profileFile.name : "No profile attached"}
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        profileInputRef.current &&
+                        profileInputRef.current.click()
+                      }
+                      className="px-3 py-1 bg-green-600 text-white rounded"
+                    >
+                      Attach
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        profileFile
+                          ? viewFile(profileFile)
+                          : alert("No profile picture attached")
+                      }
+                      className="px-3 py-1 bg-green-600 text-white rounded"
+                    >
+                      View
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileFile(null);
+                        setProfilePreview(userImg);
+                      }}
+                      className="px-3 py-1 bg-red-500 text-white rounded"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -556,6 +562,12 @@ const CandidatesCV = () => {
                       >
                         <FaEye size={16} />
                       </button>
+                      <div
+                        className="text-xs text-gray-600 truncate max-w-[120px]"
+                        title={stepDocs[idx]?.name}
+                      >
+                        {stepDocs[idx] ? stepDocs[idx].name : "No file"}
+                      </div>
                       <input
                         ref={stepFileInputRefs.current[idx]}
                         type="file"
@@ -615,6 +627,12 @@ const CandidatesCV = () => {
                       >
                         <FaEye size={16} />
                       </button>
+                      <div
+                        className="text-xs text-gray-600 truncate max-w-[140px]"
+                        title={docs[index]?.name}
+                      >
+                        {docs[index] ? docs[index].name : "No file"}
+                      </div>
                       <button
                         type="button"
                         onClick={() => removeDoc(index)}

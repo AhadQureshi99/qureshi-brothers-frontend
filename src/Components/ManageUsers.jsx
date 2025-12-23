@@ -665,7 +665,13 @@ const defaultPermissions = {
 };
 
 // Sub-component for user table
-const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => (
+const UserTable = ({
+  users,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+  toggleLoading,
+}) => (
   <div className="overflow-x-auto">
     <table className="min-w-full bg-white border" aria-label="Users table">
       <thead>
@@ -697,30 +703,37 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => (
             <td className="py-2 px-4 border">
               <button
                 onClick={() => onEdit(u)}
-                className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
+                className="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600 disabled:opacity-50"
                 aria-label={`Edit user ${u.username}`}
+                disabled={toggleLoading === u._id}
               >
                 Edit
               </button>
               <button
                 onClick={() => onDelete(u._id)}
-                className="bg-red-500 text-white px-2 py-1 rounded mr-2"
+                className="bg-red-500 text-white px-2 py-1 rounded mr-2 hover:bg-red-600 disabled:opacity-50"
                 aria-label={`Delete user ${u.username}`}
+                disabled={toggleLoading === u._id}
               >
                 Delete
               </button>
               <button
                 onClick={() => onToggleStatus(u._id, u.isActive)}
-                className={`px-2 py-1 rounded ${
+                className={`px-2 py-1 rounded transition-colors disabled:opacity-50 ${
                   u.isActive
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-500 text-white"
+                    ? "bg-green-500 text-white hover:bg-green-600"
+                    : "bg-gray-500 text-white hover:bg-gray-600"
                 }`}
                 aria-label={`${u.isActive ? "Deactivate" : "Activate"} user ${
                   u.username
                 }`}
+                disabled={toggleLoading === u._id}
               >
-                {u.isActive ? "Active" : "Inactive"}
+                {toggleLoading === u._id
+                  ? "Updating..."
+                  : u.isActive
+                  ? "Active"
+                  : "Inactive"}
               </button>
             </td>
           </tr>
@@ -739,6 +752,8 @@ const UserForm = ({
   onCancel,
   permissions,
   setPermissions,
+  roles = [],
+  handlePermissions,
 }) => {
   const permissionLabels = {
     actions: {
@@ -916,17 +931,25 @@ const UserForm = ({
             <option value="superadmin">Super Admin</option>
           </select>
         </label>
-        <label htmlFor="role" className="block mb-1">
-          Role *
-          <input
-            id="role"
-            type="text"
-            placeholder="Role"
-            value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
+        <label htmlFor="roleId" className="block mb-1">
+          Assign Role
+          <select
+            id="roleId"
+            value={form.roleId}
+            onChange={(e) => setForm({ ...form, roleId: e.target.value })}
             className="w-full p-2 border rounded"
-            required
-          />
+          >
+            <option value="">-- Select a role --</option>
+            {roles && roles.length > 0 ? (
+              roles.map((role) => (
+                <option key={role._id} value={role._id}>
+                  {role.name}
+                </option>
+              ))
+            ) : (
+              <option disabled>No roles available</option>
+            )}
+          </select>
         </label>
         <label htmlFor="firstName" className="block mb-1">
           First Name
@@ -999,148 +1022,226 @@ const UserForm = ({
             {/* Actions */}
             <div className="mb-4">
               <h5 className="font-semibold">Actions</h5>
-              {Object.keys(permissions.actions).map((key) => (
-                <label key={key} className="block">
-                  <input
-                    type="checkbox"
-                    checked={permissions.actions[key]}
-                    onChange={(e) =>
-                      setPermissions({
-                        ...permissions,
-                        actions: {
-                          ...permissions.actions,
-                          [key]: e.target.checked,
-                        },
-                      })
-                    }
-                  />{" "}
-                  {permissionLabels.actions[key]}
-                </label>
-              ))}
+              {permissions &&
+                permissions.actions &&
+                Object.keys(permissions.actions).map((key) => (
+                  <label key={key} className="block">
+                    <input
+                      type="checkbox"
+                      checked={permissions.actions[key]}
+                      onChange={(e) =>
+                        setPermissions({
+                          ...permissions,
+                          actions: {
+                            ...permissions.actions,
+                            [key]: e.target.checked,
+                          },
+                        })
+                      }
+                    />{" "}
+                    {permissionLabels.actions[key]}
+                  </label>
+                ))}
             </div>
             {/* Other categories as tables */}
-            {Object.keys(permissions)
-              .filter((cat) => cat !== "actions")
-              .map((category) => (
-                <div key={category} className="mb-4">
-                  <h5 className="font-semibold">
-                    {permissionLabels[category][category] || category}
-                  </h5>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full border">
-                      <thead>
-                        <tr>
-                          <th className="border px-2 py-1">Title</th>
-                          <th className="border px-2 py-1">View</th>
-                          <th className="border px-2 py-1">Add</th>
-                          <th className="border px-2 py-1">Edit</th>
-                          <th className="border px-2 py-1">Delete</th>
-                          <th className="border px-2 py-1">Authorize</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.keys(permissions[category]).map((sub) => (
-                          <tr key={sub}>
-                            <td className="border px-2 py-1">
-                              {permissionLabels[category][sub]}
-                            </td>
-                            <td className="border px-2 py-1 text-center">
-                              <input
-                                type="checkbox"
-                                checked={permissions[category][sub].view}
-                                onChange={(e) =>
-                                  setPermissions({
-                                    ...permissions,
-                                    [category]: {
-                                      ...permissions[category],
-                                      [sub]: {
-                                        ...permissions[category][sub],
-                                        view: e.target.checked,
-                                      },
-                                    },
-                                  })
-                                }
-                              />
-                            </td>
-                            <td className="border px-2 py-1 text-center">
-                              <input
-                                type="checkbox"
-                                checked={permissions[category][sub].add}
-                                onChange={(e) =>
-                                  setPermissions({
-                                    ...permissions,
-                                    [category]: {
-                                      ...permissions[category],
-                                      [sub]: {
-                                        ...permissions[category][sub],
-                                        add: e.target.checked,
-                                      },
-                                    },
-                                  })
-                                }
-                              />
-                            </td>
-                            <td className="border px-2 py-1 text-center">
-                              <input
-                                type="checkbox"
-                                checked={permissions[category][sub].edit}
-                                onChange={(e) =>
-                                  setPermissions({
-                                    ...permissions,
-                                    [category]: {
-                                      ...permissions[category],
-                                      [sub]: {
-                                        ...permissions[category][sub],
-                                        edit: e.target.checked,
-                                      },
-                                    },
-                                  })
-                                }
-                              />
-                            </td>
-                            <td className="border px-2 py-1 text-center">
-                              <input
-                                type="checkbox"
-                                checked={permissions[category][sub].delete}
-                                onChange={(e) =>
-                                  setPermissions({
-                                    ...permissions,
-                                    [category]: {
-                                      ...permissions[category],
-                                      [sub]: {
-                                        ...permissions[category][sub],
-                                        delete: e.target.checked,
-                                      },
-                                    },
-                                  })
-                                }
-                              />
-                            </td>
-                            <td className="border px-2 py-1 text-center">
-                              <input
-                                type="checkbox"
-                                checked={permissions[category][sub].authorize}
-                                onChange={(e) =>
-                                  setPermissions({
-                                    ...permissions,
-                                    [category]: {
-                                      ...permissions[category],
-                                      [sub]: {
-                                        ...permissions[category][sub],
-                                        authorize: e.target.checked,
-                                      },
-                                    },
-                                  })
-                                }
-                              />
-                            </td>
+            {permissions &&
+              Object.keys(permissions)
+                .filter((cat) => cat !== "actions")
+                .map((category) => (
+                  <div key={category} className="mb-4">
+                    <h5 className="font-semibold">
+                      {(permissionLabels[category] &&
+                        permissionLabels[category][category]) ||
+                        category}
+                    </h5>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full border">
+                        <thead>
+                          <tr>
+                            <th className="border px-2 py-1">Title</th>
+                            <th className="border px-2 py-1">View</th>
+                            <th className="border px-2 py-1">Add</th>
+                            <th className="border px-2 py-1">Edit</th>
+                            <th className="border px-2 py-1">Delete</th>
+                            <th className="border px-2 py-1">Authorize</th>
+                            <th className="border px-2 py-1 text-center bg-blue-100">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updatedPerms = { ...permissions };
+                                  const allChecked = Object.keys(
+                                    permissions[category]
+                                  ).every(
+                                    (sub) =>
+                                      permissions[category][sub].view &&
+                                      permissions[category][sub].add &&
+                                      permissions[category][sub].edit &&
+                                      permissions[category][sub].delete &&
+                                      permissions[category][sub].authorize
+                                  );
+                                  Object.keys(permissions[category]).forEach(
+                                    (sub) => {
+                                      updatedPerms[category][sub] = {
+                                        view: !allChecked,
+                                        add: !allChecked,
+                                        edit: !allChecked,
+                                        delete: !allChecked,
+                                        authorize: !allChecked,
+                                      };
+                                    }
+                                  );
+                                  setPermissions(updatedPerms);
+                                }}
+                                className="bg-blue-500 text-white px-2 py-1 rounded text-sm font-medium hover:bg-blue-600"
+                              >
+                                Allow All
+                              </button>
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {permissions[category] &&
+                            Object.keys(permissions[category]).map((sub) => (
+                              <tr key={sub}>
+                                <td className="border px-2 py-1">
+                                  {(permissionLabels[category] &&
+                                    permissionLabels[category][sub]) ||
+                                    sub}
+                                </td>
+                                <td className="border px-2 py-1 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={permissions[category][sub].view}
+                                    onChange={(e) =>
+                                      setPermissions({
+                                        ...permissions,
+                                        [category]: {
+                                          ...permissions[category],
+                                          [sub]: {
+                                            ...permissions[category][sub],
+                                            view: e.target.checked,
+                                          },
+                                        },
+                                      })
+                                    }
+                                  />
+                                </td>
+                                <td className="border px-2 py-1 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={permissions[category][sub].add}
+                                    onChange={(e) =>
+                                      setPermissions({
+                                        ...permissions,
+                                        [category]: {
+                                          ...permissions[category],
+                                          [sub]: {
+                                            ...permissions[category][sub],
+                                            add: e.target.checked,
+                                          },
+                                        },
+                                      })
+                                    }
+                                  />
+                                </td>
+                                <td className="border px-2 py-1 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={permissions[category][sub].edit}
+                                    onChange={(e) =>
+                                      setPermissions({
+                                        ...permissions,
+                                        [category]: {
+                                          ...permissions[category],
+                                          [sub]: {
+                                            ...permissions[category][sub],
+                                            edit: e.target.checked,
+                                          },
+                                        },
+                                      })
+                                    }
+                                  />
+                                </td>
+                                <td className="border px-2 py-1 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={permissions[category][sub].delete}
+                                    onChange={(e) =>
+                                      setPermissions({
+                                        ...permissions,
+                                        [category]: {
+                                          ...permissions[category],
+                                          [sub]: {
+                                            ...permissions[category][sub],
+                                            delete: e.target.checked,
+                                          },
+                                        },
+                                      })
+                                    }
+                                  />
+                                </td>
+                                <td className="border px-2 py-1 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={
+                                      permissions[category][sub].authorize
+                                    }
+                                    onChange={(e) =>
+                                      setPermissions({
+                                        ...permissions,
+                                        [category]: {
+                                          ...permissions[category],
+                                          [sub]: {
+                                            ...permissions[category][sub],
+                                            authorize: e.target.checked,
+                                          },
+                                        },
+                                      })
+                                    }
+                                  />
+                                </td>
+                                <td className="border px-2 py-1 text-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const allChecked =
+                                        permissions[category][sub].view &&
+                                        permissions[category][sub].add &&
+                                        permissions[category][sub].edit &&
+                                        permissions[category][sub].delete &&
+                                        permissions[category][sub].authorize;
+                                      setPermissions({
+                                        ...permissions,
+                                        [category]: {
+                                          ...permissions[category],
+                                          [sub]: {
+                                            view: !allChecked,
+                                            add: !allChecked,
+                                            edit: !allChecked,
+                                            delete: !allChecked,
+                                            authorize: !allChecked,
+                                          },
+                                        },
+                                      });
+                                    }}
+                                    className="bg-green-500 text-white px-2 py-1 rounded text-xs font-medium hover:bg-green-600"
+                                  >
+                                    {permissions[category][sub].view &&
+                                    permissions[category][sub].add &&
+                                    permissions[category][sub].edit &&
+                                    permissions[category][sub].delete &&
+                                    permissions[category][sub].authorize
+                                      ? "Uncheck All"
+                                      : "Check All"}
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             <button
               type="button"
               onClick={() => handlePermissions(editing, permissions)}
@@ -1174,10 +1275,12 @@ const UserForm = ({
 const ManageUsers = () => {
   const { user } = useSelector((state) => state.user);
   const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [form, setForm] = useState({
     username: "",
     userType: "admin",
     role: "",
+    roleId: "",
     password: "",
     firstName: "",
     lastName: "",
@@ -1194,11 +1297,13 @@ const ManageUsers = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [toggleLoading, setToggleLoading] = useState(null);
   const itemsPerPage = 10;
 
   useEffect(() => {
     if (user?.role !== "superadmin") return;
     fetchUsers();
+    fetchRoles();
   }, [user]);
 
   useEffect(() => {
@@ -1222,6 +1327,18 @@ const ManageUsers = () => {
     }
   };
 
+  const fetchRoles = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("/api/roles", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setRoles(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error("fetch roles error", err);
+    }
+  };
+
   const validateForm = () => {
     if (!form.username) return "Username is required";
     if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
@@ -1242,7 +1359,7 @@ const ManageUsers = () => {
       const token = localStorage.getItem("token");
       const payload = { ...form };
       const res = editing
-        ? await axios.put(`/api/users/${editing._id}`, payload, {
+        ? await axios.put(`/api/users/users/${editing._id}`, payload, {
             headers: { Authorization: `Bearer ${token}` },
           })
         : await axios.post("/api/users/create-admin", payload, {
@@ -1283,7 +1400,7 @@ const ManageUsers = () => {
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`/api/users/${deleteId}`, {
+      await axios.delete(`/api/users/users/${deleteId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("User deleted");
@@ -1298,17 +1415,29 @@ const ManageUsers = () => {
 
   const handleToggleStatus = async (id, currentStatus) => {
     try {
+      setToggleLoading(id);
       const token = localStorage.getItem("token");
-      await axios.patch(
-        `/api/users/${id}/status`,
+      console.log(
+        `[FRONTEND DEBUG] Toggling user ${id} from isActive: ${currentStatus} to isActive: ${!currentStatus}`
+      );
+      const response = await axios.patch(
+        `https://api.cloudandroots.com/api/users/users/${id}/status`,
         { isActive: !currentStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Status updated");
-      fetchUsers();
+      console.log(`[FRONTEND DEBUG] Toggle response:`, response.data);
+      toast.success("Status updated successfully");
+      // Update the user in the list immediately
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === id ? { ...user, isActive: !currentStatus } : user
+        )
+      );
+      setToggleLoading(null);
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to update status");
+      console.error("[FRONTEND ERROR] Toggle status error:", err);
+      setToggleLoading(null);
+      toast.error(err.response?.data?.message || "Failed to update status");
     }
   };
 
@@ -1316,7 +1445,7 @@ const ManageUsers = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `/api/users/${user._id}/permissions`,
+        `/api/users/users/${user._id}/permissions`,
         { permissions: perms },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -1337,6 +1466,7 @@ const ManageUsers = () => {
       password: "",
       userType: "admin",
       role: "",
+      roleId: "",
       firstName: "",
       lastName: "",
       fatherName: "",
@@ -1354,6 +1484,7 @@ const ManageUsers = () => {
       password: "",
       userType: "admin",
       role: "",
+      roleId: "",
       firstName: "",
       lastName: "",
       fatherName: "",
@@ -1384,7 +1515,16 @@ const ManageUsers = () => {
   );
 
   if (user?.role !== "superadmin") {
-    return <div className="p-6">Access denied.</div>;
+    // Check if user has permission to manage users
+    const hasPermission =
+      user?.permissions?.adminArea?.manageUsers?.view === true;
+    if (!hasPermission) {
+      return (
+        <div className="p-6">
+          Access denied. You do not have permission to access this page.
+        </div>
+      );
+    }
   }
 
   return (
@@ -1424,6 +1564,7 @@ const ManageUsers = () => {
               setShowModal(true);
             }}
             onToggleStatus={handleToggleStatus}
+            toggleLoading={toggleLoading}
           />
           <div className="flex justify-between mt-4">
             <button
@@ -1456,6 +1597,8 @@ const ManageUsers = () => {
             onCancel={resetForm}
             permissions={permissions}
             setPermissions={setPermissions}
+            roles={roles}
+            handlePermissions={handlePermissions}
           />
         )}
       </div>

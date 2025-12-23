@@ -5,14 +5,19 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   server: {
-    proxy: {
-      // Proxy /api requests to backend running on port 3001
-      "/api": {
-        target: "https://api.cloudandroots.com",
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/api/, "/api"),
-      },
-    },
+    proxy: (() => {
+      // allow configuration of the dev proxy via environment variable BACKEND_PROXY
+      // default to localhost:3001 for local development so /api routes forward to the local backend
+      const target = process.env.BACKEND_PROXY || "http://localhost:3001";
+      return {
+        // Proxy /api requests to backend
+        "/api": {
+          target,
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, "/api"),
+        },
+      };
+    })(),
   },
 });
