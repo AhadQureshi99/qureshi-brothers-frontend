@@ -349,7 +349,7 @@ const VisaForm = () => {
                 src={
                   candidate.profilePicture.startsWith("http")
                     ? candidate.profilePicture
-                    : `https://api.cloudandroots.com/Uploads/profilePictures/${candidate.profilePicture.replace(
+                    : `https://api.cloudandroots.com/uploads/profilePictures/${candidate.profilePicture.replace(
                         /^\/+/,
                         ""
                       )}`

@@ -9,7 +9,6 @@ import {
   logout,
   uploadProfilePicture,
 } from "../../features/users/userSlice";
-import { API_URL } from "../../features/users/userService";
 const logo = "/components_logo.png";
 import { TiBell } from "react-icons/ti";
 import { BsFileEarmarkArrowUp } from "react-icons/bs";
@@ -152,11 +151,13 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    console.log("API_URL:", API_URL);
     console.log("User state:", user);
     console.log("Token:", localStorage.getItem("token"));
     if (user?.profilePicture) {
-      console.log("Profile picture URL:", `${API_URL}${user.profilePicture}`);
+      console.log(
+        "Profile picture URL:",
+        `https://api.cloudandroots.com/uploads/profilePictures/${user.profilePicture}`
+      );
     }
     if (isAuthenticated && !user) {
       dispatch(getAuthUser());
@@ -296,9 +297,7 @@ const Navbar = () => {
   const getProfileImageUrl = (profilePicture) => {
     const placeholder = "https://via.placeholder.com/150?text=Profile";
     if (!profilePicture) return placeholder;
-    // If already a full URL, use as-is
-    if (profilePicture.startsWith("http")) return profilePicture;
-    // Otherwise, treat as profile picture
+    // Always use the hardcoded base URL for images
     const cleanPath = profilePicture.replace(/^\/+/, "");
     return `https://api.cloudandroots.com/uploads/profilePictures/${cleanPath}`;
   };

@@ -6,11 +6,11 @@ function getCandidateImageUrl(profilePicture) {
   // If contains 'candidates/', treat as candidate image
   if (profilePicture.includes("candidates/")) {
     const filename = profilePicture.split("candidates/").pop();
-    return `https://api.cloudandroots.com/Uploads/candidates/${filename}`;
+    return `https://api.cloudandroots.com/uploads/candidates/${filename}`;
   }
   // Otherwise, treat as profile picture
   const cleanPath = profilePicture.replace(/^\/+/, "");
-  return `https://api.cloudandroots.com/Uploads/profilePictures/${cleanPath}`;
+  return `https://api.cloudandroots.com/uploads/profilePictures/${cleanPath}`;
 }
 
 import React, { useState, useEffect } from "react";
@@ -70,9 +70,7 @@ const Candidate = () => {
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
-        const apiUrl =
-          import.meta.env.VITE_API_URL || "https://api.cloudandroots.com";
-        const res = await fetch(`${apiUrl}/api/candidates`);
+        const res = await fetch("https://api.cloudandroots.com/api/candidates");
         if (!res.ok) throw new Error("Failed to fetch candidates");
         const data = await res.json();
 
@@ -140,13 +138,14 @@ const Candidate = () => {
   const handleSaveDate = async (id) => {
     try {
       setUpdatingDateIds((prev) => [...prev, id]);
-      const apiUrl =
-        import.meta.env.VITE_API_URL || "https://api.cloudandroots.com";
-      const res = await fetch(`${apiUrl}/api/candidates/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ receiveDate: editingDateValue || null }),
-      });
+      const res = await fetch(
+        `https://api.cloudandroots.com/api/candidates/${id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ receiveDate: editingDateValue || null }),
+        }
+      );
       if (!res.ok) throw new Error("Failed to update date");
       const data = await res.json();
       setCandidate((prev) =>
@@ -165,13 +164,14 @@ const Candidate = () => {
     if (!window.confirm("Move this candidate to Initial Registration?")) return;
     try {
       setUpdatingDateIds((prev) => [...prev, id]);
-      const apiUrl =
-        import.meta.env.VITE_API_URL || "https://api.cloudandroots.com";
-      const res = await fetch(`${apiUrl}/api/candidates/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "Initial Registration" }),
-      });
+      const res = await fetch(
+        `https://api.cloudandroots.com/api/candidates/${id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "Initial Registration" }),
+        }
+      );
       if (!res.ok) throw new Error("Failed to move candidate");
       const data = await res.json();
       setCandidate((prev) =>
@@ -195,9 +195,9 @@ const Candidate = () => {
 
   const handleViewCandidate = async (candidate) => {
     try {
-      const apiUrl =
-        import.meta.env.VITE_API_URL || "https://api.cloudandroots.com";
-      const res = await fetch(`${apiUrl}/api/candidates/${candidate._id}`);
+      const res = await fetch(
+        `https://api.cloudandroots.com/api/candidates/${candidate._id}`
+      );
       if (!res.ok) throw new Error("Failed to fetch candidate details");
       const data = await res.json();
       setSelectedCandidate(data);

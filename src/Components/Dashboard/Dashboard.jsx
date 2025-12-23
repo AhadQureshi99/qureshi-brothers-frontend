@@ -211,7 +211,7 @@ const Dashboard = () => {
                       src={
                         item.avatar.startsWith("http")
                           ? item.avatar
-                          : `https://api.cloudandroots.com/Uploads/profilePictures/${item.avatar.replace(
+                          : `https://api.cloudandroots.com/uploads/profilePictures/${item.avatar.replace(
                               /^\/+/,
                               ""
                             )}`
