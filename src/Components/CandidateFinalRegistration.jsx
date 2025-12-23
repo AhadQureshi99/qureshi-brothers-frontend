@@ -110,9 +110,12 @@ const CandidateFinalRegistration = () => {
   const fetchCandidates = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("/api/candidates/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        "https://api.cloudandroots.com/api/candidates/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setCandidates(response.data || []);
     } catch (error) {
       toast.error("Failed to fetch candidates");
@@ -221,7 +224,7 @@ const CandidateFinalRegistration = () => {
 
       if (editingCandidate) {
         await axios.put(
-          `/api/candidates/${editingCandidate._id}`,
+          `https://api.cloudandroots.com/api/candidates/${editingCandidate._id}`,
           candidateData,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -229,9 +232,13 @@ const CandidateFinalRegistration = () => {
         );
         toast.success("Candidate updated successfully");
       } else {
-        await axios.post("/api/candidates/", candidateData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.post(
+          "https://api.cloudandroots.com/api/candidates/",
+          candidateData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         toast.success("Candidate registered successfully");
       }
 
