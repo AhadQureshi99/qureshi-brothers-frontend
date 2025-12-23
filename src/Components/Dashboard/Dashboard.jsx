@@ -208,7 +208,14 @@ const Dashboard = () => {
                 <div className="flex items-center gap-3">
                   {item.avatar ? (
                     <img
-                      src={item.avatar}
+                      src={
+                        item.avatar.startsWith("http")
+                          ? item.avatar
+                          : `https://api.cloudandroots.com/Uploads/profilePictures/${item.avatar.replace(
+                              /^\/+/,
+                              ""
+                            )}`
+                      }
                       className="w-12 h-12 rounded-full object-cover"
                       alt="user"
                     />

@@ -379,7 +379,16 @@ const Candidate = () => {
 
                           <td className="p-2 border flex items-center gap-2">
                             <img
-                              src={c.profilePicture || img1}
+                              src={
+                                c.profilePicture
+                                  ? c.profilePicture.startsWith("http")
+                                    ? c.profilePicture
+                                    : `https://api.cloudandroots.com/Uploads/profilePictures/${c.profilePicture.replace(
+                                        /^\/+/,
+                                        ""
+                                      )}`
+                                  : img1
+                              }
                               alt="profile"
                               className="w-8 h-8 rounded-full"
                             />
@@ -524,7 +533,18 @@ const Candidate = () => {
                     {/* Profile Picture */}
                     <div className="flex flex-col items-center">
                       <img
-                        src={selectedCandidate.profilePicture || img1}
+                        src={
+                          selectedCandidate.profilePicture
+                            ? selectedCandidate.profilePicture.startsWith(
+                                "http"
+                              )
+                              ? selectedCandidate.profilePicture
+                              : `https://api.cloudandroots.com/Uploads/profilePictures/${selectedCandidate.profilePicture.replace(
+                                  /^\/+/,
+                                  ""
+                                )}`
+                            : img1
+                        }
                         alt="Profile"
                         className="w-32 h-32 rounded-full object-cover border-4 border-green-200"
                       />

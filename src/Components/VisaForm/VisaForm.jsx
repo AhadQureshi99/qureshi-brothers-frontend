@@ -346,7 +346,14 @@ const VisaForm = () => {
             <p className="text-sm text-gray-600 mb-1">صورة</p>
             {candidate?.profilePicture ? (
               <img
-                src={candidate.profilePicture}
+                src={
+                  candidate.profilePicture.startsWith("http")
+                    ? candidate.profilePicture
+                    : `https://api.cloudandroots.com/Uploads/profilePictures/${candidate.profilePicture.replace(
+                        /^\/+/,
+                        ""
+                      )}`
+                }
                 alt="candidate"
                 className="w-36 h-36 object-cover rounded-sm"
               />

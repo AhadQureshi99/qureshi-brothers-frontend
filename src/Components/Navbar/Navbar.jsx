@@ -290,23 +290,10 @@ const Navbar = () => {
   const getProfileImageUrl = (profilePicture) => {
     const placeholder = "https://via.placeholder.com/150?text=Profile";
     if (!profilePicture) return placeholder;
-    try {
-      // If profilePicture is already an absolute URL, use it directly
-      const url = new URL(profilePicture);
-      return `${url.toString()}?t=${Date.now()}`;
-    } catch (e) {
-      // profilePicture is not an absolute URL. Build using API origin.
-      try {
-        const origin = new URL(API_URL).origin; // e.g. https://api.cloudandroots.com
-        const path = profilePicture.startsWith("/")
-          ? profilePicture
-          : `/${profilePicture}`;
-        return `${origin}${path}?t=${Date.now()}`;
-      } catch (err) {
-        // Fallback: concatenate with API_URL (older behavior)
-        return `${API_URL}${profilePicture}?t=${Date.now()}`;
-      }
-    }
+    // Always use the full backend URL for profile pictures
+    // Remove any leading slashes to avoid double slashes
+    const cleanPath = profilePicture.replace(/^\/+/, "");
+    return `https://api.cloudandroots.com/uploads/profilePictures/${cleanPath}`;
   };
 
   return (
