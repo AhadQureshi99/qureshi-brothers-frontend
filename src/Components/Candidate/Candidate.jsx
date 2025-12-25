@@ -1,14 +1,15 @@
-// Helper to get correct candidate image URL
-function getCandidateImageUrl(profilePicture) {
-  if (!profilePicture) return img1;
+// Use the same image URL logic as Navbar
+function getProfileImageUrl(profilePicture) {
+  const placeholder = "/candidate_img1.png";
+  if (!profilePicture) return placeholder;
   // If already a full URL, use as-is
   if (profilePicture.startsWith("http")) return profilePicture;
-  // If contains 'candidates/', treat as candidate image
+  // If the string contains 'candidates/', use the candidates folder
   if (profilePicture.includes("candidates/")) {
     const filename = profilePicture.split("candidates/").pop();
     return `https://api.cloudandroots.com/uploads/candidates/${filename}`;
   }
-  // Otherwise, treat as profile picture
+  // Otherwise, use the profilePictures folder
   const cleanPath = profilePicture.replace(/^\/+/, "");
   return `https://api.cloudandroots.com/uploads/profilePictures/${cleanPath}`;
 }
@@ -370,7 +371,7 @@ const Candidate = () => {
 
                           <td className="p-2 border flex items-center gap-2">
                             <img
-                              src={getCandidateImageUrl(c.profilePicture)}
+                              src={getProfileImageUrl(c.profilePicture)}
                               alt="profile"
                               className="w-8 h-8 rounded-full"
                             />
@@ -515,7 +516,7 @@ const Candidate = () => {
                     {/* Profile Picture */}
                     <div className="flex flex-col items-center">
                       <img
-                        src={getCandidateImageUrl(
+                        src={getProfileImageUrl(
                           selectedCandidate.profilePicture
                         )}
                         alt="Profile"

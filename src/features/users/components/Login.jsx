@@ -41,6 +41,13 @@ const Login = () => {
         // Ensure we have latest user data (including permittedPages)
         const authRes = await dispatch(getAuthUser()).unwrap();
         const returnedUser = authRes.user || result.payload?.user || user;
+
+        // Check if user is superadmin and redirect directly to superadmin dashboard
+        if (returnedUser?.role === "superadmin") {
+          navigate("/super-admin");
+          return;
+        }
+
         const permitted = (returnedUser?.permittedPages || []).map((p) =>
           (p || "").toLowerCase()
         );

@@ -1,9 +1,30 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
 
 const BulkFlightCancel = () => {
+  const { user } = useSelector((state) => state.user);
   const [employer, setEmployer] = useState("");
   const [job, setJob] = useState("");
+
+  // Permission check
+  const canView =
+    user?.role === "superadmin" ||
+    user?.permissions?.candidateManagement?.bulkFlightCancel?.view === true;
+
+  if (!canView) {
+    return (
+      <div className="p-6">
+        <AdminNavbar />
+        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded">
+          <p className="text-red-700">
+            <strong>Access Denied:</strong> You do not have permission to access
+            this page.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleLoadFlights = () => {
     // Placeholder for loading flights logic

@@ -211,11 +211,9 @@ const InitialRegistration = () => {
     setEditingCandidate(candidate);
   };
 
-  const handleMoveToFinal = async (candidateId) => {
+  const handleMoveToShortlisting = async (candidateId) => {
     if (
-      !confirm(
-        "Are you sure you want to move this candidate to Final Registration?"
-      )
+      !confirm("Are you sure you want to move this candidate to Shortlisting?")
     )
       return;
     try {
@@ -223,10 +221,10 @@ const InitialRegistration = () => {
       const token = localStorage.getItem("token");
       await axios.put(
         `https://api.cloudandroots.com/api/candidates/${candidateId}`,
-        { status: "Final Registration" },
+        { status: "Shortlisting" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Candidate moved to Final Registration");
+      toast.success("Candidate moved to Shortlisting");
       // Find candidate and set form data
       const candidate = candidates.find((c) => c._id === candidateId);
       if (candidate) {
@@ -816,13 +814,15 @@ const InitialRegistration = () => {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleMoveToFinal(candidate._id)}
+                          onClick={() =>
+                            handleMoveToShortlisting(candidate._id)
+                          }
                           disabled={movingId === candidate._id}
                           className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm disabled:opacity-50"
                         >
                           {movingId === candidate._id
                             ? "Moving..."
-                            : "Move to Final"}
+                            : "Move to Shortlisting"}
                         </button>
                         <button
                           onClick={() => handleDelete(candidate._id)}

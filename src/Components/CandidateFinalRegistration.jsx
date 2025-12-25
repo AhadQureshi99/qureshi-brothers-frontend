@@ -1,11 +1,51 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
 const CandidateFinalRegistration = () => {
+  const { user } = useSelector((state) => state.user);
+
+  // Permission check
+  const canView =
+    user?.role === "superadmin" ||
+    user?.permissions?.candidateManagement?.candidateFinalRegistration?.view ===
+      true;
+
+  const canAdd =
+    user?.role === "superadmin" ||
+    user?.permissions?.candidateManagement?.candidateFinalRegistration?.add ===
+      true;
+
+  const canEdit =
+    user?.role === "superadmin" ||
+    user?.permissions?.candidateManagement?.candidateFinalRegistration?.edit ===
+      true;
+
+  const canDelete =
+    user?.role === "superadmin" ||
+    user?.permissions?.candidateManagement?.candidateFinalRegistration
+      ?.delete === true;
+
   const [activeTab, setActiveTab] = useState("addEdit");
   const [showForm, setShowForm] = useState(false);
+
+  // Permission access control
+  if (!canView) {
+    return (
+      <div className="p-6">
+        <AdminNavbar />
+        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded">
+          <p className="text-red-700">
+            <strong>Access Denied:</strong> You do not have permission to access
+            this page.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const [formData, setFormData] = useState({
     username: "",
     candidateType: "",
