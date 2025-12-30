@@ -371,7 +371,8 @@ const Dashboard = () => {
                 <span className="text-yellow-500">🟡</span>
               </p>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
-                {Object.entries(summary.monthlyExpenseBreakdown).length === 0 ? (
+                {Object.entries(summary.monthlyExpenseBreakdown).length ===
+                0 ? (
                   <div className="col-span-2 text-gray-400">
                     No breakdown available
                   </div>
@@ -433,7 +434,9 @@ const Dashboard = () => {
               ) : (
                 <div className="grid gap-4">
                   {activityLogs.length === 0 ? (
-                    <div className="text-gray-500">No recent activity found.</div>
+                    <div className="text-gray-500">
+                      No recent activity found.
+                    </div>
                   ) : (
                     activityLogs.slice(0, 5).map((log, idx) => (
                       <div
