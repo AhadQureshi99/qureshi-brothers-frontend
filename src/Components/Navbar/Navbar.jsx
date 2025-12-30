@@ -13,6 +13,7 @@ const logo = "/components_logo.png";
 import { TiBell } from "react-icons/ti";
 import { BsFileEarmarkArrowUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
+import { GoHome } from "react-icons/go";
 
 const Navbar = () => {
   const location = useLocation();
@@ -326,12 +327,28 @@ const Navbar = () => {
               ? "NBP CHALLAN"
               : location.pathname === "/contract-letter"
               ? "Contract Letter"
+              : location.pathname === "/dashboard"
+              ? "Dashboard"
               : "Dashboard"}
           </h1>
           <p className="text-sm text-black font-semibold">
             Welcome back! Here's what's happening with your visa processes.
           </p>
         </div>
+        {/* Dashboard link for superadmin only */}
+        {isAuthenticated && user?.role === "superadmin" && (
+          <Link
+            to="/admin/dashboard"
+            className={`flex items-center gap-2 bg-white text-sm px-3 py-1.5 rounded-md border border-gray-300 shadow hover:shadow-md cursor-pointer ${
+              location.pathname === "/admin/dashboard"
+                ? "bg-green-700 text-white"
+                : ""
+            }`}
+          >
+            <GoHome size={20} />
+            Dashboard
+          </Link>
+        )}
       </div>
 
       <div className="flex items-center space-x-4">
@@ -478,7 +495,7 @@ const Navbar = () => {
         {isAuthenticated && user?.role === "superadmin" && (
           <div>
             <Link
-              to="/super-admin"
+              to="/admin/manage-users"
               className="ml-4 bg-white text-black px-3 py-1 rounded-md"
             >
               Super Admin

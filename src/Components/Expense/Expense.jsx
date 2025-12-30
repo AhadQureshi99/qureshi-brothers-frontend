@@ -19,6 +19,8 @@ import { toast } from "react-hot-toast";
 
 // rows are loaded from backend; only expenses added by admins/superadmins are shown
 
+const API_URL = "https://api.cloudandroots.com/api/expenses";
+
 const Expense = () => {
   const [selectedRange, setSelectedRange] = useState("1Week");
   const [select, setSelect] = useState("");
@@ -41,7 +43,7 @@ const Expense = () => {
     const load = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("/api/expenses/", {
+        const res = await axios.get(API_URL, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.data?.expenses)
@@ -99,7 +101,7 @@ const Expense = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.post("/api/expenses/", payload, {
+      const res = await axios.post(API_URL, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const created = res.data?.expense;
@@ -701,7 +703,7 @@ const Expense = () => {
                                 try {
                                   const token = localStorage.getItem("token");
                                   await axios.put(
-                                    `/api/expenses/${r.id}`,
+                                    `${API_URL}/${r.id}`,
                                     {
                                       amount: numericAmount,
                                       remarks: editValues.remarks,
@@ -780,7 +782,7 @@ const Expense = () => {
                                 try {
                                   const token = localStorage.getItem("token");
                                   await axios.post(
-                                    `/api/expenses/${r.id}/request`,
+                                    `${API_URL}/${r.id}/request`,
                                     {
                                       requestType: "edit",
                                       payload: {
@@ -836,7 +838,7 @@ const Expense = () => {
                               onClick={async () => {
                                 try {
                                   const token = localStorage.getItem("token");
-                                  await axios.delete(`/api/expenses/${r.id}`, {
+                                  await axios.delete(`${API_URL}/${r.id}`, {
                                     headers: {
                                       Authorization: `Bearer ${token}`,
                                     },
@@ -873,7 +875,7 @@ const Expense = () => {
                                 try {
                                   const token = localStorage.getItem("token");
                                   await axios.post(
-                                    `/api/expenses/${r.id}/request`,
+                                    `${API_URL}/${r.id}/request`,
                                     { requestType: "delete" },
                                     {
                                       headers: {

@@ -44,6 +44,7 @@ import Skills from "./Components/Skills";
 import ManageUsers from "./Components/ManageUsers";
 import ManageRoles from "./Components/ManageRoles";
 import UserLogReport from "./Components/UserLogReport";
+import AllActivityLogs from "./Components/AllActivityLogs";
 import EducationCategories from "./Components/Config/EducationCategories";
 import JobCategories from "./Components/Config/JobCategories";
 import SubCategories from "./Components/Config/SubCategories";
@@ -103,7 +104,6 @@ import VerifyOTP from "./features/users/components/VerifyOTP";
 import ForgotPassword from "./features/users/components/ForgotPassword";
 import ResetPassword from "./features/users/components/ResetPassword";
 
-
 // Component to handle Navbar visibility
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -133,36 +133,44 @@ function App() {
   useEffect(() => {
     const checkAuth = async () => {
       let token = localStorage.getItem("token");
-      console.log("Checking auth, token:", token ? "present" : "missing");
       if (!token) {
-        // Set fallback token if none exists
-        token =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZWY0NGNhNzQ3YWJmYjA5OGZlYjRjZSIsImVtYWlsIjoiYWhhZHF1cmVzaGkxNjc1NkBnbWFpbC5jb20iLCJ1c2VybmFtZSI6ImFoYWQiLCJyb2xlIjoic3VwZXJhZG1pbiIsImlhdCI6MTc2MTg5NjQ0NywiZXhwIjoxNzYzMTkyNDQ3fQ.dZcyWdxwSSk7Ndgn_x4HxB4FNXClPBL_uCyrGEiHNkk";
-        localStorage.setItem("token", token);
-        console.log("Set fallback token");
+        setAuthChecked(true);
+        return;
       }
       try {
         await dispatch(getAuthUser()).unwrap();
-        console.log(
-          "getAuthUser successful, isAuthenticated:",
-          isAuthenticated
-        );
       } catch (err) {
-        console.error("getAuthUser failed:", err);
+        // Token invalid or expired
+        localStorage.removeItem("token");
       }
       setAuthChecked(true);
     };
     checkAuth();
   }, [dispatch]);
 
+  // Improved ProtectedRoute: always try to restore session if token exists but not authenticated
   const ProtectedRoute = ({ children }) => {
-    if (!authChecked) {
-      console.log("Auth not checked yet, waiting...");
-      return <div>Loading...</div>; // Show loading state
-    }
-    console.log("ProtectedRoute check, isAuthenticated:", isAuthenticated);
     const token = localStorage.getItem("token");
-    return isAuthenticated || token ? children : <Navigate to="/login" />;
+    const [checking, setChecking] = useState(false);
+    const [checked, setChecked] = useState(false);
+    useEffect(() => {
+      if (!isAuthenticated && token && !checking && !checked) {
+        setChecking(true);
+        dispatch(getAuthUser())
+          .unwrap()
+          .finally(() => {
+            setChecking(false);
+            setChecked(true);
+          });
+      } else {
+        setChecked(true);
+      }
+    }, [isAuthenticated, token, dispatch, checking, checked]);
+    if (!checked || checking || loading) {
+      return <div>Loading...</div>;
+    }
+    if (isAuthenticated) return children;
+    return <Navigate to="/login" />;
   };
 
   return (
@@ -216,8 +224,9 @@ function App() {
                 </Layout>
               }
             />
+            {/* Dashboard route for superadmin */}
             <Route
-              path="/dashboard"
+              path="/admin/dashboard"
               element={
                 <Layout>
                   <ProtectedRoute>
@@ -225,6 +234,22 @@ function App() {
                   </ProtectedRoute>
                 </Layout>
               }
+            />
+            {/* All Activity Logs */}
+            <Route
+              path="/all-activities"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <AllActivityLogs />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            {/* Redirect old super-admin/dashboard to new admin/dashboard */}
+            <Route
+              path="/super-admin/dashboard"
+              element={<Navigate to="/admin/dashboard" replace />}
             />
             <Route
               path="/sidebar"
@@ -326,13 +351,13 @@ function App() {
                 </Layout>
               }
             />
-          
+
             <Route
               path="/super-admin"
               element={
                 <Layout>
                   <ProtectedRoute>
-                    <SuperAdmin />
+                    <Dashboard />
                   </ProtectedRoute>
                 </Layout>
               }
@@ -1095,6 +1120,7 @@ function App() {
                 </Layout>
               }
             />
+
             <Route path="/" element={<Navigate to="/login" />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>

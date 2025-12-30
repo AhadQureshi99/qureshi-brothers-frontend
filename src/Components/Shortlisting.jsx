@@ -49,7 +49,7 @@ const Shortlisting = () => {
     }
   };
 
-  const handleMoveToFinal = async (candidateId) => {
+  const handleMoveToInterview = async (candidateId) => {
     if (!canEdit) {
       toast.error("You do not have permission to move candidates");
       return;
@@ -57,7 +57,7 @@ const Shortlisting = () => {
 
     if (
       !confirm(
-        "Are you sure you want to move this candidate to Final Registration?"
+        "Are you sure you want to move this candidate to Interview Schedule?"
       )
     )
       return;
@@ -67,10 +67,10 @@ const Shortlisting = () => {
       const token = localStorage.getItem("token");
       await axios.put(
         `https://api.cloudandroots.com/api/candidates/${candidateId}`,
-        { status: "Final Registration" },
+        { status: "Interview Schedule" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Candidate moved to Final Registration");
+      toast.success("Candidate moved to Interview Schedule");
       fetchCandidates();
     } catch (error) {
       toast.error("Failed to move candidate");
@@ -255,13 +255,15 @@ const Shortlisting = () => {
                         <td className="px-4 py-2 border-b">
                           <div className="flex flex-col gap-2">
                             <button
-                              onClick={() => handleMoveToFinal(candidate._id)}
+                              onClick={() =>
+                                handleMoveToInterview(candidate._id)
+                              }
                               disabled={actioningId === candidate._id}
                               className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-xs disabled:opacity-50"
                             >
                               {actioningId === candidate._id
                                 ? "Processing..."
-                                : "Move to Final"}
+                                : "Move to Interview"}
                             </button>
                             <button
                               onClick={() => handleFreeze(candidate._id)}

@@ -45,20 +45,7 @@ const Sidebar = () => {
 
   return (
     <div className="w-full min-h-screen bg-white p-4">
-      {/* Dashboard */}
-      {canAccess("dashboard") && (
-        <Link
-          to="/dashboard"
-          className={`${baseStyle} ${
-            isActive("/")
-              ? "bg-green-700 text-white"
-              : "bg-green-100 text-black"
-          }`}
-        >
-          <GoHome size={20} />
-          <span className="text-sm font-semibold">Dashboard</span>
-        </Link>
-      )}
+      {/* Dashboard link moved to Navbar */}
 
       {/* Candidates */}
       {canAccess("candidateManagement", "candidateManagement") && (

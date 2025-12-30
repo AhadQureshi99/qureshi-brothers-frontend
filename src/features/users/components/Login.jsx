@@ -42,7 +42,7 @@ const Login = () => {
         const authRes = await dispatch(getAuthUser()).unwrap();
         const returnedUser = authRes.user || result.payload?.user || user;
 
-        // Check if user is superadmin and redirect directly to superadmin dashboard
+        // Check if user is superadmin and redirect directly to /super-admin
         if (returnedUser?.role === "superadmin") {
           navigate("/super-admin");
           return;
@@ -61,14 +61,14 @@ const Login = () => {
           "/nbpchallan",
           "/visa-form",
           "/allied-form",
-          "/dashboard",
+          "/admin/dashboard",
         ];
         const redirect =
-          allowedPaths.find((p) => permitted.includes(p)) || "/dashboard";
+          allowedPaths.find((p) => permitted.includes(p)) || "/admin/dashboard";
         navigate(redirect);
       } catch (err) {
         // fallback
-        navigate("/dashboard");
+        navigate("/admin/dashboard");
       }
     }
   };
