@@ -73,7 +73,7 @@ const Sidebar = () => {
           }`}
         >
           <LuFileCheck size={20} />
-          <span className="text-sm font-semibold">Visa Form</span>
+          <span className="text-sm font-semibold">VISA FORM</span>
         </Link>
       )}
 
@@ -88,7 +88,7 @@ const Sidebar = () => {
           }`}
         >
           <FaFileInvoiceDollar size={20} />
-          <span className="text-sm font-semibold">Deposit Slip</span>
+          <span className="text-sm font-semibold">DEPOSIT SLIP</span>
         </Link>
       )}
 
@@ -103,7 +103,7 @@ const Sidebar = () => {
           }`}
         >
           <LuGraduationCap size={20} />
-          <span className="text-sm font-semibold">NBP CHALLAN</span>
+          <span className="text-sm font-semibold">NBP CHALAN</span>
         </Link>
       )}
 
@@ -133,7 +133,7 @@ const Sidebar = () => {
           }`}
         >
           <FaFileContract size={20} />
-          <span className="text-sm font-semibold">Contract Letter</span>
+          <span className="text-sm font-semibold">CONTRACT LETTER</span>
         </Link>
       )}
 
@@ -148,7 +148,7 @@ const Sidebar = () => {
           }`}
         >
           <CiBank size={20} />
-          <span className="text-sm font-semibold">Allied Bank Form</span>
+          <span className="text-sm font-semibold">ABL FORM</span>
         </Link>
       )}
 
