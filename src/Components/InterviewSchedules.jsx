@@ -1,3 +1,38 @@
+// Copy candidate to Final Registration (without removing from Interview Schedule)
+const handleCopyToFinal = async (candidate) => {
+  if (!canEdit) {
+    toast.error("You do not have permission to copy candidates");
+    return;
+  }
+
+  if (!confirm("Create a copy of this candidate in Final Registration?"))
+    return;
+
+  try {
+    setActioningId(candidate._id);
+    const token = localStorage.getItem("token");
+
+    // Remove _id and any other fields you don't want to copy
+    const { _id, createdAt, updatedAt, __v, ...rest } = candidate;
+    const newCandidate = { ...rest, status: "Final Registration" };
+
+    await axios.post(
+      "https://api.cloudandroots.com/api/candidates",
+      newCandidate,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    toast.success("Candidate copied to Final Registration");
+    fetchCandidates();
+  } catch (error) {
+    toast.error("Failed to copy candidate");
+    console.error(error);
+  } finally {
+    setActioningId(null);
+  }
+};
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
@@ -322,6 +357,13 @@ const InterviewSchedules = () => {
                               {actioningId === candidate._id
                                 ? "Processing..."
                                 : "Move to Final"}
+                            </button>
+                            <button
+                              onClick={() => handleCopyToFinal(candidate)}
+                              disabled={actioningId === candidate._id}
+                              className="px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-xs disabled:opacity-50"
+                            >
+                              Copy to Final
                             </button>
                             <button
                               onClick={() => handleFreeze(candidate._id)}

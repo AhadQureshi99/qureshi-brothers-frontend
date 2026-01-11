@@ -3,8 +3,10 @@ import { useSelector } from "react-redux";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const CandidateFinalRegistration = () => {
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
 
   // Permission check
@@ -473,6 +475,60 @@ const CandidateFinalRegistration = () => {
     setShowForm(true);
   };
 
+  // Move candidate to Ready to Submitted
+  const handleMoveToReady = async (candidateId) => {
+    if (!canEdit) {
+      toast.error("You do not have permission to move candidates");
+      return;
+    }
+    if (!window.confirm("Move this candidate to Ready to Submitted?")) return;
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        { status: "Ready to Submitted" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Candidate moved to Ready to Submitted");
+      fetchCandidates();
+      navigate("/admin/candidate-management/ready-to-submitted");
+    } catch (error) {
+      toast.error("Failed to move candidate");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Copy candidate to Ready to Submitted
+  const handleCopyToReady = async (candidate) => {
+    if (!canEdit) {
+      toast.error("You do not have permission to copy candidates");
+      return;
+    }
+    if (!window.confirm("Copy this candidate to Ready to Submitted?")) return;
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const { _id, createdAt, updatedAt, __v, ...rest } = candidate;
+      const newCandidate = { ...rest, status: "Ready to Submitted" };
+      await axios.post(
+        "https://api.cloudandroots.com/api/candidates",
+        newCandidate,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Candidate copied to Ready to Submitted");
+      fetchCandidates();
+      navigate("/admin/candidate-management/ready-to-submitted");
+    } catch (error) {
+      toast.error("Failed to copy candidate");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredCandidates = (candidates || []).filter((candidate) => {
     const name = (candidate?.name || "").toString().toLowerCase();
     const email = (candidate?.email || "").toString().toLowerCase();
@@ -700,7 +756,19 @@ const CandidateFinalRegistration = () => {
                       </td>
                       <td className="border px-4 py-2">{c.status}</td>
                       <td className="border px-4 py-2">
-                        {/* Edit button removed */}
+                        {/* Move/Copy to Ready to Submitted */}
+                        <button
+                          onClick={() => handleMoveToReady(c._id)}
+                          className="px-2 py-1 bg-blue-600 text-white rounded mr-2"
+                        >
+                          Move to Ready to Submitted
+                        </button>
+                        <button
+                          onClick={() => handleCopyToReady(c)}
+                          className="px-2 py-1 bg-purple-600 text-white rounded mr-2"
+                        >
+                          Copy to Ready to Submitted
+                        </button>
                         <button
                           onClick={() => {
                             localStorage.setItem(
@@ -715,7 +783,7 @@ const CandidateFinalRegistration = () => {
                           }}
                           className="px-2 py-1 bg-green-600 text-white rounded mr-2"
                         >
-                          Visa
+                          Visa Form
                         </button>
                         <button
                           onClick={() => {
@@ -731,7 +799,7 @@ const CandidateFinalRegistration = () => {
                           }}
                           className="px-2 py-1 bg-purple-600 text-white rounded mr-2"
                         >
-                          Deposit
+                          Deposit Slip
                         </button>
                         <button
                           onClick={() => {
@@ -747,7 +815,7 @@ const CandidateFinalRegistration = () => {
                           }}
                           className="px-2 py-1 bg-yellow-600 text-white rounded mr-2"
                         >
-                          NBP
+                          NBP Chalan
                         </button>
                         <button
                           onClick={() => {
@@ -779,7 +847,7 @@ const CandidateFinalRegistration = () => {
                           }}
                           className="px-2 py-1 bg-cyan-600 text-white rounded mr-2"
                         >
-                          Contact
+                          Contract Letter
                         </button>
                         <button
                           onClick={() => {
@@ -795,7 +863,7 @@ const CandidateFinalRegistration = () => {
                           }}
                           className="px-2 py-1 bg-teal-600 text-white rounded mr-2"
                         >
-                          Allied
+                          ABL Form
                         </button>
                       </td>
                     </tr>

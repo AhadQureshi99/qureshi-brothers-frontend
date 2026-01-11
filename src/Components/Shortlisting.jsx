@@ -11,7 +11,7 @@ const Shortlisting = () => {
   const [loading, setLoading] = useState(false);
   const [actioningId, setActioningId] = useState(null);
 
-  // Permission check
+  // Permission checks
   const canView =
     user?.role === "superadmin" ||
     user?.permissions?.candidateManagement?.shortlisting?.view === true;
@@ -34,12 +34,9 @@ const Shortlisting = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://api.cloudandroots.com/api/candidates",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get("https://api.cloudandroots.com/api/candidates", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setCandidates(response.data?.candidates || response.data || []);
     } catch (error) {
       toast.error("Failed to fetch candidates");
@@ -55,12 +52,7 @@ const Shortlisting = () => {
       return;
     }
 
-    if (
-      !confirm(
-        "Are you sure you want to move this candidate to Interview Schedule?"
-      )
-    )
-      return;
+    if (!confirm("Move this candidate to Interview Schedule?")) return;
 
     try {
       setActioningId(candidateId);
@@ -73,7 +65,37 @@ const Shortlisting = () => {
       toast.success("Candidate moved to Interview Schedule");
       fetchCandidates();
     } catch (error) {
-      toast.error("Failed to move candidate");
+      toast.error("Failed to update status");
+      console.error(error);
+    } finally {
+      setActioningId(null);
+    }
+  };
+
+  const handleCopyToInterview = async (candidate) => {
+    if (!canEdit) {
+      toast.error("You do not have permission to copy candidates");
+      return;
+    }
+
+    if (!confirm("Create a copy of this candidate in Interview Schedule?")) return;
+
+    try {
+      setActioningId(candidate._id);
+      const token = localStorage.getItem("token");
+
+      // Remove _id and any other fields you don't want to copy
+      const { _id, createdAt, updatedAt, __v, ...rest } = candidate;
+      const newCandidate = { ...rest, status: "Interview Schedule" };
+
+      await axios.post("https://api.cloudandroots.com/api/candidates", newCandidate, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast.success("Candidate copied to Interview Schedule");
+      fetchCandidates();
+    } catch (error) {
+      toast.error("Failed to copy candidate");
       console.error(error);
     } finally {
       setActioningId(null);
@@ -86,7 +108,7 @@ const Shortlisting = () => {
       return;
     }
 
-    if (!confirm("Are you sure you want to freeze this application?")) return;
+    if (!confirm("Freeze this application?")) return;
 
     try {
       setActioningId(candidateId);
@@ -96,7 +118,7 @@ const Shortlisting = () => {
         { status: "Freeze" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Application frozen successfully");
+      toast.success("Application frozen");
       fetchCandidates();
     } catch (error) {
       toast.error("Failed to freeze application");
@@ -112,23 +134,15 @@ const Shortlisting = () => {
       return;
     }
 
-    if (
-      !confirm(
-        "Are you sure you want to delete this candidate? This action cannot be undone."
-      )
-    )
-      return;
+    if (!confirm("Delete this candidate permanently?")) return;
 
     try {
       setActioningId(candidateId);
       const token = localStorage.getItem("token");
-      await axios.delete(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      toast.success("Candidate deleted successfully");
+      await axios.delete(`https://api.cloudandroots.com/api/candidates/${candidateId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Candidate deleted");
       fetchCandidates();
     } catch (error) {
       toast.error("Failed to delete candidate");
@@ -139,15 +153,14 @@ const Shortlisting = () => {
   };
 
   const filteredCandidates = candidates.filter((candidate) => {
-    const name = (candidate?.name || "").toString().toLowerCase();
-    const email = (candidate?.email || "").toString().toLowerCase();
-    const passport = (candidate?.passport || "").toString().toLowerCase();
     const term = searchTerm.toLowerCase();
     const isShortlisting = candidate.status === "Shortlisting";
-    return (
-      isShortlisting &&
-      (name.includes(term) || email.includes(term) || passport.includes(term))
-    );
+
+    const name = (candidate.name || `${candidate.firstName || ""} ${candidate.lastName || ""}`).toLowerCase();
+    const email = (candidate.email || "").toLowerCase();
+    const passport = (candidate.passport || "").toLowerCase();
+
+    return isShortlisting && (name.includes(term) || email.includes(term) || passport.includes(term));
   });
 
   if (!canView) {
@@ -156,8 +169,7 @@ const Shortlisting = () => {
         <AdminNavbar />
         <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded">
           <p className="text-red-700">
-            <strong>Access Denied:</strong> You do not have permission to access
-            this page.
+            <strong>Access Denied:</strong> You do not have permission to view this page.
           </p>
         </div>
       </div>
@@ -167,121 +179,99 @@ const Shortlisting = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <AdminNavbar />
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Shortlisting</h1>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Shortlisted Candidates</h2>
 
-          <div className="mb-4">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Shortlisting</h1>
+
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-5">Shortlisted Candidates</h2>
+
+          <div className="mb-6">
             <input
               type="text"
-              placeholder="Search by name, email, or passport..."
+              placeholder="Search by name, email, passport..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {loading ? (
-            <div className="text-center py-8">
-              <p className="text-gray-600">Loading candidates...</p>
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg">Loading candidates...</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">
-                      #
-                    </th>
-                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">
-                      Name
-                    </th>
-                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">
-                      Email
-                    </th>
-                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">
-                      Mobile
-                    </th>
-                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">
-                      Passport
-                    </th>
-                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">
-                      Profession
-                    </th>
-                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">
-                      Experience
-                    </th>
-                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">
-                      Actions
-                    </th>
+              <table className="min-w-full border border-gray-200">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">#</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Name</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Email</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Mobile</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Passport</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Profession</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Experience</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+
+                <tbody className="divide-y divide-gray-200">
                   {filteredCandidates.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan="8"
-                        className="px-4 py-8 text-center text-gray-500"
-                      >
+                      <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
                         No shortlisted candidates found
+                        {searchTerm && " matching your search"}
                       </td>
                     </tr>
                   ) : (
                     filteredCandidates.map((candidate, index) => (
                       <tr key={candidate._id} className="hover:bg-gray-50">
-                        <td className="px-4 py-2 border-b text-sm">
-                          {String(index + 1).padStart(2, "0")}
+                        <td className="px-4 py-3 text-sm text-gray-700">{String(index + 1).padStart(2, "0")}</td>
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                          {candidate.name ||
+                            `${candidate.firstName || ""} ${candidate.lastName || ""}`.trim() ||
+                            "N/A"}
                         </td>
-                        <td className="px-4 py-2 border-b text-sm">
-                          {candidate.firstName || candidate.name || "N/A"}{" "}
-                          {candidate.lastName || ""}
+                        <td className="px-4 py-3 text-sm text-gray-600">{candidate.email || "—"}</td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {candidate.mobile || candidate.contact || "—"}
                         </td>
-                        <td className="px-4 py-2 border-b text-sm">
-                          {candidate.email || "N/A"}
-                        </td>
-                        <td className="px-4 py-2 border-b text-sm">
-                          {candidate.mobile || candidate.contact || "N/A"}
-                        </td>
-                        <td className="px-4 py-2 border-b text-sm">
-                          {candidate.passport || "N/A"}
-                        </td>
-                        <td className="px-4 py-2 border-b text-sm">
-                          {candidate.profession || "N/A"}
-                        </td>
-                        <td className="px-4 py-2 border-b text-sm">
-                          {candidate.experience || "N/A"}
-                        </td>
-                        <td className="px-4 py-2 border-b">
-                          <div className="flex flex-col gap-2">
+                        <td className="px-4 py-3 text-sm text-gray-600">{candidate.passport || "—"}</td>
+                        <td className="px-4 py-3 text-sm text-gray-600">{candidate.profession || "—"}</td>
+                        <td className="px-4 py-3 text-sm text-gray-600">{candidate.experience || "—"}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-2">
                             <button
-                              onClick={() =>
-                                handleMoveToInterview(candidate._id)
-                              }
+                              onClick={() => handleMoveToInterview(candidate._id)}
                               disabled={actioningId === candidate._id}
-                              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-xs disabled:opacity-50"
+                              className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50"
                             >
-                              {actioningId === candidate._id
-                                ? "Processing..."
-                                : "Move to Interview"}
+                              {actioningId === candidate._id ? "Processing..." : "Move to Interview"}
                             </button>
+
+                            <button
+                              onClick={() => handleCopyToInterview(candidate)}
+                              disabled={actioningId === candidate._id}
+                              className="px-3 py-1.5 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 disabled:opacity-50"
+                            >
+                              {actioningId === candidate._id ? "Processing..." : "Copy to Interview"}
+                            </button>
+
                             <button
                               onClick={() => handleFreeze(candidate._id)}
                               disabled={actioningId === candidate._id}
-                              className="px-3 py-1 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors text-xs disabled:opacity-50"
+                              className="px-3 py-1.5 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 disabled:opacity-50"
                             >
-                              {actioningId === candidate._id
-                                ? "Processing..."
-                                : "Freeze"}
+                              {actioningId === candidate._id ? "Processing..." : "Freeze"}
                             </button>
+
                             <button
                               onClick={() => handleDelete(candidate._id)}
                               disabled={actioningId === candidate._id}
-                              className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-xs disabled:opacity-50"
+                              className="px-3 py-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 disabled:opacity-50"
                             >
-                              {actioningId === candidate._id
-                                ? "Deleting..."
-                                : "Delete"}
+                              {actioningId === candidate._id ? "Deleting..." : "Delete"}
                             </button>
                           </div>
                         </td>
@@ -293,9 +283,12 @@ const Shortlisting = () => {
             </div>
           )}
 
-          <div className="mt-4 text-sm text-gray-600">
-            Showing {filteredCandidates.length} entries
-          </div>
+          {!loading && (
+            <div className="mt-5 text-sm text-gray-600">
+              Showing {filteredCandidates.length} candidate
+              {filteredCandidates.length !== 1 ? "s" : ""}
+            </div>
+          )}
         </div>
       </div>
     </div>

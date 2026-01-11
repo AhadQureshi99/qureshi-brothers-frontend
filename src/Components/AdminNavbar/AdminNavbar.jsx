@@ -135,6 +135,14 @@ const candidateSub = [
     to: "/admin/candidate-management/candidate-final-registration",
     label: "Candidate Final Registration",
   },
+  {
+    to: "/admin/candidate-management/ready-to-submitted",
+    label: "Ready to Submitted",
+  },
+  {
+    to: "/admin/candidate-management/submitted-candidates",
+    label: "Submitted Candidates",
+  },
   { to: "/admin/candidate-management/apply-job", label: "Apply Job" },
   { to: "/admin/candidate-management/shortlisting", label: "Shortlisting" },
   {
