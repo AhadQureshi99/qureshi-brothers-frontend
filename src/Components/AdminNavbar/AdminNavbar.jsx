@@ -4,6 +4,14 @@ import { useSelector } from "react-redux";
 import { AiOutlineSetting, AiOutlineUser, AiOutlineTeam } from "react-icons/ai";
 import { FiLayers, FiGrid } from "react-icons/fi";
 
+// Helper function to convert kebab-case to camelCase
+const kebabToCamel = (str) => {
+  return str.split("-").reduce((acc, word, index) => {
+    if (index === 0) return word;
+    return acc + word.charAt(0).toUpperCase() + word.slice(1);
+  }, "");
+};
+
 const items = [
   { to: "/admin", label: "Admin Area", icon: FiGrid },
   {
@@ -230,8 +238,8 @@ const AdminNavbar = () => {
   const location = useLocation();
   const { user } = useSelector((state) => state.user || {});
 
-  // Hide navbar for all admin users, only show for superadmin
-  if (user?.role !== "superadmin") {
+  // Show navbar for superadmin and admins with permissions
+  if (!user || (user?.role !== "superadmin" && !user?.permissions)) {
     return null;
   }
 
@@ -239,21 +247,27 @@ const AdminNavbar = () => {
   const hasPermission = (path) => {
     if (user?.role === "superadmin") return true;
     if (!user?.permissions) return false;
-    // Example: permissions structure: { candidateManagement: { initialRegistration: { view: true } } }
-    // You may need to adjust this logic to match your permissions structure
-    if (path.includes("candidate-management")) {
-      if (path.includes("initial-registration")) {
-        return user.permissions?.candidateManagement?.initialRegistration?.view;
-      }
-      if (path.includes("candidate-final-registration")) {
-        return user.permissions?.candidateManagement?.candidateFinalRegistration
-          ?.view;
-      }
-      // Add more candidate management checks as needed
-      return true; // fallback
+
+    if (path.includes("configuration")) {
+      return user.permissions?.configuration?.configuration?.view || false;
     }
-    // Add more section checks as needed (employerManagement, accounting, etc.)
-    return true; // fallback: allow
+    if (path.includes("accounting")) {
+      return (
+        user.permissions?.accountingFinance?.accountingFinance?.view || false
+      );
+    }
+    if (path.includes("employer-management")) {
+      return (
+        user.permissions?.employerManagement?.employerManagement?.view || false
+      );
+    }
+    if (path.includes("candidate-management")) {
+      return (
+        user.permissions?.candidateManagement?.candidateManagement?.view ||
+        false
+      );
+    }
+    return true;
   };
 
   return (
@@ -267,6 +281,11 @@ const AdminNavbar = () => {
 
           <div className="hidden md:flex items-center space-x-3">
             {items.map((it) => {
+              // Only show items if user has permission
+              if (!hasPermission(it.to)) {
+                return null;
+              }
+
               const Icon = it.icon;
               if (it.to === "/admin") {
                 // render Admin Area with hover dropdown
@@ -382,15 +401,27 @@ const AdminNavbar = () => {
                       >
                         <div className="p-4">
                           <div className="grid grid-cols-3 gap-2">
-                            {configSub.map((s) => (
-                              <NavLink
-                                key={s.to}
-                                to={s.to}
-                                className="block px-3 py-2 text-sm text-gray-700 rounded hover:bg-gray-100"
-                              >
-                                {s.label}
-                              </NavLink>
-                            ))}
+                            {configSub.map((s) => {
+                              // Check if user has permission for this specific config item
+                              const permKey = kebabToCamel(
+                                s.to.split("/").pop()
+                              );
+                              const hasPerm =
+                                user?.role === "superadmin" ||
+                                user?.permissions?.configuration?.[permKey]
+                                  ?.view;
+                              if (!hasPerm) return null;
+
+                              return (
+                                <NavLink
+                                  key={s.to}
+                                  to={s.to}
+                                  className="block px-3 py-2 text-sm text-gray-700 rounded hover:bg-gray-100"
+                                >
+                                  {s.label}
+                                </NavLink>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
@@ -448,15 +479,27 @@ const AdminNavbar = () => {
                       >
                         <div className="p-4">
                           <div className="grid grid-cols-3 gap-2">
-                            {accountingSub.map((s) => (
-                              <NavLink
-                                key={s.to}
-                                to={s.to}
-                                className="block px-3 py-2 text-sm text-gray-700 rounded hover:bg-gray-100"
-                              >
-                                {s.label}
-                              </NavLink>
-                            ))}
+                            {accountingSub.map((s) => {
+                              // Check if user has permission for this specific accounting item
+                              const permKey = kebabToCamel(
+                                s.to.split("/").pop()
+                              );
+                              const hasPerm =
+                                user?.role === "superadmin" ||
+                                user?.permissions?.accountingFinance?.[permKey]
+                                  ?.view;
+                              if (!hasPerm) return null;
+
+                              return (
+                                <NavLink
+                                  key={s.to}
+                                  to={s.to}
+                                  className="block px-3 py-2 text-sm text-gray-700 rounded hover:bg-gray-100"
+                                >
+                                  {s.label}
+                                </NavLink>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
@@ -515,16 +558,26 @@ const AdminNavbar = () => {
                         onMouseLeave={handleMouseLeave}
                       >
                         <ul className="py-2">
-                          {employerSub.map((s) => (
-                            <li key={s.to}>
-                              <NavLink
-                                to={s.to}
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              >
-                                {s.label}
-                              </NavLink>
-                            </li>
-                          ))}
+                          {employerSub.map((s) => {
+                            // Check if user has permission for this specific employer item
+                            const permKey = kebabToCamel(s.to.split("/").pop());
+                            const hasPerm =
+                              user?.role === "superadmin" ||
+                              user?.permissions?.employerManagement?.[permKey]
+                                ?.view;
+                            if (!hasPerm) return null;
+
+                            return (
+                              <li key={s.to}>
+                                <NavLink
+                                  to={s.to}
+                                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                  {s.label}
+                                </NavLink>
+                              </li>
+                            );
+                          })}
                         </ul>
                       </div>
                     )}
@@ -583,15 +636,28 @@ const AdminNavbar = () => {
                       >
                         <div className="p-4">
                           <div className="grid grid-cols-3 gap-2">
-                            {candidateSub.map((s) => (
-                              <NavLink
-                                key={s.to}
-                                to={s.to}
-                                className="block px-3 py-2 text-sm text-gray-700 rounded hover:bg-gray-100"
-                              >
-                                {s.label}
-                              </NavLink>
-                            ))}
+                            {candidateSub.map((s) => {
+                              // Check if user has permission for this specific candidate item
+                              const permKey = kebabToCamel(
+                                s.to.split("/").pop()
+                              );
+                              const hasPerm =
+                                user?.role === "superadmin" ||
+                                user?.permissions?.candidateManagement?.[
+                                  permKey
+                                ]?.view;
+                              if (!hasPerm) return null;
+
+                              return (
+                                <NavLink
+                                  key={s.to}
+                                  to={s.to}
+                                  className="block px-3 py-2 text-sm text-gray-700 rounded hover:bg-gray-100"
+                                >
+                                  {s.label}
+                                </NavLink>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>

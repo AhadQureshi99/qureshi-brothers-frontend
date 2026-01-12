@@ -400,7 +400,683 @@ function App() {
               }
             />
 
-            {/* ... You can continue adding the remaining routes in the same pattern ... */}
+            {/* Configuration Routes */}
+            <Route
+              path="/admin/config/add-payment-agent"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <AddPaymentAgent />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/add-recruitment-agent"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <AddRecruitmentAgent />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/add-travel-agent"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <AddTravelAgent />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/visa-categories"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <VisaCategories />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/visa-issuing-authorities"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <VisaIssuingAuthorities />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/verifying-institutions"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <VerifyingInstitutions />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/add-test-center"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <AddTestCenter />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/add-medical-centers"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <AddMedicalCenters />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/test-types"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <TestTypes />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/age-ranges"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <AgeRanges />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/salary-ranges"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <SalaryRanges />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/experience-ranges"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ExperienceRanges />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/airlines"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <Airlines />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/visa-professions"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <VisaProfession />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/working-sectors"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <WorkingSectors />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/cities"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <Cities />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/education-level"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <EducationLevels />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/career-level"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CareerLevels />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/education-categories"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <EducationCategories />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/job-categories"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <JobCategories />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/sub-categories"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <SubCategories />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/config/working-categories"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <WorkingCategories />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+
+            {/* Accounting Routes */}
+            <Route
+              path="/admin/accounting/chart-of-accounts"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ChartOfAccounts />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/chart-of-accounts-balances"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ChartOfAccountsBalances />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/cash-book"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CashBook />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/bank-book"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <BankBook />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/opening-balance"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <OpeningBalance />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/cash-receipt"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CashReceiptVoucher />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/cash-payment"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CashPaymentVoucher />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/bank-receipt"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <BankReceiptVoucher />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/bank-payment"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <BankPaymentVoucher />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/jv"
+              element={
+                <Layout>
+                  <JournalVoucher />
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/job-payment"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <JobPayment />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/travel-agent-payment"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <TravelAgentPayment />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/candidate-receipt"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateReceipt />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/candidate-jv"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateJV />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/expenses-against-candidate"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ExpensesAgainstCandidate />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/general-ledger"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <TrialBalance />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/trial-balance"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <TrialBalance />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/account-balances"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <AccountBalances />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/income-statement"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <IncomeStatement />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/balance-sheet"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <BalanceSheet />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/cash-flow-statement"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CashFlowStatement />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/accounting/equity-report"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <StatementOfOwnersEquity />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+
+            {/* Employer Management Routes */}
+            <Route
+              path="/admin/employer-management/employer-setup"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <EmployerManagement />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/employer-management/employer-plans"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <EmployerPlans />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/employer-management/job-setup"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <JobSetup />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/employer-management/employer-ledger"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <EmployerLedger />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/employer-management/job-grouping-prints"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <JobGroupingPrints />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/employer-management/status-jobs-report"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <StatusJobsReport />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/employer-management/security-fee-refund-prints"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <SecurityFeeRefundPrints />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/employer-management/travel-agent-ledger"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <TravelAgentLedger />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+
+            {/* Additional Candidate Management Routes */}
+            <Route
+              path="/admin/candidate-management/bulk-application-maker"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <BulkApplicationMaker />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/bulk-offer-sender"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <BulkOfferSender />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/bulk-flight-cancel"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <BulkFlightCancel />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/candidate-ledger-expenses"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateLedgerExpenses />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/candidate-ledger-summary"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateLedgerSummary />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/candidate-agent-ledger"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateAgentLedger />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/protector-print-candidates"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ProtectorPrintCandidates />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/candidate-filter-report"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateFilterReport />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/traveled-candidates-report"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <TravelledCandidatesReport />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/candidate-application-status-report"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateApplicationStatusReport />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/candidate-final-registration"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateFinalRegistration />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+
+            {/* Skills and User Management Routes */}
+            <Route
+              path="/admin/skills"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <Skills />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/manage-users"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ManageUsers />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/manage-role"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ManageRoles />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/user-log-report"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <UserLogReport />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
 
             {/* Fallback Routes */}
             <Route path="/" element={<Navigate to="/login" replace />} />

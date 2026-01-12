@@ -35,8 +35,19 @@ axios.interceptors.response.use(
       status: error.response?.status,
       data: error.response?.data,
     });
+    // Only remove token on actual authentication failures (invalid/expired JWT)
+    // Don't remove on 403 Forbidden (permission errors) or other 401 scenarios
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
+      const errorMsg = error.response?.data?.message || "";
+      // Only logout if it's a token-related error, not a generic permission error
+      if (
+        errorMsg.includes("token") ||
+        errorMsg.includes("Token") ||
+        errorMsg.includes("jwt") ||
+        errorMsg.includes("JWT")
+      ) {
+        localStorage.removeItem("token");
+      }
     }
     return Promise.reject(error);
   }
@@ -134,7 +145,7 @@ export const createAdmin = async (username, email, password) => {
 // Update user permissions (superadmin only)
 export const updateUserPermissions = async (id, permittedPages) => {
   return await axios.put(
-    `https://api.cloudandroots.com/api/users/users/${id}/permissions`,
+    `https://api.cloudandroots.com/api/users/${id}/permissions`,
     {
       permittedPages,
     }
