@@ -158,7 +158,12 @@ const CandidateFinalRegistration = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setCandidates(response.data || []);
+      const allCandidates = response.data || [];
+      // Filter candidates by status
+      const filteredCandidates = allCandidates.filter(
+        (c) => c.status === "Final Registration"
+      );
+      setCandidates(filteredCandidates);
     } catch (error) {
       toast.error("Failed to fetch candidates");
       console.error(error);

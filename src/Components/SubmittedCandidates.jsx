@@ -14,6 +14,10 @@ const SubmittedCandidates = () => {
   const canView =
     user?.role === "superadmin" ||
     user?.permissions?.candidateManagement?.submittedCandidates?.view === true;
+  const canDelete =
+    user?.role === "superadmin" ||
+    user?.permissions?.candidateManagement?.submittedCandidates?.delete ===
+      true;
 
   useEffect(() => {
     if (canView) fetchCandidates();
@@ -37,6 +41,52 @@ const SubmittedCandidates = () => {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDuplicate = async (candidate) => {
+    if (!confirm("Create a duplicate record of this candidate?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      // Remove fields that shouldn't be duplicated
+      const { _id, createdAt, updatedAt, __v, ...rest } = candidate;
+      const newCandidate = { ...rest, status: "Submitted" };
+
+      await axios.post(
+        "https://api.cloudandroots.com/api/candidates",
+        newCandidate,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      toast.success("Candidate duplicated successfully");
+      fetchCandidates();
+    } catch (error) {
+      toast.error("Failed to duplicate candidate");
+      console.error(error);
+    }
+  };
+
+  const handleDelete = async (candidateId) => {
+    if (!canDelete) {
+      toast.error("You do not have permission to delete candidates");
+      return;
+    }
+    if (!window.confirm("Are you sure you want to delete this candidate?"))
+      return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(
+        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Candidate deleted successfully");
+      fetchCandidates();
+    } catch (error) {
+      toast.error("Failed to delete candidate");
+      console.error(error);
     }
   };
 
@@ -110,6 +160,9 @@ const SubmittedCandidates = () => {
                     <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">
                       Passport
                     </th>
+                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -140,6 +193,23 @@ const SubmittedCandidates = () => {
                         </td>
                         <td className="px-4 py-2 border-b text-sm">
                           {candidate.passport || "N/A"}
+                        </td>
+                        <td className="px-4 py-2 border-b">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleDuplicate(candidate)}
+                              className="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition-colors"
+                            >
+                              Duplicate
+                            </button>
+                            <button
+                              onClick={() => handleDelete(candidate._id)}
+                              disabled={!canDelete}
+                              className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-xs disabled:opacity-50"
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

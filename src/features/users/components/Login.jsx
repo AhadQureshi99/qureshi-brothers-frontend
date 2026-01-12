@@ -17,14 +17,7 @@ const Login = () => {
     if (!email) errors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Invalid email format";
     if (!password) errors.password = "Password is required";
-    else if (
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-        password
-      )
-    ) {
-      errors.password =
-        "Password must be at least 8 characters, including uppercase, lowercase, number, and special character";
-    }
+    // Removed strict password validation for debugging
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -33,43 +26,29 @@ const Login = () => {
     e.preventDefault();
     if (!validateForm()) return;
     dispatch(clearMessages());
-    const result = await dispatch(login({ email, password }));
-    if (login.fulfilled.match(result)) {
+
+    try {
+      const result = await dispatch(login({ email, password })).unwrap();
       setEmail("");
       setPassword("");
+
+      // Verify auth status with backend BEFORE redirecting
+      console.log("[LOGIN] Verifying auth with backend...");
       try {
-        // Ensure we have latest user data (including permittedPages)
-        const authRes = await dispatch(getAuthUser()).unwrap();
-        const returnedUser = authRes.user || result.payload?.user || user;
-
-        // Check if user is superadmin and redirect directly to /super-admin
-        if (returnedUser?.role === "superadmin") {
-          navigate("/super-admin");
-          return;
-        }
-
-        const permitted = (returnedUser?.permittedPages || []).map((p) =>
-          (p || "").toLowerCase()
-        );
-        const allowedPaths = [
-          "/expense",
-          "/candidates-cv",
-          "/candidate",
-          "/deposit-slip",
-          "/contract-letter",
-          "/undertaking-letter",
-          "/nbpchallan",
-          "/visa-form",
-          "/allied-form",
-          "/admin/dashboard",
-        ];
-        const redirect =
-          allowedPaths.find((p) => permitted.includes(p)) || "/admin/dashboard";
-        navigate(redirect);
-      } catch (err) {
-        // fallback
-        navigate("/admin/dashboard");
+        await dispatch(getAuthUser()).unwrap();
+        console.log("[LOGIN] Auth verified successfully");
+      } catch (authErr) {
+        console.error("[LOGIN] Auth verification failed:", authErr);
+        // Don't redirect if auth verification fails
+        throw new Error("Auth verification failed");
       }
+
+      // Always redirect to /admin/dashboard after successful login
+      console.log("[LOGIN] Redirecting to /admin/dashboard");
+      navigate("/admin/dashboard", { replace: true });
+    } catch (err) {
+      console.error("[LOGIN] Login error:", err);
+      // Error is already handled by Redux and displayed in the UI
     }
   };
 
@@ -93,45 +72,49 @@ const Login = () => {
           </div>
         )}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your email"
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter your email"
+                disabled={loading}
+              />
+              {formErrors.email && (
+                <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter your password"
+                disabled={loading}
+              />
+              {formErrors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formErrors.password}
+                </p>
+              )}
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-200 disabled:opacity-50"
               disabled={loading}
-            />
-            {formErrors.email && (
-              <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your password"
-              disabled={loading}
-            />
-            {formErrors.password && (
-              <p className="text-red-500 text-sm mt-1">{formErrors.password}</p>
-            )}
-          </div>
-          <button
-            onClick={handleSubmit}
-            className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-200 disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </form>
           <p className="text-center text-sm text-gray-600">
             Don't have an account?{" "}
             <button

@@ -20,6 +20,9 @@ const ReadyToSubmitted = () => {
   const canEdit =
     user?.role === "superadmin" ||
     user?.permissions?.candidateManagement?.readyToSubmitted?.edit === true;
+  const canDelete =
+    user?.role === "superadmin" ||
+    user?.permissions?.candidateManagement?.readyToSubmitted?.delete === true;
 
   useEffect(() => {
     if (canView) fetchCandidates();
@@ -94,6 +97,31 @@ const ReadyToSubmitted = () => {
       navigate("/admin/candidate-management/submitted-candidates");
     } catch (error) {
       toast.error("Failed to copy candidate");
+      console.error(error);
+    } finally {
+      setActioningId(null);
+    }
+  };
+
+  // Delete candidate
+  const handleDelete = async (candidateId) => {
+    if (!canDelete) {
+      toast.error("You do not have permission to delete candidates");
+      return;
+    }
+    if (!window.confirm("Are you sure you want to delete this candidate?"))
+      return;
+    try {
+      setActioningId(candidateId);
+      const token = localStorage.getItem("token");
+      await axios.delete(
+        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Candidate deleted successfully");
+      fetchCandidates();
+    } catch (error) {
+      toast.error("Failed to delete candidate");
       console.error(error);
     } finally {
       setActioningId(null);
@@ -225,6 +253,15 @@ const ReadyToSubmitted = () => {
                               className="px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-xs disabled:opacity-50"
                             >
                               Copy to Submitted Candidates
+                            </button>
+                            <button
+                              onClick={() => handleDelete(candidate._id)}
+                              disabled={
+                                actioningId === candidate._id || !canDelete
+                              }
+                              className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-xs disabled:opacity-50"
+                            >
+                              Delete
                             </button>
                           </div>
                         </td>

@@ -34,10 +34,18 @@ const Shortlisting = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://api.cloudandroots.com/api/candidates", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setCandidates(response.data?.candidates || response.data || []);
+      const response = await axios.get(
+        "https://api.cloudandroots.com/api/candidates",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const allCandidates = response.data?.candidates || response.data || [];
+      // Filter candidates by status
+      const filteredCandidates = allCandidates.filter(
+        (c) => c.status === "Shortlisting"
+      );
+      setCandidates(filteredCandidates);
     } catch (error) {
       toast.error("Failed to fetch candidates");
       console.error(error);
@@ -78,7 +86,8 @@ const Shortlisting = () => {
       return;
     }
 
-    if (!confirm("Create a copy of this candidate in Interview Schedule?")) return;
+    if (!confirm("Create a copy of this candidate in Interview Schedule?"))
+      return;
 
     try {
       setActioningId(candidate._id);
@@ -88,9 +97,13 @@ const Shortlisting = () => {
       const { _id, createdAt, updatedAt, __v, ...rest } = candidate;
       const newCandidate = { ...rest, status: "Interview Schedule" };
 
-      await axios.post("https://api.cloudandroots.com/api/candidates", newCandidate, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post(
+        "https://api.cloudandroots.com/api/candidates",
+        newCandidate,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       toast.success("Candidate copied to Interview Schedule");
       fetchCandidates();
@@ -139,9 +152,12 @@ const Shortlisting = () => {
     try {
       setActioningId(candidateId);
       const token = localStorage.getItem("token");
-      await axios.delete(`https://api.cloudandroots.com/api/candidates/${candidateId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       toast.success("Candidate deleted");
       fetchCandidates();
     } catch (error) {
@@ -156,11 +172,17 @@ const Shortlisting = () => {
     const term = searchTerm.toLowerCase();
     const isShortlisting = candidate.status === "Shortlisting";
 
-    const name = (candidate.name || `${candidate.firstName || ""} ${candidate.lastName || ""}`).toLowerCase();
+    const name = (
+      candidate.name ||
+      `${candidate.firstName || ""} ${candidate.lastName || ""}`
+    ).toLowerCase();
     const email = (candidate.email || "").toLowerCase();
     const passport = (candidate.passport || "").toLowerCase();
 
-    return isShortlisting && (name.includes(term) || email.includes(term) || passport.includes(term));
+    return (
+      isShortlisting &&
+      (name.includes(term) || email.includes(term) || passport.includes(term))
+    );
   });
 
   if (!canView) {
@@ -169,7 +191,8 @@ const Shortlisting = () => {
         <AdminNavbar />
         <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded">
           <p className="text-red-700">
-            <strong>Access Denied:</strong> You do not have permission to view this page.
+            <strong>Access Denied:</strong> You do not have permission to view
+            this page.
           </p>
         </div>
       </div>
@@ -205,21 +228,40 @@ const Shortlisting = () => {
               <table className="min-w-full border border-gray-200">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">#</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Name</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Email</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Mobile</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Passport</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Profession</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Experience</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">Actions</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">
+                      #
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">
+                      Email
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">
+                      Mobile
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">
+                      Passport
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">
+                      Profession
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">
+                      Experience
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
 
                 <tbody className="divide-y divide-gray-200">
                   {filteredCandidates.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
+                      <td
+                        colSpan={8}
+                        className="px-4 py-12 text-center text-gray-500"
+                      >
                         No shortlisted candidates found
                         {searchTerm && " matching your search"}
                       </td>
@@ -227,27 +269,43 @@ const Shortlisting = () => {
                   ) : (
                     filteredCandidates.map((candidate, index) => (
                       <tr key={candidate._id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-700">{String(index + 1).padStart(2, "0")}</td>
+                        <td className="px-4 py-3 text-sm text-gray-700">
+                          {String(index + 1).padStart(2, "0")}
+                        </td>
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">
                           {candidate.name ||
-                            `${candidate.firstName || ""} ${candidate.lastName || ""}`.trim() ||
+                            `${candidate.firstName || ""} ${
+                              candidate.lastName || ""
+                            }`.trim() ||
                             "N/A"}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{candidate.email || "—"}</td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {candidate.email || "—"}
+                        </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {candidate.mobile || candidate.contact || "—"}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{candidate.passport || "—"}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{candidate.profession || "—"}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{candidate.experience || "—"}</td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {candidate.passport || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {candidate.profession || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {candidate.experience || "—"}
+                        </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-2">
                             <button
-                              onClick={() => handleMoveToInterview(candidate._id)}
+                              onClick={() =>
+                                handleMoveToInterview(candidate._id)
+                              }
                               disabled={actioningId === candidate._id}
                               className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50"
                             >
-                              {actioningId === candidate._id ? "Processing..." : "Move to Interview"}
+                              {actioningId === candidate._id
+                                ? "Processing..."
+                                : "Move to Interview"}
                             </button>
 
                             <button
@@ -255,7 +313,9 @@ const Shortlisting = () => {
                               disabled={actioningId === candidate._id}
                               className="px-3 py-1.5 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 disabled:opacity-50"
                             >
-                              {actioningId === candidate._id ? "Processing..." : "Copy to Interview"}
+                              {actioningId === candidate._id
+                                ? "Processing..."
+                                : "Copy to Interview"}
                             </button>
 
                             <button
@@ -263,7 +323,9 @@ const Shortlisting = () => {
                               disabled={actioningId === candidate._id}
                               className="px-3 py-1.5 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 disabled:opacity-50"
                             >
-                              {actioningId === candidate._id ? "Processing..." : "Freeze"}
+                              {actioningId === candidate._id
+                                ? "Processing..."
+                                : "Freeze"}
                             </button>
 
                             <button
@@ -271,7 +333,9 @@ const Shortlisting = () => {
                               disabled={actioningId === candidate._id}
                               className="px-3 py-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-700 disabled:opacity-50"
                             >
-                              {actioningId === candidate._id ? "Deleting..." : "Delete"}
+                              {actioningId === candidate._id
+                                ? "Deleting..."
+                                : "Delete"}
                             </button>
                           </div>
                         </td>

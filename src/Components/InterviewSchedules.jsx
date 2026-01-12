@@ -83,7 +83,12 @@ const InterviewSchedules = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setCandidates(response.data?.candidates || response.data || []);
+      const allCandidates = response.data?.candidates || response.data || [];
+      // Filter candidates by status
+      const filteredCandidates = allCandidates.filter(
+        (c) => c.status === "Interview Schedule"
+      );
+      setCandidates(filteredCandidates);
     } catch (error) {
       toast.error("Failed to fetch candidates");
       console.error(error);

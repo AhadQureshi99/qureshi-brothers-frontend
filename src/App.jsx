@@ -140,19 +140,29 @@ const Layout = ({ children }) => {
 
 function App() {
   const dispatch = useDispatch();
-  const { isAuthenticated, loading, error } = useSelector((state) => state.user);
+  const { isAuthenticated, loading, error } = useSelector(
+    (state) => state.user
+  );
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("token");
+      console.log(
+        "[APP] App init - checking auth, token:",
+        token ? "EXISTS" : "NOT_FOUND"
+      );
       if (!token) {
+        console.log("[APP] No token, skipping auth check");
         setAuthChecked(true);
         return;
       }
       try {
-        await dispatch(getAuthUser()).unwrap();
+        console.log("[APP] Token found, calling getAuthUser...");
+        const result = await dispatch(getAuthUser()).unwrap();
+        console.log("[APP] Auth check successful:", result);
       } catch (err) {
+        console.error("[APP] Auth check failed:", err);
         localStorage.removeItem("token");
       }
       setAuthChecked(true);
@@ -164,14 +174,21 @@ function App() {
   const ProtectedRoute = ({ children }) => {
     const token = localStorage.getItem("token");
 
+    // If no token at all, redirect to login
     if (!token) {
       return <Navigate to="/login" replace />;
     }
 
-    if (!isAuthenticated) {
-      return <div className="min-h-screen flex items-center justify-center">Authenticating...</div>;
+    // Wait for initial auth check before rendering protected content
+    if (!authChecked) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <span className="text-gray-600">Loading...</span>
+        </div>
+      );
     }
 
+    // If token exists and auth check completed, render the content
     return children;
   };
 
@@ -185,32 +202,203 @@ function App() {
             </div>
           )}
           <Toaster position="top-right" />
-          
+
           <Routes>
             {/* Public/Auth Routes */}
-            <Route path="/login" element={<Layout><Login /></Layout>} />
-            <Route path="/signup" element={<Layout><Signup /></Layout>} />
-            <Route path="/verify-otp" element={<Layout><VerifyOTP /></Layout>} />
-            <Route path="/forgot-password" element={<Layout><ForgotPassword /></Layout>} />
-            <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
+            <Route
+              path="/login"
+              element={
+                <Layout>
+                  <Login />
+                </Layout>
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                <Layout>
+                  <Signup />
+                </Layout>
+              }
+            />
+            <Route
+              path="/verify-otp"
+              element={
+                <Layout>
+                  <VerifyOTP />
+                </Layout>
+              }
+            />
+            <Route
+              path="/forgot-password"
+              element={
+                <Layout>
+                  <ForgotPassword />
+                </Layout>
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                <Layout>
+                  <ResetPassword />
+                </Layout>
+              }
+            />
 
             {/* Protected Admin Routes */}
-            <Route path="/admin/dashboard" element={<Layout><ProtectedRoute><Dashboard /></ProtectedRoute></Layout>} />
-            <Route path="/admin/sidebar" element={<Layout><ProtectedRoute><Sidebar /></ProtectedRoute></Layout>} />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/sidebar"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <Sidebar />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/super-admin"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <SuperAdmin />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
 
             {/* Candidate Management */}
-            <Route path="/admin/candidate-management/initial-registration" element={<Layout><ProtectedRoute><InitialRegistration /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/ready-to-submitted" element={<Layout><ProtectedRoute><ReadyToSubmitted /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/submitted-candidates" element={<Layout><ProtectedRoute><SubmittedCandidates /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/candidate-final-registration" element={<Layout><ProtectedRoute><CandidateFinalRegistration /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/apply-job" element={<Layout><ProtectedRoute><ApplyJob /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/shortlisting" element={<Layout><ProtectedRoute><Shortlisting /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/shortlisted-candidates" element={<Layout><ProtectedRoute><ShortlistedCandidates /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/online-applications" element={<Layout><ProtectedRoute><OnlineApplications /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/job-applications" element={<Layout><ProtectedRoute><JobApplications /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/freeze-applications" element={<Layout><ProtectedRoute><FreezeApplications /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/completed-applications" element={<Layout><ProtectedRoute><CompletedApplications /></ProtectedRoute></Layout>} />
-            <Route path="/admin/candidate-management/interview-schedule" element={<Layout><ProtectedRoute><InterviewSchedules /></ProtectedRoute></Layout>} />
+            <Route
+              path="/admin/candidate-management/initial-registration"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <InitialRegistration />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/ready-to-submitted"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ReadyToSubmitted />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/submitted-candidates"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <SubmittedCandidates />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/candidate-final-registration"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidateFinalRegistration />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/apply-job"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ApplyJob />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/shortlisting"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <Shortlisting />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/shortlisted-candidates"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ShortlistedCandidates />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/online-applications"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <OnlineApplications />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/job-applications"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <JobApplications />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/freeze-applications"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <FreezeApplications />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/completed-applications"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CompletedApplications />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/admin/candidate-management/interview-schedule"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <InterviewSchedules />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
 
             {/* ... You can continue adding the remaining routes in the same pattern ... */}
 
@@ -221,7 +409,9 @@ function App() {
         </>
       ) : (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
-          <div className="text-xl font-semibold text-gray-700">Loading application...</div>
+          <div className="text-xl font-semibold text-gray-700">
+            Loading application...
+          </div>
         </div>
       )}
     </BrowserRouter>
