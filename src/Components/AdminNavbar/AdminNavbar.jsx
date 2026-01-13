@@ -14,11 +14,6 @@ const kebabToCamel = (str) => {
 
 const items = [
   { to: "/admin", label: "Admin Area", icon: FiGrid },
-  {
-    to: "/admin/configuration",
-    label: "Configuration",
-    icon: AiOutlineSetting,
-  },
   { to: "/admin/accounting", label: "Accounting & Finance", icon: FiLayers },
   {
     to: "/admin/employer-management",
@@ -29,6 +24,11 @@ const items = [
     to: "/admin/candidate-management",
     label: "Candidate Management",
     icon: AiOutlineUser,
+  },
+  {
+    to: "/admin/configuration",
+    label: "Configuration",
+    icon: AiOutlineSetting,
   },
 ];
 
