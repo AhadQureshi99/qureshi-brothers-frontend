@@ -278,6 +278,98 @@ function App() {
               }
             />
 
+            {/* Sidebar Navigation Routes */}
+            <Route
+              path="/candidate"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <Candidate />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/deposit-slip"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <DepositSlip />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/candidates-cv"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <CandidatesCV />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/visa-form"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <VisaForm />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/nbpchallan"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <Nbpchallan />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/undertaking-letter"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <UndertakingLetter />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/contract-letter"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <ContractLetter />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/allied-form"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <AlliedForm />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+            <Route
+              path="/expense"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <Expense />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
+
             {/* Candidate Management */}
             <Route
               path="/admin/candidate-management/initial-registration"
