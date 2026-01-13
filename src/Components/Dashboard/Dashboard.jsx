@@ -174,10 +174,37 @@ const Dashboard = () => {
     fetchLogs();
   }, []);
 
-  const handleFileChange = (e, label) => {
+  const handleFileChange = async (e, label) => {
     const file = e.target.files[0];
     if (file) {
       console.log(`${label} file selected:`, file.name);
+
+      if (label === "UPLOAD CV") {
+        try {
+          const formData = new FormData();
+          formData.append("documents", file);
+
+          const token = localStorage.getItem("token");
+          const response = await axios.post(
+            "https://api.cloudandroots.com/api/candidates",
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+              },
+              withCredentials: true,
+            }
+          );
+          console.log("CV uploaded successfully:", response.data);
+          alert("CV uploaded successfully!");
+          // Refresh the page to show updated data
+          window.location.reload();
+        } catch (error) {
+          console.error("Error uploading CV:", error);
+          alert("Failed to upload CV. Please try again.");
+        }
+      }
     }
   };
 

@@ -235,13 +235,8 @@ const CandidatesCV = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const apiUrl =
-        typeof import.meta !== "undefined" &&
-        import.meta.env &&
-        import.meta.env.VITE_API_URL
-          ? import.meta.env.VITE_API_URL
-          : ""; // default to relative path so Vite dev proxy handles /api requests
-      const res = await fetch((apiUrl || "") + "/api/candidates/", {
+      const apiUrl = "https://api.cloudandroots.com";
+      const res = await fetch(apiUrl + "/api/candidates/", {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
