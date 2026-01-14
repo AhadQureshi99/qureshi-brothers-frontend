@@ -1169,6 +1169,16 @@ function App() {
                 </Layout>
               }
             />
+            <Route
+              path="/all-activities"
+              element={
+                <Layout>
+                  <ProtectedRoute>
+                    <AllActivityLogs />
+                  </ProtectedRoute>
+                </Layout>
+              }
+            />
 
             {/* Fallback Routes */}
             <Route path="/" element={<Navigate to="/login" replace />} />
