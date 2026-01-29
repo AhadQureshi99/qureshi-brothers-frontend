@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar/Sidebar";
 import { FaArrowLeft } from "react-icons/fa";
+import { API_BASE_URL } from "../utils/apiBaseUrl";
 
 const AllActivityLogs = () => {
   const navigate = useNavigate();
@@ -16,13 +17,12 @@ const AllActivityLogs = () => {
       setError(null);
       try {
         const token = localStorage.getItem("token");
-        const API_URL = "https://api.cloudandroots.com/api";
         const res = await axios.get(
-          `${API_URL}/activity-logs/recent?limit=100`,
+          `${API_BASE_URL}/api/activity-logs/recent?limit=100`,
           {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
             withCredentials: true,
-          }
+          },
         );
         setActivityLogs(res.data);
       } catch (err) {

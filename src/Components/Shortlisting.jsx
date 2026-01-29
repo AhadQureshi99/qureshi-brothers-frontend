@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
+import { API_BASE_URL } from "../utils/apiBaseUrl";
 
 const Shortlisting = () => {
   const { user } = useSelector((state) => state.user);
@@ -34,16 +35,13 @@ const Shortlisting = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://api.cloudandroots.com/api/candidates",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/candidates`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const allCandidates = response.data?.candidates || response.data || [];
       // Filter candidates by status
       const filteredCandidates = allCandidates.filter(
-        (c) => c.status === "Shortlisting"
+        (c) => c.status === "Shortlisting",
       );
       setCandidates(filteredCandidates);
     } catch (error) {
@@ -66,9 +64,9 @@ const Shortlisting = () => {
       setActioningId(candidateId);
       const token = localStorage.getItem("token");
       await axios.put(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        `${API_BASE_URL}/api/candidates/${candidateId}`,
         { status: "Interview Schedule" },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Candidate moved to Interview Schedule");
       fetchCandidates();
@@ -97,13 +95,9 @@ const Shortlisting = () => {
       const { _id, createdAt, updatedAt, __v, ...rest } = candidate;
       const newCandidate = { ...rest, status: "Interview Schedule" };
 
-      await axios.post(
-        "https://api.cloudandroots.com/api/candidates",
-        newCandidate,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.post(`${API_BASE_URL}/api/candidates`, newCandidate, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       toast.success("Candidate copied to Interview Schedule");
       fetchCandidates();
@@ -127,9 +121,9 @@ const Shortlisting = () => {
       setActioningId(candidateId);
       const token = localStorage.getItem("token");
       await axios.put(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        `${API_BASE_URL}/api/candidates/${candidateId}`,
         { status: "Freeze" },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Application frozen");
       fetchCandidates();
@@ -152,12 +146,9 @@ const Shortlisting = () => {
     try {
       setActioningId(candidateId);
       const token = localStorage.getItem("token");
-      await axios.delete(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.delete(`${API_BASE_URL}/api/candidates/${candidateId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast.success("Candidate deleted");
       fetchCandidates();
     } catch (error) {

@@ -6,6 +6,7 @@ import Sidebar from "../Sidebar/Sidebar";
 import { generateBarcode } from "../../utils/barcodeGenerator";
 const logo = "/visaform_logo.png";
 import { FaEye } from "react-icons/fa";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const VisaForm = () => {
   // Get user from Redux
@@ -47,7 +48,7 @@ const VisaForm = () => {
       const raw = localStorage.getItem("visaCandidates");
       const idx = parseInt(
         localStorage.getItem("visaCandidateIndex") || "0",
-        10
+        10,
       );
       if (raw) {
         const list = JSON.parse(raw);
@@ -77,7 +78,7 @@ const VisaForm = () => {
                 setUniqueNo(c?.eNo || "");
               })
               .catch((err) =>
-                console.error("Could not load candidate by id", err)
+                console.error("Could not load candidate by id", err),
               );
           } else {
             // if no id, attempt to get initial registration candidates and show first
@@ -86,7 +87,7 @@ const VisaForm = () => {
               .then((res) => {
                 const list = res.data?.candidates || res.data || [];
                 const initial = (list || []).filter((c) =>
-                  (c.status || "").toLowerCase().includes("initial")
+                  (c.status || "").toLowerCase().includes("initial"),
                 );
                 if (initial.length > 0) {
                   setCandidates(initial);
@@ -349,9 +350,9 @@ const VisaForm = () => {
                 src={
                   candidate.profilePicture.startsWith("http")
                     ? candidate.profilePicture
-                    : `https://api.cloudandroots.com/uploads/profilePictures/${candidate.profilePicture.replace(
+                    : `${BASE_URL}/uploads/profilePictures/${candidate.profilePicture.replace(
                         /^\/+/,
-                        ""
+                        "",
                       )}`
                 }
                 alt="candidate"
@@ -376,7 +377,7 @@ const VisaForm = () => {
                   const res = await axios.post(
                     `/api/candidates/${candidate._id}/profile-picture`,
                     fd,
-                    { headers: { Authorization: `Bearer ${token}` } }
+                    { headers: { Authorization: `Bearer ${token}` } },
                   );
                   const updated = res?.data?.candidate || res?.data;
                   setCandidate(updated);
@@ -387,7 +388,7 @@ const VisaForm = () => {
                     setCandidates(copy);
                     localStorage.setItem(
                       "visaCandidates",
-                      JSON.stringify(copy)
+                      JSON.stringify(copy),
                     );
                   }
                   toast.success("Profile picture uploaded");

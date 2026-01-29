@@ -3,6 +3,10 @@ import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
+import { API_BASE_URL } from "../utils/apiBaseUrl";
+import { FaEdit, FaTrash, FaCopy } from "react-icons/fa";
+import { MdMoveToInbox, MdOutlineDriveFileMove } from "react-icons/md";
+
 
 const InitialRegistration = () => {
   const { user } = useSelector((state) => state.user);
@@ -58,16 +62,13 @@ const InitialRegistration = () => {
   const fetchCandidates = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://api.cloudandroots.com/api/candidates",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/candidates`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const allCandidates = response.data?.candidates || response.data || [];
       // Filter candidates by status
       const filteredCandidates = allCandidates.filter(
-        (c) => c.status === "Initial Registration" || !c.status
+        (c) => c.status === "Initial Registration" || !c.status,
       );
       setCandidates(filteredCandidates);
     } catch (error) {
@@ -89,20 +90,16 @@ const InitialRegistration = () => {
       const token = localStorage.getItem("token");
       if (editingCandidate) {
         await axios.put(
-          `https://api.cloudandroots.com/api/candidates/${editingCandidate._id}`,
+          `${API_BASE_URL}/api/candidates/${editingCandidate._id}`,
           formData,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         toast.success("Candidate updated successfully");
         setEditingCandidate(null);
       } else {
-        await axios.post(
-          "https://api.cloudandroots.com/api/candidates",
-          formData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        await axios.post(`${API_BASE_URL}/api/candidates`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         toast.success("Candidate registered successfully");
       }
       fetchCandidates();
@@ -182,9 +179,9 @@ const InitialRegistration = () => {
       setMovingId(candidateId);
       const token = localStorage.getItem("token");
       await axios.put(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        `${API_BASE_URL}/api/candidates/${candidateId}`,
         { status: "Shortlisting" },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Candidate moved to Shortlisting");
       fetchCandidates();
@@ -205,13 +202,9 @@ const InitialRegistration = () => {
       const { _id, createdAt, updatedAt, __v, ...rest } = candidate;
       const newCandidate = { ...rest, status: "Shortlisting" };
 
-      await axios.post(
-        "https://api.cloudandroots.com/api/candidates",
-        newCandidate,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.post(`${API_BASE_URL}/api/candidates`, newCandidate, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       toast.success("Candidate copied to Shortlisting");
       fetchCandidates();
@@ -232,17 +225,14 @@ const InitialRegistration = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.delete(`${API_BASE_URL}/api/candidates/${candidateId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast.success("Candidate deleted successfully");
       fetchCandidates();
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to delete candidate"
+        error.response?.data?.message || "Failed to delete candidate",
       );
       console.error(error);
     }
@@ -279,14 +269,14 @@ const InitialRegistration = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <AdminNavbar />
 
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className=" space-y-8">
         {/* FORM SECTION */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-bold mb-6 text-gray-800">
             {editingCandidate ? "Edit Candidate" : "Initial Registration"}
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-8 ">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -594,8 +584,8 @@ const InitialRegistration = () => {
                     ? "Updating..."
                     : "Saving..."
                   : editingCandidate
-                  ? "Update"
-                  : "Save"}
+                    ? "Update"
+                    : "Save"}
               </button>
               <button
                 type="button"
@@ -711,36 +701,45 @@ const InitialRegistration = () => {
                       <td className="border px-4 py-2">
                         {candidate.experience || "—"}
                       </td>
-                      <td className="border px-4 py-2">
-                        <div className="flex flex-wrap gap-2">
+                      <td className="border px-1 py-1">
+                        <div className="grid grid-cols-2 gap-2 mx-auto w-max">
                           <button
                             onClick={() => handleEdit(candidate)}
-                            className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                            title="Edit"
+                            className="w-8 h-8 flex items-center justify-center bg-green-600 text-white rounded hover:bg-green-700"
                           >
-                            Edit
+                            <FaEdit size={14} />
                           </button>
+
                           <button
                             onClick={() =>
                               handleMoveToShortlisting(candidate._id)
                             }
                             disabled={movingId === candidate._id}
-                            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50"
+                            title="Move to Shortlisting"
+                            className="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
                           >
-                            {movingId === candidate._id
-                              ? "Moving..."
-                              : "Move to Shortlisting"}
+                            {movingId === candidate._id ? (
+                              <span className="text-[9px]">...</span>
+                            ) : (
+                              <MdOutlineDriveFileMove size={16} />
+                            )}
                           </button>
+
                           <button
                             onClick={() => handleCopyToShortlisting(candidate)}
-                            className="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700"
+                            title="Copy to Shortlisting"
+                            className="w-8 h-8 flex items-center justify-center bg-purple-600 text-white rounded hover:bg-purple-700"
                           >
-                            Copy to Shortlisting
+                            <FaCopy size={14} />
                           </button>
+
                           <button
                             onClick={() => handleDelete(candidate._id)}
-                            className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                            title="Delete"
+                            className="w-8 h-8 flex items-center justify-center bg-red-600 text-white rounded hover:bg-red-700"
                           >
-                            Delete
+                            <FaTrash size={14} />
                           </button>
                         </div>
                       </td>

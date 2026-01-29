@@ -1,21 +1,26 @@
 // Use the same image URL logic as Navbar
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 function getProfileImageUrl(profilePicture) {
   const placeholder = "/candidate_img1.png";
   if (!profilePicture) return placeholder;
+
   // If already a full URL, use as-is
   if (profilePicture.startsWith("http")) return profilePicture;
+
   // If the string contains 'candidates/', use the candidates folder
   if (profilePicture.includes("candidates/")) {
     const filename = profilePicture.split("candidates/").pop();
-    return `https://api.cloudandroots.com/uploads/candidates/${filename}`;
+    return `${BASE_URL}/uploads/candidates/${filename}`;
   }
+
   // Otherwise, use the profilePictures folder
   const cleanPath = profilePicture.replace(/^\/+/, "");
-  return `https://api.cloudandroots.com/uploads/profilePictures/${cleanPath}`;
+  return `${BASE_URL}/uploads/profilePictures/${cleanPath}`;
 }
 
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Navbar from "../Navbar/Navbar";
 import Sidebar from "../Sidebar/Sidebar";
@@ -24,7 +29,6 @@ import { BsCalendar } from "react-icons/bs";
 import { MdEmail } from "react-icons/md";
 const img1 = "/candidate_img1.png";
 const img2 = "/candidate_img2.png";
-import { Link } from "react-router-dom";
 
 // Helper to get unique values for filters
 const uniqueValues = (array, key) => {
@@ -62,20 +66,19 @@ const Candidate = () => {
   const [editingDateValue, setEditingDateValue] = useState("");
   const [updatingDateIds, setUpdatingDateIds] = useState([]);
 
-  // Check if user has access
   const canAccess =
     user?.role === "superadmin" ||
     user?.permissions?.candidateManagement?.candidateManagement?.view === true;
 
   const location = useLocation();
+
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
-        const res = await fetch("https://api.cloudandroots.com/api/candidates");
+        const res = await fetch(`${BASE_URL}/api/candidates`);
         if (!res.ok) throw new Error("Failed to fetch candidates");
         const data = await res.json();
 
-        // Handle new candidate from location state (if passed)
         if (location.state?.newCandidate) {
           const newCand = location.state.newCandidate;
           const exists = data.some((c) => c._id === newCand._id);
@@ -89,11 +92,11 @@ const Candidate = () => {
         setLoading(false);
       }
     };
+
     fetchCandidates();
-    // Only run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  
   const filteredCandidate = candidate.filter((c) => {
     const searchLower = searchText.toLowerCase();
     const name = c.name || "";
@@ -139,18 +142,15 @@ const Candidate = () => {
   const handleSaveDate = async (id) => {
     try {
       setUpdatingDateIds((prev) => [...prev, id]);
-      const res = await fetch(
-        `https://api.cloudandroots.com/api/candidates/${id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ receiveDate: editingDateValue || null }),
-        }
-      );
+      const res = await fetch(`${BASE_URL}/api/candidates/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ receiveDate: editingDateValue || null }),
+      });
       if (!res.ok) throw new Error("Failed to update date");
       const data = await res.json();
       setCandidate((prev) =>
-        prev.map((p) => (p._id === id ? data.candidate : p))
+        prev.map((p) => (p._id === id ? data.candidate : p)),
       );
       handleCancelEditDate();
     } catch (err) {
@@ -165,18 +165,15 @@ const Candidate = () => {
     if (!window.confirm("Move this candidate to Initial Registration?")) return;
     try {
       setUpdatingDateIds((prev) => [...prev, id]);
-      const res = await fetch(
-        `https://api.cloudandroots.com/api/candidates/${id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "Initial Registration" }),
-        }
-      );
+      const res = await fetch(`${BASE_URL}/api/candidates/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "Initial Registration" }),
+      });
       if (!res.ok) throw new Error("Failed to move candidate");
       const data = await res.json();
       setCandidate((prev) =>
-        prev.map((p) => (p._id === id ? data.candidate : p))
+        prev.map((p) => (p._id === id ? data.candidate : p)),
       );
       alert("Candidate moved to Initial Registration");
     } catch (err) {
@@ -196,15 +193,12 @@ const Candidate = () => {
 
   const handleViewCandidate = async (candidate) => {
     try {
-      const res = await fetch(
-        `https://api.cloudandroots.com/api/candidates/${candidate._id}`
-      );
+      const res = await fetch(`${BASE_URL}/api/candidates/${candidate._id}`);
       if (!res.ok) throw new Error("Failed to fetch candidate details");
       const data = await res.json();
       setSelectedCandidate(data);
       setViewModalOpen(true);
     } catch (err) {
-      console.error(err);
       alert("Failed to load candidate details");
     }
   };
@@ -397,7 +391,7 @@ const Candidate = () => {
 
                           <td
                             className={`p-2 border font-medium ${getStatusColor(
-                              c.status
+                              c.status,
                             )}`}
                           >
                             {c.status}
@@ -437,7 +431,7 @@ const Candidate = () => {
                                   <span>
                                     {c.receiveDate
                                       ? new Date(
-                                          c.receiveDate
+                                          c.receiveDate,
                                         ).toLocaleDateString()
                                       : "N/A"}
                                   </span>
@@ -517,7 +511,7 @@ const Candidate = () => {
                     <div className="flex flex-col items-center">
                       <img
                         src={getProfileImageUrl(
-                          selectedCandidate.profilePicture
+                          selectedCandidate.profilePicture,
                         )}
                         alt="Profile"
                         className="w-32 h-32 rounded-full object-cover border-4 border-green-200"
@@ -680,7 +674,7 @@ const Candidate = () => {
                           </label>
                           <p
                             className={`text-sm font-medium ${getStatusColor(
-                              selectedCandidate.status
+                              selectedCandidate.status,
                             )}`}
                           >
                             {selectedCandidate.status || "N/A"}
@@ -693,7 +687,7 @@ const Candidate = () => {
                           <p className="text-sm">
                             {selectedCandidate.receiveDate
                               ? new Date(
-                                  selectedCandidate.receiveDate
+                                  selectedCandidate.receiveDate,
                                 ).toLocaleDateString()
                               : "N/A"}
                           </p>

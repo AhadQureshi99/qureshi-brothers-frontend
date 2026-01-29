@@ -17,12 +17,12 @@ const ExperienceRanges = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "https://api.cloudandroots.com/api/config/experience-ranges";
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  
   const fetchExperienceRanges = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(API_URL, {
+      const response = await axios.get(BASE_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setExperienceRanges(response.data.experienceRanges);
@@ -50,12 +50,12 @@ const ExperienceRanges = () => {
     try {
       const token = localStorage.getItem("token");
       if (editingExperienceRange) {
-        await axios.put(`${API_URL}/${editingExperienceRange._id}`, formData, {
+        await axios.put(`${BASE_URL}/${editingExperienceRange._id}`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Experience Range updated successfully");
       } else {
-        await axios.post(API_URL, formData, {
+        await axios.post(BASE_URL, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Experience Range created successfully");
@@ -86,7 +86,7 @@ const ExperienceRanges = () => {
     ) {
       try {
         const token = localStorage.getItem("token");
-        await axios.delete(`${API_URL}/${id}`, {
+        await axios.delete(`${BASE_URL}/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Experience Range deleted successfully");
@@ -101,7 +101,7 @@ const ExperienceRanges = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
-        `${API_URL}/${id}/toggle-status`,
+        `${BASE_URL}/${id}/toggle-status`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

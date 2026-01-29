@@ -15,13 +15,12 @@ const SalaryRanges = () => {
     salaryRange: "",
   });
   const [loading, setLoading] = useState(false);
-
-  const API_URL = "https://api.cloudandroots.com/api/config/salary-ranges";
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const fetchSalaryRanges = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(API_URL, {
+      const response = await axios.get(BASE_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSalaryRanges(response.data.salaryRanges);
@@ -37,7 +36,7 @@ const SalaryRanges = () => {
 
   useEffect(() => {
     const filtered = salaryRanges.filter((range) =>
-      range.salaryRange.toLowerCase().includes(searchTerm.toLowerCase())
+      range.salaryRange.toLowerCase().includes(searchTerm.toLowerCase()),
     );
     setFilteredSalaryRanges(filtered);
   }, [searchTerm, salaryRanges]);
@@ -49,12 +48,12 @@ const SalaryRanges = () => {
     try {
       const token = localStorage.getItem("token");
       if (editingSalaryRange) {
-        await axios.put(`${API_URL}/${editingSalaryRange._id}`, formData, {
+        await axios.put(`${BASE_URL}/${editingSalaryRange._id}`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Salary Range updated successfully");
       } else {
-        await axios.post(API_URL, formData, {
+        await axios.post(BASE_URL, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Salary Range created successfully");
@@ -66,7 +65,7 @@ const SalaryRanges = () => {
       fetchSalaryRanges();
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to save salary range"
+        error.response?.data?.message || "Failed to save salary range",
       );
     } finally {
       setLoading(false);
@@ -83,7 +82,7 @@ const SalaryRanges = () => {
     if (window.confirm("Are you sure you want to delete this salary range?")) {
       try {
         const token = localStorage.getItem("token");
-        await axios.delete(`${API_URL}/${id}`, {
+        await axios.delete(`${BASE_URL}/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Salary Range deleted successfully");
@@ -98,11 +97,11 @@ const SalaryRanges = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
-        `${API_URL}/${id}/toggle-status`,
+        `${BASE_URL}/${id}/toggle-status`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       toast.success("Status updated successfully");
       fetchSalaryRanges();
@@ -163,8 +162,8 @@ const SalaryRanges = () => {
                     {loading
                       ? "Saving..."
                       : editingSalaryRange
-                      ? "Update"
-                      : "Create"}
+                        ? "Update"
+                        : "Create"}
                   </button>
                   <button
                     type="button"

@@ -15,12 +15,14 @@ import { BsFileEarmarkArrowUp } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { GoHome } from "react-icons/go";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, isAuthenticated, loading, error, success } = useSelector(
-    (state) => state.user
+    (state) => state.user,
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,20 +41,14 @@ const Navbar = () => {
   const fetchNotifCount = async () => {
     try {
       const token = localStorage.getItem("token");
-      const reqs = await fetch(
-        "https://api.cloudandroots.com/api/expenses/requests",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
+      const reqs = await fetch(`${BASE_URL}/api/expenses/requests`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
         .then((r) => r.json())
         .catch(() => ({ requests: [] }));
-      const expensesRes = await fetch(
-        "https://api.cloudandroots.com/api/expenses/",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
+      const expensesRes = await fetch(`${BASE_URL}/api/expenses/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
         .then((r) => r.json())
         .catch(() => ({ expenses: [] }));
       const pending = (reqs.requests || []).length;
@@ -79,12 +75,13 @@ const Navbar = () => {
     try {
       const token = localStorage.getItem("token");
       const reqsRes = await axios
-        .get("https://api.cloudandroots.com/api/expenses/requests", {
+        .get(`${BASE_URL}/api/expenses/requests`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .catch(() => ({ data: { requests: [] } }));
+
       const expensesRes = await axios
-        .get("https://api.cloudandroots.com/api/expenses/", {
+        .get(`${BASE_URL}/api/expenses/`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .catch(() => ({ data: { expenses: [] } }));
@@ -116,7 +113,7 @@ const Navbar = () => {
         }));
 
       const items = [...requests, ...recentAdds].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
       );
       setNotifItems(items);
     } catch (err) {
@@ -137,9 +134,9 @@ const Navbar = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `https://api.cloudandroots.com/api/expenses/requests/${requestId}/handle`,
+        `${BASE_URL}/api/expenses/requests/${requestId}/handle`,
         { action },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success(res.data?.message || "Done");
       // refresh both count and dropdown
@@ -157,7 +154,7 @@ const Navbar = () => {
     if (user?.profilePicture) {
       console.log(
         "Profile picture URL:",
-        `https://api.cloudandroots.com/uploads/profilePictures/${user.profilePicture}`
+        `${BASE_URL}/uploads/profilePictures/${user.profilePicture}`,
       );
     }
     if (isAuthenticated && !user) {
@@ -300,55 +297,57 @@ const Navbar = () => {
     if (!profilePicture) return placeholder;
     // Always use the hardcoded base URL for images
     const cleanPath = profilePicture.replace(/^\/+/, "");
-    return `https://api.cloudandroots.com/uploads/profilePictures/${cleanPath}`;
+    return `${BASE_URL}/uploads/profilePictures/${cleanPath}`;
   };
 
   return (
     <div className="w-full bg-gradient-to-r from-white to-green-700 px-6 py-3 flex justify-between items-center shadow-md">
       <div className="flex items-center space-x-4">
-        <img src={logo} alt="Logo" className="w-14 h-14" />
+        <Link to="/admin/dashboard">
+          <img src={logo} alt="Logo" className="w-14 h-14" />
+        </Link>
         <div>
           <h1 className="text-3xl font-semibold text-black">
             {location.pathname === "/candidates-cv"
               ? "Candidates CV"
               : location.pathname === "/candidate"
-              ? "Candidate"
-              : location.pathname === "/allied-form"
-              ? "Allied Form"
-              : location.pathname === "/visa-form"
-              ? "Visa Form"
-              : location.pathname === "/undertaking-letter"
-              ? "Undertaking Letter"
-              : location.pathname === "/expense"
-              ? "Expense"
-              : location.pathname === "/deposit-slip"
-              ? "Deposit Slip"
-              : location.pathname === "/nbpchallan"
-              ? "NBP CHALLAN"
-              : location.pathname === "/contract-letter"
-              ? "Contract Letter"
-              : location.pathname === "/dashboard"
-              ? "Dashboard"
-              : "Dashboard"}
+                ? "Candidate"
+                : location.pathname === "/allied-form"
+                  ? "Allied Form"
+                  : location.pathname === "/visa-form"
+                    ? "Visa Form"
+                    : location.pathname === "/undertaking-letter"
+                      ? "Undertaking Letter"
+                      : location.pathname === "/expense"
+                        ? "Expense"
+                        : location.pathname === "/deposit-slip"
+                          ? "Deposit Slip"
+                          : location.pathname === "/nbpchallan"
+                            ? "NBP CHALLAN"
+                            : location.pathname === "/contract-letter"
+                              ? "Contract Letter"
+                              : location.pathname === "/dashboard"
+                                ? "Dashboard"
+                                : "Dashboard"}
           </h1>
           <p className="text-sm text-black font-semibold">
             Welcome back! Here's what's happening with your visa processes.
           </p>
         </div>
         {/* Dashboard link for superadmin only */}
-        {isAuthenticated && user?.role === "superadmin" && (
+        {/* {isAuthenticated && user?.role === "superadmin" && (
           <Link
             to="/admin/dashboard"
             className={`flex items-center gap-2 bg-white text-sm px-3 py-1.5 rounded-md border border-gray-300 shadow hover:shadow-md cursor-pointer ${
               location.pathname === "/admin/dashboard"
-                ? "bg-green-700 text-white"
+                ? "bg-green-700 text-black"
                 : ""
             }`}
           >
             <GoHome size={20} />
             Dashboard
           </Link>
-        )}
+        )} */}
       </div>
 
       <div className="flex items-center space-x-4">

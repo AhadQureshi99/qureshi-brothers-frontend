@@ -3,6 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { FaEdit, FaTrash, FaToggleOn, FaToggleOff } from "react-icons/fa";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
+import { API_BASE_URL } from "../utils/apiBaseUrl";
 
 const Skills = () => {
   const [skills, setSkills] = useState([]);
@@ -14,7 +15,7 @@ const Skills = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  const API_BASE_URL = "https://api.cloudandroots.com/api/skills";
+  const SKILLS_API_URL = `${API_BASE_URL}/api/skills`;
 
   useEffect(() => {
     fetchSkills();
@@ -23,7 +24,7 @@ const Skills = () => {
   const fetchSkills = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(API_BASE_URL, {
+      const response = await axios.get(SKILLS_API_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSkills(response.data.skills);
@@ -47,7 +48,7 @@ const Skills = () => {
         await axios.put(
           `${API_BASE_URL}/${editingSkill._id}`,
           formData,
-          config
+          config,
         );
         toast.success("Skill updated successfully");
       } else {
@@ -101,7 +102,7 @@ const Skills = () => {
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       toast.success("Status updated successfully");
       fetchSkills();
@@ -112,7 +113,7 @@ const Skills = () => {
   };
 
   const filteredSkills = skills.filter((skill) =>
-    skill.name.toLowerCase().includes(searchTerm.toLowerCase())
+    skill.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (

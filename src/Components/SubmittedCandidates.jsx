@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { API_BASE_URL } from "../utils/apiBaseUrl";
 
 const SubmittedCandidates = () => {
   const { user } = useSelector((state) => state.user);
@@ -27,14 +28,13 @@ const SubmittedCandidates = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://api.cloudandroots.com/api/candidates",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/candidates`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setCandidates(
         (response.data?.candidates || response.data || []).filter(
-          (c) => c.status === "Submitted"
-        )
+          (c) => c.status === "Submitted",
+        ),
       );
     } catch (error) {
       toast.error("Failed to fetch candidates");
@@ -53,13 +53,9 @@ const SubmittedCandidates = () => {
       const { _id, createdAt, updatedAt, __v, ...rest } = candidate;
       const newCandidate = { ...rest, status: "Submitted" };
 
-      await axios.post(
-        "https://api.cloudandroots.com/api/candidates",
-        newCandidate,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.post(`${API_BASE_URL}/api/candidates`, newCandidate, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       toast.success("Candidate duplicated successfully");
       fetchCandidates();
@@ -78,10 +74,9 @@ const SubmittedCandidates = () => {
       return;
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.delete(`${API_BASE_URL}/api/candidates/${candidateId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast.success("Candidate deleted successfully");
       fetchCandidates();
     } catch (error) {

@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import AdminNavbar from "../AdminNavbar/AdminNavbar";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const JobPayment = () => {
   const dispatch = useDispatch();
   const [jobPayments, setJobPayments] = useState([]);
@@ -18,14 +20,11 @@ const JobPayment = () => {
   const fetchJobPayments = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        "https://api.cloudandroots.com/api/accounting/job-payments/",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${BASE_URL}/api/accounting/job-payments/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
       setJobPayments(data);
     } catch (error) {
@@ -40,14 +39,14 @@ const JobPayment = () => {
       payment.employer?.name
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      payment.job?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+      payment.job?.title?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedPayments = filteredPayments.slice(
     startIndex,
-    startIndex + itemsPerPage
+    startIndex + itemsPerPage,
   );
 
   return (

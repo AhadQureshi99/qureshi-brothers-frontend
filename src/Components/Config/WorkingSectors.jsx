@@ -14,9 +14,7 @@ const WorkingSectors = () => {
     description: "",
   });
   const [loading, setLoading] = useState(false);
-
-  const API_BASE_URL =
-    "https://api.cloudandroots.com/api/config/working-sectors";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchSectors();
@@ -25,7 +23,7 @@ const WorkingSectors = () => {
   const fetchSectors = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(API_BASE_URL, {
+      const response = await axios.get(BASE_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSectors(response.data.sectors);
@@ -47,13 +45,13 @@ const WorkingSectors = () => {
 
       if (editingSector) {
         await axios.put(
-          `${API_BASE_URL}/${editingSector._id}`,
+          `${BASE_URL}/${editingSector._id}`,
           formData,
           config
         );
         toast.success("Working Sector updated successfully");
       } else {
-        await axios.post(API_BASE_URL, formData, config);
+        await axios.post(BASE_URL, formData, config);
         toast.success("Working Sector created successfully");
       }
 
@@ -89,7 +87,7 @@ const WorkingSectors = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE_URL}/${id}`, {
+      await axios.delete(`${BASE_URL}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Working Sector deleted successfully");
@@ -104,7 +102,7 @@ const WorkingSectors = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
-        `${API_BASE_URL}/${id}/toggle-status`,
+        `${BASE_URL}/${id}/toggle-status`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

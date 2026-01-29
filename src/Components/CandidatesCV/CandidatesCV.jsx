@@ -6,6 +6,8 @@ import { BsPrinter } from "react-icons/bs";
 const userImg = "/candidatescv_profile.png";
 import { GoPaperclip } from "react-icons/go";
 import { Link, useNavigate } from "react-router-dom";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 const CandidatesCV = () => {
   // Form state
@@ -235,12 +237,14 @@ const CandidatesCV = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const apiUrl = "https://api.cloudandroots.com";
+      const apiUrl = BASE_URL;
+
       const res = await fetch(apiUrl + "/api/candidates/", {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
+
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: res.statusText }));
         throw new Error(err.message || "Upload failed");

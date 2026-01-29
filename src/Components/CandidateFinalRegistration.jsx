@@ -4,6 +4,7 @@ import AdminNavbar from "./AdminNavbar/AdminNavbar";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../utils/apiBaseUrl";
 
 const CandidateFinalRegistration = () => {
   const navigate = useNavigate();
@@ -152,16 +153,13 @@ const CandidateFinalRegistration = () => {
   const fetchCandidates = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://api.cloudandroots.com/api/candidates/",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/candidates/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const allCandidates = response.data || [];
       // Filter candidates by status
       const filteredCandidates = allCandidates.filter(
-        (c) => c.status === "Final Registration"
+        (c) => c.status === "Final Registration",
       );
       setCandidates(filteredCandidates);
     } catch (error) {
@@ -271,21 +269,17 @@ const CandidateFinalRegistration = () => {
 
       if (editingCandidate) {
         await axios.put(
-          `https://api.cloudandroots.com/api/candidates/${editingCandidate._id}`,
+          `${API_BASE_URL}/api/candidates/${editingCandidate._id}`,
           candidateData,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         toast.success("Candidate updated successfully");
       } else {
-        await axios.post(
-          "https://api.cloudandroots.com/api/candidates/",
-          candidateData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        await axios.post(`${API_BASE_URL}/api/candidates/`, candidateData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         toast.success("Candidate registered successfully");
       }
 
@@ -353,7 +347,7 @@ const CandidateFinalRegistration = () => {
       toast.error(
         editingCandidate
           ? "Failed to update candidate"
-          : "Failed to register candidate"
+          : "Failed to register candidate",
       );
       console.error(error);
     } finally {
@@ -491,9 +485,9 @@ const CandidateFinalRegistration = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       await axios.put(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        `${API_BASE_URL}/api/candidates/${candidateId}`,
         { status: "Ready to Submitted" },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Candidate moved to Ready to Submitted");
       fetchCandidates();
@@ -518,11 +512,9 @@ const CandidateFinalRegistration = () => {
       const token = localStorage.getItem("token");
       const { _id, createdAt, updatedAt, __v, ...rest } = candidate;
       const newCandidate = { ...rest, status: "Ready to Submitted" };
-      await axios.post(
-        "https://api.cloudandroots.com/api/candidates",
-        newCandidate,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.post(`${API_BASE_URL}/api/candidates`, newCandidate, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast.success("Candidate copied to Ready to Submitted");
       fetchCandidates();
       navigate("/admin/candidate-management/ready-to-submitted");
@@ -694,8 +686,8 @@ const CandidateFinalRegistration = () => {
                 {loading
                   ? "Saving..."
                   : editingCandidate
-                  ? "Update Candidate"
-                  : "Save Candidate"}
+                    ? "Update Candidate"
+                    : "Save Candidate"}
               </button>
               <button
                 onClick={handleCancel}
@@ -778,11 +770,11 @@ const CandidateFinalRegistration = () => {
                           onClick={() => {
                             localStorage.setItem(
                               "visaCandidates",
-                              JSON.stringify(filteredCandidates)
+                              JSON.stringify(filteredCandidates),
                             );
                             localStorage.setItem(
                               "visaCandidateIndex",
-                              String(i)
+                              String(i),
                             );
                             window.location.href = "/visa-form";
                           }}
@@ -794,11 +786,11 @@ const CandidateFinalRegistration = () => {
                           onClick={() => {
                             localStorage.setItem(
                               "depositCandidates",
-                              JSON.stringify(filteredCandidates)
+                              JSON.stringify(filteredCandidates),
                             );
                             localStorage.setItem(
                               "depositCandidateIndex",
-                              String(i)
+                              String(i),
                             );
                             window.location.href = "/deposit-slip";
                           }}
@@ -810,11 +802,11 @@ const CandidateFinalRegistration = () => {
                           onClick={() => {
                             localStorage.setItem(
                               "nbpCandidates",
-                              JSON.stringify(filteredCandidates)
+                              JSON.stringify(filteredCandidates),
                             );
                             localStorage.setItem(
                               "nbpCandidateIndex",
-                              String(i)
+                              String(i),
                             );
                             window.location.href = "/nbpchallan";
                           }}
@@ -826,11 +818,11 @@ const CandidateFinalRegistration = () => {
                           onClick={() => {
                             localStorage.setItem(
                               "undertakingCandidates",
-                              JSON.stringify(filteredCandidates)
+                              JSON.stringify(filteredCandidates),
                             );
                             localStorage.setItem(
                               "undertakingCandidateIndex",
-                              String(i)
+                              String(i),
                             );
                             window.location.href = "/undertaking-letter";
                           }}
@@ -842,11 +834,11 @@ const CandidateFinalRegistration = () => {
                           onClick={() => {
                             localStorage.setItem(
                               "contactCandidates",
-                              JSON.stringify(filteredCandidates)
+                              JSON.stringify(filteredCandidates),
                             );
                             localStorage.setItem(
                               "contactCandidateIndex",
-                              String(i)
+                              String(i),
                             );
                             window.location.href = "/contact";
                           }}
@@ -858,11 +850,11 @@ const CandidateFinalRegistration = () => {
                           onClick={() => {
                             localStorage.setItem(
                               "alliedCandidates",
-                              JSON.stringify(filteredCandidates)
+                              JSON.stringify(filteredCandidates),
                             );
                             localStorage.setItem(
                               "alliedCandidateIndex",
-                              String(i)
+                              String(i),
                             );
                             window.location.href = "/allied-form";
                           }}

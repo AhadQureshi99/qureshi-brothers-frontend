@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import Sidebar from "../Sidebar/Sidebar";
 import AdminNavbar from "../AdminNavbar/AdminNavbar";
 import { FaArrowUp, FaPlus } from "react-icons/fa";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const bg1 = "/dashboard_bg1.jpeg";
 const bg2 = "/dashboard_bg2.jpeg";
@@ -36,13 +37,14 @@ const Dashboard = () => {
     },
   });
   const [activityLogs, setActivityLogs] = useState([]);
+  const [selectedActivityFilter, setSelectedActivityFilter] = useState("All");
   const [loadingLogs, setLoadingLogs] = useState(true);
   const [logsError, setLogsError] = useState(null);
   const [loadingSummary, setLoadingSummary] = useState(true);
   const [summaryError, setSummaryError] = useState(null);
 
   useEffect(() => {
-    const API_URL = "https://api.cloudandroots.com/api";
+    const API_URL = `${BASE_URL}/api`;
     const fetchSummary = async () => {
       setLoadingSummary(true);
       setSummaryError(null);
@@ -91,15 +93,15 @@ const Dashboard = () => {
           (c) =>
             c.status &&
             ["Visa Approved", "Visa Completed", "Protector Completed"].includes(
-              c.status
-            )
+              c.status,
+            ),
         ).length;
         // Pending Protector: candidates with status 'Pending Protector'
         const pendingProtector = candidates.filter(
           (c) =>
             c.status &&
             c.status.toLowerCase().includes("protector") &&
-            !c.status.toLowerCase().includes("completed")
+            !c.status.toLowerCase().includes("completed"),
         ).length;
         // Active Cases: jobs with status 'Open' or candidates with status 'Active'
         const activeCases = jobs.filter((j) => j.jobStatus === "Open").length;
@@ -108,9 +110,9 @@ const Dashboard = () => {
           (c) =>
             (c.documents &&
               c.documents.some(
-                (d) => d.title && d.title.toLowerCase().includes("navttc")
+                (d) => d.title && d.title.toLowerCase().includes("navttc"),
               )) ||
-            (c.status && c.status.toLowerCase().includes("navttc"))
+            (c.status && c.status.toLowerCase().includes("navttc")),
         ).length;
 
         // Progress steps: count by status
@@ -132,7 +134,7 @@ const Dashboard = () => {
           candidateSteps[step] = candidates.filter(
             (c) =>
               c.status &&
-              statuses.some((s) => c.status.toLowerCase() === s.toLowerCase())
+              statuses.some((s) => c.status.toLowerCase() === s.toLowerCase()),
           ).length;
         });
         setSummary({
@@ -161,7 +163,7 @@ const Dashboard = () => {
           {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
             withCredentials: true,
-          }
+          },
         );
         setActivityLogs(res.data);
       } catch (err) {
@@ -186,7 +188,7 @@ const Dashboard = () => {
 
           const token = localStorage.getItem("token");
           const response = await axios.post(
-            "https://api.cloudandroots.com/api/candidates",
+            `${BASE_URL}/api/candidates`,
             formData,
             {
               headers: {
@@ -194,7 +196,7 @@ const Dashboard = () => {
                 "Content-Type": "multipart/form-data",
               },
               withCredentials: true,
-            }
+            },
           );
           console.log("CV uploaded successfully:", response.data);
           alert("CV uploaded successfully!");
@@ -382,7 +384,7 @@ const Dashboard = () => {
                     ></div>
                   </div>
                 </div>
-              )
+              ),
             )}
           </div>
 
@@ -414,7 +416,7 @@ const Dashboard = () => {
                           PKR {amount.toLocaleString()}
                         </div>
                       </React.Fragment>
-                    )
+                    ),
                   )
                 )}
               </div>
@@ -440,199 +442,217 @@ const Dashboard = () => {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-gradient-to-b from-green-200 to-green-100 p-4 rounded-xl shadow-md">
+            <div className="bg-green-100 p-4 rounded-xl shadow-md">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-md font-semibold text-green-600">
                   Recent Activity
                 </h3>
-                {activityLogs.length > 5 && (
-                  <button
-                    onClick={() => navigate("/all-activities")}
-                    className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition"
-                  >
-                    View All
-                  </button>
-                )}
+                <select
+                  value={selectedActivityFilter}
+                  onChange={(e) => setSelectedActivityFilter(e.target.value)}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:border-green-500"
+                >
+                  <option value="All">All Activities</option>
+                  {[...new Set(activityLogs.map((log) => log.entityType))].map(
+                    (type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ),
+                  )}
+                </select>
               </div>
               {loadingLogs ? (
                 <div className="text-gray-500">Loading activity...</div>
               ) : logsError ? (
                 <div className="text-red-500">{logsError}</div>
               ) : (
-                <div className="grid gap-4">
-                  {activityLogs.length === 0 ? (
+                <div className="grid gap-1 max-h-96 overflow-y-auto pr-2">
+                  {activityLogs.filter(
+                    (log) =>
+                      selectedActivityFilter === "All" ||
+                      log.entityType === selectedActivityFilter,
+                  ).length === 0 ? (
                     <div className="text-gray-500">
-                      No recent activity found.
+                      No activity found for this filter.
                     </div>
                   ) : (
-                    activityLogs.slice(0, 5).map((log, idx) => (
-                      <div
-                        key={log._id || idx}
-                        className="bg-white rounded-lg p-4 shadow flex flex-col md:flex-row md:justify-between md:items-center"
-                      >
-                        <div>
-                          <div className="font-medium text-sm text-gray-800">
-                            {log.description}
+                    activityLogs
+                      .filter(
+                        (log) =>
+                          selectedActivityFilter === "All" ||
+                          log.entityType === selectedActivityFilter,
+                      )
+                      .map((log, idx) => (
+                        <div
+                          key={log._id || idx}
+                          className="bg-white rounded-lg px-4 py-2 shadow flex flex-col md:flex-row md:justify-between md:items-center"
+                        >
+                          <div>
+                            <div className="font-medium text-sm text-gray-800">
+                              {log.description}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {new Date(log.createdAt).toLocaleString("en-GB", {
+                                weekday: "long",
+                                year: "numeric",
+                                month: "long",
+                                day: "2-digit",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {new Date(log.createdAt).toLocaleString("en-GB", {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "2-digit",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                          <div className="mt-2 md:mt-0 md:ml-4">
+                            <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700">
+                              {log.entityType}
+                            </span>
                           </div>
                         </div>
-                        <div className="mt-2 md:mt-0 md:ml-4">
-                          <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700">
-                            {log.entityType}
-                          </span>
-                        </div>
-                      </div>
-                    ))
+                      ))
                   )}
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Latest Job Applications */}
-          <div className="bg-white shadow-lg rounded-xl p-6 mt-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Latest Job Applications
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-gray-100 text-gray-700">
-                  <tr>
-                    <th className="px-4 py-3">Sr No</th>
-                    <th className="px-4 py-3">Company</th>
-                    <th className="px-4 py-3">Job Title</th>
-                    <th className="px-4 py-3">Candidate Name</th>
-                    <th className="px-4 py-3">Salary</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">1</td>
-                    <td className="px-4 py-3">China Mobile Company</td>
-                    <td className="px-4 py-3">Computer Science</td>
-                    <td className="px-4 py-3">Ateeq Qureshi</td>
-                    <td className="px-4 py-3">0.0000</td>
-                  </tr>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">2</td>
-                    <td className="px-4 py-3">China Mobile Company</td>
-                    <td className="px-4 py-3">Computer Science</td>
-                    <td className="px-4 py-3">Ateeq Qureshi</td>
-                    <td className="px-4 py-3">0.0000</td>
-                  </tr>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">3</td>
-                    <td className="px-4 py-3">CCC UAE</td>
-                    <td className="px-4 py-3">Driver Required for CCC UAE</td>
-                    <td className="px-4 py-3">Junaid Ali</td>
-                    <td className="px-4 py-3">0.0000</td>
-                  </tr>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">4</td>
-                    <td className="px-4 py-3">CCC UAE</td>
-                    <td className="px-4 py-3">Driver Required for CCC UAE</td>
-                    <td className="px-4 py-3">Yasir Ali</td>
-                    <td className="px-4 py-3">0.0000</td>
-                  </tr>
-                </tbody>
-              </table>
+            {/* Latest Job Applications */}
+            <div className="bg-green-100 shadow-lg rounded-xl p-6 mt-8">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Latest Job Applications
+              </h3>
+              <div className="overflow-x-auto h-96 overflow-y-auto pr-2">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-white text-gray-700">
+                    <tr>
+                      <th className="px-4 py-3">Sr No</th>
+                      <th className="px-4 py-3">Company</th>
+                      <th className="px-4 py-3">Job Title</th>
+                      <th className="px-4 py-3">Candidate Name</th>
+                      <th className="px-4 py-3">Salary</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">1</td>
+                      <td className="px-4 py-3">China Mobile Company</td>
+                      <td className="px-4 py-3">Computer Science</td>
+                      <td className="px-4 py-3">Ateeq Qureshi</td>
+                      <td className="px-4 py-3">0.0000</td>
+                    </tr>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">2</td>
+                      <td className="px-4 py-3">China Mobile Company</td>
+                      <td className="px-4 py-3">Computer Science</td>
+                      <td className="px-4 py-3">Ateeq Qureshi</td>
+                      <td className="px-4 py-3">0.0000</td>
+                    </tr>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">3</td>
+                      <td className="px-4 py-3">CCC UAE</td>
+                      <td className="px-4 py-3">Driver Required for CCC UAE</td>
+                      <td className="px-4 py-3">Junaid Ali</td>
+                      <td className="px-4 py-3">0.0000</td>
+                    </tr>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">4</td>
+                      <td className="px-4 py-3">CCC UAE</td>
+                      <td className="px-4 py-3">Driver Required for CCC UAE</td>
+                      <td className="px-4 py-3">Yasir Ali</td>
+                      <td className="px-4 py-3">0.0000</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
-          {/* Latest Online Applications */}
-          <div className="bg-white shadow-lg rounded-xl p-6 mt-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Latest Online Applications
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-gray-100 text-gray-700">
-                  <tr>
-                    <th className="px-4 py-3">Sr No</th>
-                    <th className="px-4 py-3">Company</th>
-                    <th className="px-4 py-3">Job Title</th>
-                    <th className="px-4 py-3">Candidate Name</th>
-                    <th className="px-4 py-3">Candidate Mobile</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">1</td>
-                    <td className="px-4 py-3">China Mobile Company</td>
-                    <td className="px-4 py-3">Computer Science</td>
-                    <td className="px-4 py-3">Ateeq Qureshi</td>
-                    <td className="px-4 py-3"></td>
-                  </tr>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">2</td>
-                    <td className="px-4 py-3">CCC UAE</td>
-                    <td className="px-4 py-3">Driver Required for CCC UAE</td>
-                    <td className="px-4 py-3">Junaid Ali</td>
-                    <td className="px-4 py-3"></td>
-                  </tr>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">3</td>
-                    <td className="px-4 py-3">CCC UAE</td>
-                    <td className="px-4 py-3">Driver Required for CCC UAE</td>
-                    <td className="px-4 py-3">Yasir Ali</td>
-                    <td className="px-4 py-3"></td>
-                  </tr>
-                </tbody>
-              </table>
+            {/* Latest Online Applications */}
+            <div className="bg-green-100 shadow-lg rounded-xl p-6 mt-8">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Latest Online Applications
+              </h3>
+              <div className="overflow-x-auto max-h-96 overflow-y-auto pr-2">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-white text-gray-700">
+                    <tr>
+                      <th className="px-4 py-3">Sr No</th>
+                      <th className="px-4 py-3">Company</th>
+                      <th className="px-4 py-3">Job Title</th>
+                      <th className="px-4 py-3">Candidate Name</th>
+                      <th className="px-4 py-3">Candidate Mobile</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">1</td>
+                      <td className="px-4 py-3">China Mobile Company</td>
+                      <td className="px-4 py-3">Computer Science</td>
+                      <td className="px-4 py-3">Ateeq Qureshi</td>
+                      <td className="px-4 py-3"></td>
+                    </tr>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">2</td>
+                      <td className="px-4 py-3">CCC UAE</td>
+                      <td className="px-4 py-3">Driver Required for CCC UAE</td>
+                      <td className="px-4 py-3">Junaid Ali</td>
+                      <td className="px-4 py-3"></td>
+                    </tr>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">3</td>
+                      <td className="px-4 py-3">CCC UAE</td>
+                      <td className="px-4 py-3">Driver Required for CCC UAE</td>
+                      <td className="px-4 py-3">Yasir Ali</td>
+                      <td className="px-4 py-3"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
-          {/* Latest Jobs */}
-          <div className="bg-white shadow-lg rounded-xl p-6 mt-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Latest Jobs
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-gray-100 text-gray-700">
-                  <tr>
-                    <th className="px-4 py-3">Sr No</th>
-                    <th className="px-4 py-3">Company</th>
-                    <th className="px-4 py-3">Job Title</th>
-                    <th className="px-4 py-3">Salary</th>
-                    <th className="px-4 py-3">Last date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">1</td>
-                    <td className="px-4 py-3">
-                      ER-1001-International Recruiters
-                    </td>
-                    <td className="px-4 py-3">name</td>
-                    <td className="px-4 py-3">5000</td>
-                    <td className="px-4 py-3">12/01/2025</td>
-                  </tr>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">2</td>
-                    <td className="px-4 py-3">ER-1004-China Mobile Company</td>
-                    <td className="px-4 py-3">Computer Science</td>
-                    <td className="px-4 py-3">50000</td>
-                    <td className="px-4 py-3">31/12/2022</td>
-                  </tr>
-                  <tr className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">3</td>
-                    <td className="px-4 py-3">17-CCC UAE</td>
-                    <td className="px-4 py-3">Driver</td>
-                    <td className="px-4 py-3">1200</td>
-                    <td className="px-4 py-3">15/12/2017</td>
-                  </tr>
-                </tbody>
-              </table>
+            {/* Latest Jobs */}
+            <div className="bg-green-100 shadow-lg rounded-xl p-6 mt-8">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Latest Jobs
+              </h3>
+              <div className="overflow-x-auto h-96 overflow-y-auto pr-2">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-white text-gray-700">
+                    <tr>
+                      <th className="px-4 py-3">Sr No</th>
+                      <th className="px-4 py-3">Company</th>
+                      <th className="px-4 py-3">Job Title</th>
+                      <th className="px-4 py-3">Salary</th>
+                      <th className="px-4 py-3">Last date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">1</td>
+                      <td className="px-4 py-3">
+                        ER-1001-International Recruiters
+                      </td>
+                      <td className="px-4 py-3">name</td>
+                      <td className="px-4 py-3">5000</td>
+                      <td className="px-4 py-3">12/01/2025</td>
+                    </tr>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">2</td>
+                      <td className="px-4 py-3">
+                        ER-1004-China Mobile Company
+                      </td>
+                      <td className="px-4 py-3">Computer Science</td>
+                      <td className="px-4 py-3">50000</td>
+                      <td className="px-4 py-3">31/12/2022</td>
+                    </tr>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">3</td>
+                      <td className="px-4 py-3">17-CCC UAE</td>
+                      <td className="px-4 py-3">Driver</td>
+                      <td className="px-4 py-3">1200</td>
+                      <td className="px-4 py-3">15/12/2017</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

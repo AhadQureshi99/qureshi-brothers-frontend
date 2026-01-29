@@ -14,12 +14,13 @@ import Navbar from "../Navbar/Navbar";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { API_BASE_URL } from "../../utils/apiBaseUrl";
 
 // chart data will be computed from server rows below (daily/weekly/monthly aggregations)
 
 // rows are loaded from backend; only expenses added by admins/superadmins are shown
 
-const API_URL = "https://api.cloudandroots.com/api/expenses";
+const API_URL = `${API_BASE_URL}/api/expenses`;
 
 const Expense = () => {
   const [selectedRange, setSelectedRange] = useState("1Week");
@@ -55,7 +56,7 @@ const Expense = () => {
               amount: e.amount,
               remarks: e.remarks || "",
               createdBy: e.createdBy,
-            }))
+            })),
           );
       } catch (err) {
         console.error("load expenses error", err.response?.data || err.message);
@@ -247,12 +248,12 @@ const Expense = () => {
       if (!d) return;
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
         2,
-        "0"
+        "0",
       )}`;
       map.set(key, (map.get(key) || 0) + Number(r.amount || 0));
     });
     const entries = Array.from(map.entries()).sort((a, b) =>
-      a[0].localeCompare(b[0])
+      a[0].localeCompare(b[0]),
     );
     return entries.map(([k, v]) => {
       const [y, mo] = k.split("-");
@@ -336,7 +337,7 @@ const Expense = () => {
           <body>
             <h2>Expenses Report</h2>
             <p>Total: ${Number(
-              rows.reduce((s, r) => s + Number(r.amount || 0), 0)
+              rows.reduce((s, r) => s + Number(r.amount || 0), 0),
             ).toLocaleString()}</p>
             <table>
               <thead><tr><th>Date</th><th>Expense Name</th><th>Amount</th><th>Remarks</th></tr></thead>
@@ -348,7 +349,7 @@ const Expense = () => {
                         r.expenseName
                       }</td><td>${Number(r.amount).toLocaleString()}</td><td>${
                         r.remarks || ""
-                      }</td></tr>`
+                      }</td></tr>`,
                   )
                   .join("")}
               </tbody>
@@ -417,7 +418,7 @@ const Expense = () => {
                 <div className="w-3 h-3 rounded-full bg-yellow-400" />
                 <div className="text-2xl font-semibold text-gray-800">
                   {Number(
-                    rows.reduce((s, r) => s + Number(r.amount || 0), 0)
+                    rows.reduce((s, r) => s + Number(r.amount || 0), 0),
                   ).toLocaleString()}
                 </div>
                 <div className="text-sm text-gray-800 ml-2">Total Expense</div>
@@ -694,7 +695,7 @@ const Expense = () => {
                             <button
                               onClick={async () => {
                                 const numericAmount = Number(
-                                  String(editValues.amount).replace(/,/g, "")
+                                  String(editValues.amount).replace(/,/g, ""),
                                 );
                                 if (Number.isNaN(numericAmount)) {
                                   toast.error("Invalid amount");
@@ -712,7 +713,7 @@ const Expense = () => {
                                       headers: {
                                         Authorization: `Bearer ${token}`,
                                       },
-                                    }
+                                    },
                                   );
                                   setRows(
                                     rows.map((rr) =>
@@ -722,8 +723,8 @@ const Expense = () => {
                                             amount: numericAmount,
                                             remarks: editValues.remarks,
                                           }
-                                        : rr
-                                    )
+                                        : rr,
+                                    ),
                                   );
                                   setEditingRow(null);
                                   toast.success("Expense updated");
@@ -773,7 +774,10 @@ const Expense = () => {
                             <button
                               onClick={async () => {
                                 const numericAmount = Number(
-                                  String(requestValues.amount).replace(/,/g, "")
+                                  String(requestValues.amount).replace(
+                                    /,/g,
+                                    "",
+                                  ),
                                 );
                                 if (Number.isNaN(numericAmount)) {
                                   toast.error("Invalid amount");
@@ -794,12 +798,12 @@ const Expense = () => {
                                       headers: {
                                         Authorization: `Bearer ${token}`,
                                       },
-                                    }
+                                    },
                                   );
                                   setRequestRow(null);
                                   setRequestValues({ amount: "", remarks: "" });
                                   toast.success(
-                                    "Edit request submitted to superadmin"
+                                    "Edit request submitted to superadmin",
                                   );
                                 } catch (err) {
                                   console.error(err);
@@ -881,10 +885,10 @@ const Expense = () => {
                                       headers: {
                                         Authorization: `Bearer ${token}`,
                                       },
-                                    }
+                                    },
                                   );
                                   toast.success(
-                                    "Delete request submitted to superadmin"
+                                    "Delete request submitted to superadmin",
                                   );
                                 } catch (err) {
                                   console.error(err);

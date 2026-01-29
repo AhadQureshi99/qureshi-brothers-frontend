@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 const logo = "/components_logo.png";
 
-const API_URL = "https://api.cloudandroots.com/api/users";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Axios interceptor to attach token
 axios.interceptors.request.use(
@@ -97,7 +97,7 @@ const AuthForms = ({ isAuthenticated, setIsAuthenticated, onAuthSuccess }) => {
     setSuccess(null);
     try {
       console.log("Sending login request:", { email, password });
-      const response = await axios.post(`${API_URL}/login-user`, {
+      const response = await axios.post(`${BASE_URL}/login-user`, {
         email,
         password,
       });
@@ -146,7 +146,7 @@ const AuthForms = ({ isAuthenticated, setIsAuthenticated, onAuthSuccess }) => {
         email,
         password,
       });
-      const response = await axios.post(`${API_URL}/register-user`, {
+      const response = await axios.post(`${BASE_URL}/register-user`, {
         username: name,
         email,
         password,
@@ -184,7 +184,7 @@ const AuthForms = ({ isAuthenticated, setIsAuthenticated, onAuthSuccess }) => {
     setSuccess(null);
     try {
       console.log("Sending OTP verification request:", { email, otp });
-      const response = await axios.post(`${API_URL}/verify-otp`, {
+      const response = await axios.post(`${BASE_URL}/verify-otp`, {
         email,
         otp,
       });
@@ -223,7 +223,7 @@ const AuthForms = ({ isAuthenticated, setIsAuthenticated, onAuthSuccess }) => {
     setSuccess(null);
     try {
       console.log("Sending forgot password request:", { email });
-      const response = await axios.post(`${API_URL}/forgot-password`, {
+      const response = await axios.post(`${BASE_URL}/forgot-password`, {
         email,
       });
       console.log("Forgot password response:", response.data);
@@ -259,7 +259,7 @@ const AuthForms = ({ isAuthenticated, setIsAuthenticated, onAuthSuccess }) => {
         otp,
         newPassword,
       });
-      const response = await axios.post(`${API_URL}/reset-password`, {
+      const response = await axios.post(`${BASE_URL}/reset-password`, {
         email,
         otp,
         newPassword,

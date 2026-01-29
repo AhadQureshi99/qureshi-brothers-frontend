@@ -4,6 +4,7 @@ import AdminNavbar from "./AdminNavbar/AdminNavbar";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../utils/apiBaseUrl";
 
 const ReadyToSubmitted = () => {
   const navigate = useNavigate();
@@ -32,14 +33,13 @@ const ReadyToSubmitted = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://api.cloudandroots.com/api/candidates",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.get(`${API_BASE_URL}/api/candidates`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setCandidates(
         (response.data?.candidates || response.data || []).filter(
-          (c) => c.status === "Ready to Submitted"
-        )
+          (c) => c.status === "Ready to Submitted",
+        ),
       );
     } catch (error) {
       toast.error("Failed to fetch candidates");
@@ -60,9 +60,9 @@ const ReadyToSubmitted = () => {
       setActioningId(candidateId);
       const token = localStorage.getItem("token");
       await axios.put(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        `${API_BASE_URL}/api/candidates/${candidateId}`,
         { status: "Submitted" },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Candidate moved to Submitted Candidates");
       fetchCandidates();
@@ -87,11 +87,9 @@ const ReadyToSubmitted = () => {
       const token = localStorage.getItem("token");
       const { _id, createdAt, updatedAt, __v, ...rest } = candidate;
       const newCandidate = { ...rest, status: "Submitted" };
-      await axios.post(
-        "https://api.cloudandroots.com/api/candidates",
-        newCandidate,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.post(`${API_BASE_URL}/api/candidates`, newCandidate, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast.success("Candidate copied to Submitted Candidates");
       fetchCandidates();
       navigate("/admin/candidate-management/submitted-candidates");
@@ -114,10 +112,9 @@ const ReadyToSubmitted = () => {
     try {
       setActioningId(candidateId);
       const token = localStorage.getItem("token");
-      await axios.delete(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.delete(`${API_BASE_URL}/api/candidates/${candidateId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast.success("Candidate deleted successfully");
       fetchCandidates();
     } catch (error) {

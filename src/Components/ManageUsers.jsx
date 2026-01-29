@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
+import { API_BASE_URL } from "../utils/apiBaseUrl";
 
 // Centralized permissions definition
 const defaultPermissions = {
@@ -732,8 +733,8 @@ const UserTable = ({
                 {toggleLoading === u._id
                   ? "Updating..."
                   : u.isActive
-                  ? "Active"
-                  : "Inactive"}
+                    ? "Active"
+                    : "Inactive"}
               </button>
             </td>
           </tr>
@@ -1070,14 +1071,14 @@ const UserForm = ({
                                 onClick={() => {
                                   const updatedPerms = { ...permissions };
                                   const allChecked = Object.keys(
-                                    permissions[category]
+                                    permissions[category],
                                   ).every(
                                     (sub) =>
                                       permissions[category][sub].view &&
                                       permissions[category][sub].add &&
                                       permissions[category][sub].edit &&
                                       permissions[category][sub].delete &&
-                                      permissions[category][sub].authorize
+                                      permissions[category][sub].authorize,
                                   );
                                   Object.keys(permissions[category]).forEach(
                                     (sub) => {
@@ -1088,7 +1089,7 @@ const UserForm = ({
                                         delete: !allChecked,
                                         authorize: !allChecked,
                                       };
-                                    }
+                                    },
                                   );
                                   setPermissions(updatedPerms);
                                 }}
@@ -1313,7 +1314,7 @@ const ManageUsers = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("https://api.cloudandroots.com/api/users", {
+      const res = await axios.get(`${API_BASE_URL}/api/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data?.users || []);
@@ -1322,7 +1323,7 @@ const ManageUsers = () => {
       toast.error(
         err.response?.status === 401
           ? "Unauthorized: Please log in again"
-          : "Failed to fetch users"
+          : "Failed to fetch users",
       );
     }
   };
@@ -1330,7 +1331,7 @@ const ManageUsers = () => {
   const fetchRoles = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("https://api.cloudandroots.com/api/roles", {
+      const res = await axios.get(`${API_BASE_URL}/api/roles`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRoles(Array.isArray(res.data) ? res.data : []);
@@ -1360,19 +1361,15 @@ const ManageUsers = () => {
       const payload = { ...form };
       const res = editing
         ? await axios.put(
-            `https://api.cloudandroots.com/api/users/users/${editing._id}`,
+            `${API_BASE_URL}/api/users/users/${editing._id}`,
             payload,
             {
               headers: { Authorization: `Bearer ${token}` },
-            }
+            },
           )
-        : await axios.post(
-            "https://api.cloudandroots.com/api/users/create-admin",
-            payload,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+        : await axios.post(`${API_BASE_URL}/api/users/create-admin`, payload, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
       toast.success(editing ? "User updated" : "User created");
       resetForm();
       fetchUsers();
@@ -1381,7 +1378,7 @@ const ManageUsers = () => {
       toast.error(
         err.response?.status === 401
           ? "Unauthorized: Please log in again"
-          : err.response?.data?.message || "Error"
+          : err.response?.data?.message || "Error",
       );
     }
   };
@@ -1408,12 +1405,9 @@ const ManageUsers = () => {
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(
-        `https://api.cloudandroots.com/api/users/users/${deleteId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.delete(`${API_BASE_URL}/api/users/users/${deleteId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast.success("User deleted");
       fetchUsers();
       setShowModal(false);
@@ -1429,20 +1423,20 @@ const ManageUsers = () => {
       setToggleLoading(id);
       const token = localStorage.getItem("token");
       console.log(
-        `[FRONTEND DEBUG] Toggling user ${id} from isActive: ${currentStatus} to isActive: ${!currentStatus}`
+        `[FRONTEND DEBUG] Toggling user ${id} from isActive: ${currentStatus} to isActive: ${!currentStatus}`,
       );
       const response = await axios.patch(
-        `https://api.cloudandroots.com/api/users/users/${id}/status`,
+        `${API_BASE_URL}/api/users/users/${id}/status`,
         { isActive: !currentStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       console.log(`[FRONTEND DEBUG] Toggle response:`, response.data);
       toast.success("Status updated successfully");
       // Update the user in the list immediately
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
-          user._id === id ? { ...user, isActive: !currentStatus } : user
-        )
+          user._id === id ? { ...user, isActive: !currentStatus } : user,
+        ),
       );
       setToggleLoading(null);
     } catch (err) {
@@ -1456,9 +1450,9 @@ const ManageUsers = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `https://api.cloudandroots.com/api/users/users/${user._id}/permissions`,
+        `${API_BASE_URL}/api/users/users/${user._id}/permissions`,
         { permissions: perms },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Permissions updated");
       fetchUsers();
@@ -1515,14 +1509,14 @@ const ManageUsers = () => {
         u.username.toLowerCase().includes(term) ||
         (u.firstName && u.firstName.toLowerCase().includes(term)) ||
         (u.lastName && u.lastName.toLowerCase().includes(term)) ||
-        u.email.toLowerCase().includes(term)
+        u.email.toLowerCase().includes(term),
     );
   }, [users, searchTerm]);
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   if (user?.role !== "superadmin") {

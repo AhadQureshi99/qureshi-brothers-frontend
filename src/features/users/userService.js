@@ -1,5 +1,8 @@
 import axios from "axios";
 
+// Get base URL from environment variable
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 // API base URL is now hardcoded in each function below
 
 // Configure axios interceptors
@@ -17,7 +20,7 @@ axios.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 axios.interceptors.response.use(
@@ -50,18 +53,18 @@ axios.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export const loginUser = async (email, password) => {
-  return await axios.post(`https://api.cloudandroots.com/api/users/login`, {
+  return await axios.post(`${API_BASE_URL}/api/users/login`, {
     email,
     password,
   });
 };
 
 export const registerUser = async (username, email, password) => {
-  return await axios.post(`https://api.cloudandroots.com/api/users/register`, {
+  return await axios.post(`${API_BASE_URL}/api/users/register`, {
     username,
     email,
     password,
@@ -70,40 +73,33 @@ export const registerUser = async (username, email, password) => {
 
 export const verifyOTP = async (otp) => {
   const email = localStorage.getItem("registerEmail");
-  return await axios.post(
-    `https://api.cloudandroots.com/api/users/verify-otp`,
-    { email, otp }
-  );
+  return await axios.post(`${API_BASE_URL}/api/users/verify-otp`, {
+    email,
+    otp,
+  });
 };
 
 export const resendOTP = async () => {
   const email = localStorage.getItem("registerEmail");
-  return await axios.post(
-    `https://api.cloudandroots.com/api/users/resend-otp`,
-    { email }
-  );
+  return await axios.post(`${API_BASE_URL}/api/users/resend-otp`, { email });
 };
 
 export const forgotPassword = async (email) => {
-  return await axios.post(
-    `https://api.cloudandroots.com/api/users/forgot-password`,
-    { email }
-  );
+  return await axios.post(`${API_BASE_URL}/api/users/forgot-password`, {
+    email,
+  });
 };
 
 export const resetPassword = async (email, otp, newPassword) => {
-  return await axios.post(
-    `https://api.cloudandroots.com/api/users/reset-password`,
-    {
-      email,
-      otp,
-      newPassword,
-    }
-  );
+  return await axios.post(`${API_BASE_URL}/api/users/reset-password`, {
+    email,
+    otp,
+    newPassword,
+  });
 };
 
 export const getAuthUser = async () => {
-  return await axios.get(`https://api.cloudandroots.com/api/users/me`);
+  return await axios.get(`${API_BASE_URL}/api/users/me`);
 };
 
 export const uploadProfilePicture = async (file) => {
@@ -122,9 +118,9 @@ export const uploadProfilePicture = async (file) => {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   };
   const response = await axios.post(
-    `https://api.cloudandroots.com/api/users/upload-profile-picture`,
+    `${API_BASE_URL}/api/users/upload-profile-picture`,
     formData,
-    config
+    config,
   );
   console.log("Upload response:", response.data);
   return response;
@@ -132,27 +128,21 @@ export const uploadProfilePicture = async (file) => {
 
 // Create admin (superadmin only)
 export const createAdmin = async (username, email, password) => {
-  return await axios.post(
-    `https://api.cloudandroots.com/api/users/create-admin`,
-    {
-      username,
-      email,
-      password,
-    }
-  );
+  return await axios.post(`${API_BASE_URL}/api/users/create-admin`, {
+    username,
+    email,
+    password,
+  });
 };
 
 // Update user permissions (superadmin only)
 export const updateUserPermissions = async (id, permittedPages) => {
-  return await axios.put(
-    `https://api.cloudandroots.com/api/users/${id}/permissions`,
-    {
-      permittedPages,
-    }
-  );
+  return await axios.put(`${API_BASE_URL}/api/users/${id}/permissions`, {
+    permittedPages,
+  });
 };
 
 // Get all users (superadmin only)
 export const getAllUsers = async () => {
-  return await axios.get(`https://api.cloudandroots.com/api/users/`);
+  return await axios.get(`${API_BASE_URL}/api/users/`);
 };

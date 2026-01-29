@@ -17,11 +17,11 @@ const handleCopyToFinal = async (candidate) => {
     const newCandidate = { ...rest, status: "Final Registration" };
 
     await axios.post(
-      "https://api.cloudandroots.com/api/candidates",
+      `${import.meta.env.VITE_API_BASE_URL}/api/candidates`,
       newCandidate,
       {
         headers: { Authorization: `Bearer ${token}` },
-      }
+      },
     );
 
     toast.success("Candidate copied to Final Registration");
@@ -78,15 +78,13 @@ const InterviewSchedules = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        "https://api.cloudandroots.com/api/candidates",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `${import.meta.env.VITE_API_BASE_URL}/api/candidates`,
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       const allCandidates = response.data?.candidates || response.data || [];
       // Filter candidates by status
       const filteredCandidates = allCandidates.filter(
-        (c) => c.status === "Interview Schedule"
+        (c) => c.status === "Interview Schedule",
       );
       setCandidates(filteredCandidates);
     } catch (error) {
@@ -117,9 +115,9 @@ const InterviewSchedules = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `https://api.cloudandroots.com/api/candidates/${selectedCandidate._id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/candidates/${selectedCandidate._id}`,
         interviewData,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Interview details saved successfully");
       setShowModal(false);
@@ -138,7 +136,7 @@ const InterviewSchedules = () => {
 
     if (
       !confirm(
-        "Are you sure you want to move this candidate to Final Registration?"
+        "Are you sure you want to move this candidate to Final Registration?",
       )
     )
       return;
@@ -147,9 +145,9 @@ const InterviewSchedules = () => {
       setActioningId(candidateId);
       const token = localStorage.getItem("token");
       await axios.put(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/candidates/${candidateId}`,
         { status: "Final Registration" },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Candidate moved to Final Registration");
       fetchCandidates();
@@ -173,9 +171,9 @@ const InterviewSchedules = () => {
       setActioningId(candidateId);
       const token = localStorage.getItem("token");
       await axios.put(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/candidates/${candidateId}`,
         { status: "Freeze" },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Application frozen successfully");
       fetchCandidates();
@@ -195,7 +193,7 @@ const InterviewSchedules = () => {
 
     if (
       !confirm(
-        "Are you sure you want to delete this candidate? This action cannot be undone."
+        "Are you sure you want to delete this candidate? This action cannot be undone.",
       )
     )
       return;
@@ -204,10 +202,8 @@ const InterviewSchedules = () => {
       setActioningId(candidateId);
       const token = localStorage.getItem("token");
       await axios.delete(
-        `https://api.cloudandroots.com/api/candidates/${candidateId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `${import.meta.env.VITE_API_BASE_URL}/api/candidates/${candidateId}`,
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success("Candidate deleted successfully");
       fetchCandidates();
@@ -338,7 +334,7 @@ const InterviewSchedules = () => {
                         <td className="px-4 py-2 border-b text-sm">
                           {candidate.interviewDate
                             ? new Date(
-                                candidate.interviewDate
+                                candidate.interviewDate,
                               ).toLocaleDateString()
                             : "Not Set"}
                         </td>
