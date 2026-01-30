@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
@@ -7,8 +8,8 @@ import { API_BASE_URL } from "../utils/apiBaseUrl";
 import { FaEdit, FaTrash, FaCopy } from "react-icons/fa";
 import { MdMoveToInbox, MdOutlineDriveFileMove } from "react-icons/md";
 
-
 const InitialRegistration = () => {
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
 
   const canView =
@@ -21,29 +22,12 @@ const InitialRegistration = () => {
       true;
 
   const [formData, setFormData] = useState({
-    date: "",
     firstName: "",
     lastName: "",
-    fatherName: "",
-    dateOfBirth: "",
-    age: "",
-    placeOfBirth: "",
-    maritalStatus: "",
     email: "",
     mobile: "",
-    passport: "",
-    passportIssueDate: "",
-    passportExpiryDate: "",
-    companyNameEnglish: "",
-    companyNameArabic: "",
-    tradeEnglish: "",
-    tradeArabic: "",
-    visaId: "",
-    visaNo: "",
-    eNo: "",
-    salary: "",
-    profession: "",
     experience: "",
+    profession: "",
     address: "",
   });
 
@@ -114,29 +98,12 @@ const InitialRegistration = () => {
 
   const handleCancel = () => {
     setFormData({
-      date: "",
       firstName: "",
       lastName: "",
-      fatherName: "",
-      dateOfBirth: "",
-      age: "",
-      placeOfBirth: "",
-      maritalStatus: "",
       email: "",
       mobile: "",
-      passport: "",
-      passportIssueDate: "",
-      passportExpiryDate: "",
-      companyNameEnglish: "",
-      companyNameArabic: "",
-      tradeEnglish: "",
-      tradeArabic: "",
-      visaId: "",
-      visaNo: "",
-      eNo: "",
-      salary: "",
-      profession: "",
       experience: "",
+      profession: "",
       address: "",
     });
     setEditingCandidate(null);
@@ -144,51 +111,41 @@ const InitialRegistration = () => {
 
   const handleEdit = (candidate) => {
     setFormData({
-      date: candidate.date || "",
       firstName: candidate.firstName || "",
       lastName: candidate.lastName || "",
-      fatherName: candidate.fatherName || "",
-      dateOfBirth: candidate.dateOfBirth || "",
-      age: candidate.age || "",
-      placeOfBirth: candidate.placeOfBirth || "",
-      maritalStatus: candidate.maritalStatus || "",
       email: candidate.email || "",
       mobile: candidate.mobile || "",
-      passport: candidate.passport || "",
-      passportIssueDate: candidate.passportIssueDate || "",
-      passportExpiryDate: candidate.passportExpiryDate || "",
-      companyNameEnglish: candidate.companyNameEnglish || "",
-      companyNameArabic: candidate.companyNameArabic || "",
-      tradeEnglish: candidate.tradeEnglish || "",
-      tradeArabic: candidate.tradeArabic || "",
-      visaId: candidate.visaId || "",
-      visaNo: candidate.visaNo || "",
-      eNo: candidate.eNo || "",
-      salary: candidate.salary || "",
-      profession: candidate.profession || "",
       experience: candidate.experience || "",
+      profession: candidate.profession || "",
       address: candidate.address || "",
     });
     setEditingCandidate(candidate);
   };
 
-  const handleMoveToShortlisting = async (candidateId) => {
-    if (!confirm("Move this candidate to Shortlisting?")) return;
-
+  const handleMoveToShortlisting = async (candidate) => {
     try {
-      setMovingId(candidateId);
+      setMovingId(candidate._id);
       const token = localStorage.getItem("token");
+
+      // Update status to Final Registration
       await axios.put(
-        `${API_BASE_URL}/api/candidates/${candidateId}`,
-        { status: "Shortlisting" },
+        `${API_BASE_URL}/api/candidates/${candidate._id}`,
+        { status: "Final Registration" },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      toast.success("Candidate moved to Shortlisting");
-      fetchCandidates();
+
+      toast.success("Moving to Final Registration");
+
+      // Navigate to CandidateFinalRegistration with candidate data
+      navigate("/admin/candidate-management/candidate-final-registration", {
+        state: {
+          candidateId: candidate._id,
+          initialData: candidate,
+        },
+      });
     } catch (error) {
       toast.error("Failed to move candidate");
       console.error(error);
-    } finally {
       setMovingId(null);
     }
   };
@@ -280,104 +237,29 @@ const InitialRegistration = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name
+                  First Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
+                  required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name
+                  Last Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
+                  required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Father Name
-                </label>
-                <input
-                  type="text"
-                  name="fatherName"
-                  value={formData.fatherName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date of Birth
-                </label>
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={formData.dateOfBirth}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Age
-                </label>
-                <input
-                  type="number"
-                  name="age"
-                  value={formData.age}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Place of Birth
-                </label>
-                <input
-                  type="text"
-                  name="placeOfBirth"
-                  value={formData.placeOfBirth}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Marital Status
-                </label>
-                <select
-                  name="maritalStatus"
-                  value={formData.maritalStatus}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Status</option>
-                  <option value="Single">Single</option>
-                  <option value="Married">Married</option>
-                  <option value="Divorced">Divorced</option>
-                  <option value="Widowed">Widowed</option>
-                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -393,144 +275,25 @@ const InitialRegistration = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mobile
+                  Mobile <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
                   name="mobile"
                   value={formData.mobile}
                   onChange={handleInputChange}
+                  required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Passport
+                  Experience
                 </label>
                 <input
                   type="text"
-                  name="passport"
-                  value={formData.passport}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Passport Issue Date
-                </label>
-                <input
-                  type="date"
-                  name="passportIssueDate"
-                  value={formData.passportIssueDate}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Passport Expiry Date
-                </label>
-                <input
-                  type="date"
-                  name="passportExpiryDate"
-                  value={formData.passportExpiryDate}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Company Name (English)
-                </label>
-                <input
-                  type="text"
-                  name="companyNameEnglish"
-                  value={formData.companyNameEnglish}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Company Name (Arabic)
-                </label>
-                <input
-                  type="text"
-                  name="companyNameArabic"
-                  value={formData.companyNameArabic}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Trade (English)
-                </label>
-                <input
-                  type="text"
-                  name="tradeEnglish"
-                  value={formData.tradeEnglish}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Trade (Arabic)
-                </label>
-                <input
-                  type="text"
-                  name="tradeArabic"
-                  value={formData.tradeArabic}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Visa ID
-                </label>
-                <input
-                  type="text"
-                  name="visaId"
-                  value={formData.visaId}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Visa No
-                </label>
-                <input
-                  type="text"
-                  name="visaNo"
-                  value={formData.visaNo}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  E-No
-                </label>
-                <input
-                  type="text"
-                  name="eNo"
-                  value={formData.eNo}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Salary
-                </label>
-                <input
-                  type="text"
-                  name="salary"
-                  value={formData.salary}
+                  name="experience"
+                  value={formData.experience}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -543,18 +306,6 @@ const InitialRegistration = () => {
                   type="text"
                   name="profession"
                   value={formData.profession}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Experience
-                </label>
-                <input
-                  type="text"
-                  name="experience"
-                  value={formData.experience}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -712,11 +463,9 @@ const InitialRegistration = () => {
                           </button>
 
                           <button
-                            onClick={() =>
-                              handleMoveToShortlisting(candidate._id)
-                            }
+                            onClick={() => handleMoveToShortlisting(candidate)}
                             disabled={movingId === candidate._id}
-                            title="Move to Shortlisting"
+                            title="Move to Candidate Final Registration"
                             className="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
                           >
                             {movingId === candidate._id ? (

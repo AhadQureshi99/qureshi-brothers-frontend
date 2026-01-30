@@ -3,12 +3,17 @@ import { useSelector } from "react-redux";
 import AdminNavbar from "./AdminNavbar/AdminNavbar";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { API_BASE_URL } from "../utils/apiBaseUrl";
 
 const CandidateFinalRegistration = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useSelector((state) => state.user);
+
+  // Get initial data from location state if coming from InitialRegistration
+  const initialDataFromState = location.state?.initialData || null;
+  const candidateIdFromState = location.state?.candidateId || null;
 
   // Permission check
   const canView =
@@ -31,8 +36,8 @@ const CandidateFinalRegistration = () => {
     user?.permissions?.candidateManagement?.candidateFinalRegistration
       ?.delete === true;
 
-  const [activeTab, setActiveTab] = useState("addEdit");
-  const [showForm, setShowForm] = useState(false);
+  const [activeTab, setActiveTab] = useState("basic");
+  const [showForm, setShowForm] = useState(true);
 
   // Permission access control
   if (!canView) {
@@ -134,12 +139,10 @@ const CandidateFinalRegistration = () => {
   const [resumeName, setResumeName] = useState("");
 
   const tabs = [
-    { id: "addEdit", label: "Add/Edit Detail" },
     { id: "basic", label: "Basic Info" },
     { id: "passport", label: "Passport Info" },
     { id: "residence", label: "Residence Info" },
     { id: "contact", label: "Contact Details" },
-    { id: "education", label: "Education" },
     { id: "skills", label: "Skills" },
     { id: "status", label: "Present Status" },
     { id: "dependents", label: "Candidate Dependents" },
@@ -148,6 +151,28 @@ const CandidateFinalRegistration = () => {
 
   useEffect(() => {
     fetchCandidates();
+
+    // Populate form with initial data from InitialRegistration if available
+    if (initialDataFromState) {
+      setFormData((prev) => ({
+        ...prev,
+        firstName: initialDataFromState.firstName || prev.firstName || "",
+        lastName: initialDataFromState.lastName || prev.lastName || "",
+        email: initialDataFromState.email || prev.email || "",
+        mobile: initialDataFromState.mobile || prev.mobile || "",
+        experience: initialDataFromState.experience || prev.experience || "",
+        profession: initialDataFromState.profession || prev.profession || "",
+        // Additional fields can be added from initialData if needed
+      }));
+
+      // If we have a candidate ID, load full candidate data
+      if (candidateIdFromState) {
+        setEditingCandidate({
+          _id: candidateIdFromState,
+          ...initialDataFromState,
+        });
+      }
+    }
   }, []);
 
   const fetchCandidates = async () => {
@@ -564,14 +589,6 @@ const CandidateFinalRegistration = () => {
             </div>
 
             {/* Form Content */}
-            {activeTab === "addEdit" && (
-              <div className="text-center py-10">
-                <p className="text-gray-600">
-                  Select a tab to edit details. Save when finished.
-                </p>
-              </div>
-            )}
-
             {activeTab === "basic" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -583,7 +600,18 @@ const CandidateFinalRegistration = () => {
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    placeholder="Username"
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
                     className="w-full px-3 py-2 border rounded"
                   />
                 </div>
@@ -605,30 +633,268 @@ const CandidateFinalRegistration = () => {
                     <option value="highly qualified">Highly Qualified</option>
                   </select>
                 </div>
-                {/* ... other fields (title, firstName, lastName, cnic, etc.) ... */}
-                {/* I truncated here for brevity – copy the rest from your original code */}
-                <div className="col-span-2">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Upload Files
+                    Religion
                   </label>
                   <input
-                    type="file"
-                    multiple
-                    onChange={handleFileUpload}
+                    type="text"
+                    name="religion"
+                    value={formData.religion}
+                    onChange={handleInputChange}
                     className="w-full px-3 py-2 border rounded"
                   />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Drag & drop files here …
-                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Wages/Salary
+                  </label>
+                  <input
+                    type="text"
+                    name="wages"
+                    value={formData.wages}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    First Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Marital Status
+                  </label>
+                  <select
+                    name="maritalStatus"
+                    value={formData.maritalStatus}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  >
+                    <option value="">Select Status</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Widowed">Widowed</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Last Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Education
+                  </label>
+                  <input
+                    type="text"
+                    name="education"
+                    value={formData.education}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    CNIC <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="cnic"
+                    value={formData.cnic}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Profession
+                  </label>
+                  <input
+                    type="text"
+                    name="profession"
+                    value={formData.profession}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Father Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="fatherName"
+                    value={formData.fatherName}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Experience
+                  </label>
+                  <input
+                    type="text"
+                    name="experience"
+                    value={formData.experience}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Gender
+                  </label>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Job Type
+                  </label>
+                  <input
+                    type="text"
+                    name="jobType"
+                    value={formData.jobType}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date of Birth <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={formData.dateOfBirth}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Job Applied For
+                  </label>
+                  <input
+                    type="text"
+                    name="jobAppliedFor"
+                    value={formData.jobAppliedFor}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Age
+                  </label>
+                  <input
+                    type="number"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Plan
+                  </label>
+                  <input
+                    type="text"
+                    name="plan"
+                    value={formData.plan}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Place of Birth
+                  </label>
+                  <input
+                    type="text"
+                    name="placeOfBirth"
+                    value={formData.placeOfBirth}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nationality <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="nationality"
+                    value={formData.nationality}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Address
+                  </label>
+                  <textarea
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    rows="3"
+                    className="w-full px-3 py-2 border rounded"
+                  />
                 </div>
               </div>
             )}
 
             {activeTab === "passport" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Passport Number
+                    Passport No.
                   </label>
                   <input
                     type="text"
@@ -638,41 +904,553 @@ const CandidateFinalRegistration = () => {
                     className="w-full px-3 py-2 border rounded"
                   />
                 </div>
-                {/* ... other passport fields ... */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Passport Issue Date
+                  </label>
+                  <input
+                    type="date"
+                    name="passportIssueDate"
+                    value={formData.passportIssueDate}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Passport Expiry Date
+                  </label>
+                  <input
+                    type="date"
+                    name="passportExpiryDate"
+                    value={formData.passportExpiryDate}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Passport Issue Place
+                  </label>
+                  <input
+                    type="text"
+                    name="passportIssuePlace"
+                    value={formData.passportIssuePlace}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
               </div>
             )}
 
-            {/* Add your other tabs similarly: residence, contact, skills, education, status, dependents, resumes */}
-            {/* Example for skills tab: */}
+            {activeTab === "residence" && (
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Country
+                  </label>
+                  <input
+                    type="text"
+                    name="country"
+                    value={formData.country}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    State
+                  </label>
+                  <input
+                    type="text"
+                    name="state"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Province
+                  </label>
+                  <input
+                    type="text"
+                    name="province"
+                    value={formData.province}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Zip Code
+                  </label>
+                  <input
+                    type="text"
+                    name="zip"
+                    value={formData.zip}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    District
+                  </label>
+                  <input
+                    type="text"
+                    name="district"
+                    value={formData.district}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Street
+                  </label>
+                  <input
+                    type="text"
+                    name="street"
+                    value={formData.street}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === "contact" && (
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Mobile
+                  </label>
+                  <input
+                    type="tel"
+                    name="mobile"
+                    value={formData.mobile}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Fax
+                  </label>
+                  <input
+                    type="text"
+                    name="fax"
+                    value={formData.fax}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Website
+                  </label>
+                  <input
+                    type="text"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Address
+                  </label>
+                  <textarea
+                    name="contactAddress"
+                    value={formData.contactAddress}
+                    onChange={handleInputChange}
+                    rows="3"
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Return Address
+                  </label>
+                  <textarea
+                    name="returnAddress"
+                    value={formData.returnAddress}
+                    onChange={handleInputChange}
+                    rows="3"
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              </div>
+            )}
+
             {activeTab === "skills" && (
               <div>
-                <div className="mb-4">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">
+                <div className="mb-6 p-4 border rounded bg-gray-50">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4">
                     Add Skill
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
-                    <input
-                      type="date"
-                      placeholder="From"
-                      value={skillForm.from}
-                      onChange={(e) =>
-                        setSkillForm((prev) => ({
-                          ...prev,
-                          from: e.target.value,
-                        }))
-                      }
-                      className="px-3 py-2 border rounded"
-                    />
-                    {/* ... other skill inputs ... */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        From
+                      </label>
+                      <input
+                        type="date"
+                        value={skillForm.from}
+                        onChange={(e) =>
+                          setSkillForm((prev) => ({
+                            ...prev,
+                            from: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border rounded text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        To
+                      </label>
+                      <input
+                        type="date"
+                        value={skillForm.to}
+                        onChange={(e) =>
+                          setSkillForm((prev) => ({
+                            ...prev,
+                            to: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border rounded text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Degree
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Degree"
+                        value={skillForm.degree}
+                        onChange={(e) =>
+                          setSkillForm((prev) => ({
+                            ...prev,
+                            degree: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border rounded text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Institute
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Institute"
+                        value={skillForm.institute}
+                        onChange={(e) =>
+                          setSkillForm((prev) => ({
+                            ...prev,
+                            institute: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border rounded text-sm"
+                      />
+                    </div>
                   </div>
                   <button
                     onClick={addSkill}
-                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
+                    className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
                   >
                     Add Skill
                   </button>
                 </div>
-                {/* ... display skills list ... */}
+
+                {formData.skills && formData.skills.length > 0 && (
+                  <div className="mt-4">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                      Added Skills
+                    </h3>
+                    <div className="space-y-2">
+                      {formData.skills.map((skill, index) => (
+                        <div
+                          key={index}
+                          className="flex justify-between items-center p-3 border rounded bg-gray-50"
+                        >
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              {skill.degree} - {skill.institute}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {skill.from} to {skill.to}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => removeSkill(index)}
+                            className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "status" && (
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Have you ever been convicted in a police case in the court
+                    of law?
+                  </label>
+                  <select
+                    name="convicted"
+                    value={formData.convicted}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  >
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Do you have affiliation/membership with any
+                    political/religious party?
+                  </label>
+                  <select
+                    name="politicalAffiliation"
+                    value={formData.politicalAffiliation}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded"
+                  >
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Present Employment
+                  </label>
+                  <textarea
+                    name="presentEmployment"
+                    value={formData.presentEmployment}
+                    onChange={handleInputChange}
+                    rows="3"
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Achievements
+                  </label>
+                  <textarea
+                    name="achievements"
+                    value={formData.achievements}
+                    onChange={handleInputChange}
+                    rows="3"
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === "dependents" && (
+              <div>
+                <div className="mb-6 p-4 border rounded bg-gray-50">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4">
+                    Add Dependent
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Dependent
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Name/Relationship"
+                        value={dependentForm.dependent}
+                        onChange={(e) =>
+                          setDependentForm((prev) => ({
+                            ...prev,
+                            dependent: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border rounded text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Gender
+                      </label>
+                      <select
+                        value={dependentForm.gender}
+                        onChange={(e) =>
+                          setDependentForm((prev) => ({
+                            ...prev,
+                            gender: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border rounded text-sm"
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Age
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="Age"
+                        value={dependentForm.age}
+                        onChange={(e) =>
+                          setDependentForm((prev) => ({
+                            ...prev,
+                            age: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 border rounded text-sm"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={addDependent}
+                    className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                  >
+                    Add Dependent
+                  </button>
+                </div>
+
+                {formData.dependents && formData.dependents.length > 0 && (
+                  <div className="mt-4">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                      Added Dependents
+                    </h3>
+                    <div className="space-y-2">
+                      {formData.dependents.map((dependent, index) => (
+                        <div
+                          key={index}
+                          className="flex justify-between items-center p-3 border rounded bg-gray-50"
+                        >
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              {dependent.dependent} - {dependent.gender}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Age: {dependent.age}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => removeDependent(index)}
+                            className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "resumes" && (
+              <div className="space-y-4">
+                <div className="p-4 border-2 border-dashed rounded-lg bg-gray-50">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Upload Resumes
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileUpload}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                  <p className="text-sm text-gray-500 mt-2">
+                    You can upload multiple resume files (PDF, DOC, DOCX, etc.)
+                  </p>
+                </div>
+
+                {formData.resumes && formData.resumes.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                      Uploaded Resumes ({formData.resumes.length})
+                    </h3>
+                    <div className="space-y-2">
+                      {formData.resumes.map((resume, index) => (
+                        <div
+                          key={index}
+                          className="flex justify-between items-center p-3 border rounded bg-gray-50"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">📄</span>
+                            <span className="text-sm font-medium">
+                              {resume.name || resume.file?.name}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                resumes: prev.resumes.filter(
+                                  (_, i) => i !== index,
+                                ),
+                              }));
+                            }}
+                            className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
