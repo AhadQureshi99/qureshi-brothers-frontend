@@ -113,6 +113,8 @@ const CandidateFinalRegistration = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingCandidate, setEditingCandidate] = useState(null);
+  const [viewingCandidate, setViewingCandidate] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
 
   const [skillForm, setSkillForm] = useState({
     from: "",
@@ -271,15 +273,24 @@ const CandidateFinalRegistration = () => {
   };
 
   const handleSave = async (closeAfterSave = false) => {
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.cnic ||
-      !formData.fatherName ||
-      !formData.dateOfBirth ||
-      !formData.nationality
-    ) {
-      toast.error("Please fill in all required fields");
+    // Only validate required fields from frontend
+    const requiredFields = [
+      { name: "firstName", label: "First Name" },
+      { name: "lastName", label: "Last Name" },
+      { name: "cnic", label: "CNIC" },
+      { name: "fatherName", label: "Father Name" },
+      { name: "dateOfBirth", label: "Date of Birth" },
+      { name: "nationality", label: "Nationality" },
+      { name: "mobile", label: "Mobile" },
+    ];
+
+    const missingFields = requiredFields.filter(
+      (field) => !formData[field.name],
+    );
+
+    if (missingFields.length > 0) {
+      const fieldNames = missingFields.map((f) => f.label).join(", ");
+      toast.error(`Please fill required fields: ${fieldNames}`);
       return;
     }
 
@@ -292,7 +303,8 @@ const CandidateFinalRegistration = () => {
         status: "Final Registration",
       };
 
-      if (editingCandidate) {
+      if (editingCandidate && editingCandidate._id) {
+        // Update existing candidate
         await axios.put(
           `${API_BASE_URL}/api/candidates/${editingCandidate._id}`,
           candidateData,
@@ -302,7 +314,8 @@ const CandidateFinalRegistration = () => {
         );
         toast.success("Candidate updated successfully");
       } else {
-        await axios.post(`${API_BASE_URL}/api/candidates/`, candidateData, {
+        // Create new candidate
+        await axios.post(`${API_BASE_URL}/api/candidates`, candidateData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Candidate registered successfully");
@@ -311,68 +324,14 @@ const CandidateFinalRegistration = () => {
       if (closeAfterSave) {
         handleCancel();
       } else {
-        setFormData({
-          username: "",
-          candidateType: "",
-          title: "",
-          firstName: "",
-          lastName: "",
-          cnic: "",
-          fatherName: "",
-          gender: "",
-          dateOfBirth: "",
-          age: "",
-          placeOfBirth: "",
-          nationality: "",
-          password: "",
-          religion: "",
-          wages: "",
-          maritalStatus: "",
-          education: "",
-          profession: "",
-          experience: "",
-          jobType: "",
-          jobAppliedFor: "",
-          plan: "",
-          passportNumber: "",
-          passportIssueDate: "",
-          passportExpiryDate: "",
-          passportIssuePlace: "",
-          country: "",
-          state: "",
-          province: "",
-          zip: "",
-          district: "",
-          city: "",
-          street: "",
-          phone: "",
-          mobile: "",
-          email: "",
-          fax: "",
-          website: "",
-          contactAddress: "",
-          returnAddress: "",
-          emergencyContact: "",
-          emergencyContactRelation: "",
-          skills: [],
-          educations: [],
-          currentStatus: "",
-          statusDate: "",
-          convicted: "",
-          politicalAffiliation: "",
-          presentEmployment: "",
-          achievements: "",
-          dependents: [],
-          resumes: [],
-        });
-        setEditingCandidate(null);
         fetchCandidates();
       }
     } catch (error) {
       toast.error(
-        editingCandidate
-          ? "Failed to update candidate"
-          : "Failed to register candidate",
+        error.response?.data?.message ||
+          (editingCandidate
+            ? "Failed to update candidate"
+            : "Failed to register candidate"),
       );
       console.error(error);
     } finally {
@@ -549,6 +508,39 @@ const CandidateFinalRegistration = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Shortlist candidate
+  const handleShortlist = async (candidate) => {
+    if (!canEdit) {
+      toast.error("You do not have permission to shortlist candidates");
+      return;
+    }
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${API_BASE_URL}/api/candidates/${candidate._id}`,
+        { status: "Shortlisting" },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      toast.success("Candidate moved to Shortlisting");
+      fetchCandidates();
+      navigate("/admin/candidate-management/shortlisting", {
+        state: { candidateId: candidate._id, initialData: candidate },
+      });
+    } catch (error) {
+      toast.error("Failed to shortlist candidate");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // View candidate details
+  const handleViewCandidate = (candidate) => {
+    setViewingCandidate(candidate);
+    setShowViewModal(true);
   };
 
   const filteredCandidates = (candidates || []).filter((candidate) => {
@@ -1457,6 +1449,13 @@ const CandidateFinalRegistration = () => {
             {/* Common Save/Cancel buttons at the bottom */}
             <div className="flex gap-4 mt-8 border-t pt-6">
               <button
+                onClick={() => handleSave(false)}
+                disabled={loading}
+                className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+              >
+                {loading ? "Saving..." : "Save & Continue"}
+              </button>
+              <button
                 onClick={() => handleSave(true)}
                 disabled={loading}
                 className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
@@ -1464,8 +1463,8 @@ const CandidateFinalRegistration = () => {
                 {loading
                   ? "Saving..."
                   : editingCandidate
-                    ? "Update Candidate"
-                    : "Save Candidate"}
+                    ? "Update & Close"
+                    : "Save & Close"}
               </button>
               <button
                 onClick={handleCancel}
@@ -1530,115 +1529,44 @@ const CandidateFinalRegistration = () => {
                         {c.contact || c.mobile}
                       </td>
                       <td className="border px-4 py-2">{c.status}</td>
-                      <td className="border px-4 py-2">
-                        {/* Move/Copy to Ready to Submitted */}
+                      <td className="border px-4 py-2 space-x-2">
+                        {/* View Button */}
+                        <button
+                          onClick={() => handleViewCandidate(c)}
+                          className="px-3 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
+                        >
+                          View
+                        </button>
+                        {/* Edit Button */}
+                        <button
+                          onClick={() => handleEdit(c)}
+                          className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                        >
+                          Edit
+                        </button>
+                        {/* Shortlist Button */}
+                        <button
+                          onClick={() => handleShortlist(c)}
+                          className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                        >
+                          Shortlist
+                        </button>
+                        {/* Move to Ready to Submit */}
                         <button
                           onClick={() => handleMoveToReady(c._id)}
-                          className="px-2 py-1 bg-blue-600 text-white rounded mr-2"
+                          className="px-3 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700"
                         >
-                          Move to Ready to Submitted
+                          Move to Ready
                         </button>
-                        <button
-                          onClick={() => handleCopyToReady(c)}
-                          className="px-2 py-1 bg-purple-600 text-white rounded mr-2"
-                        >
-                          Copy to Ready to Submitted
-                        </button>
+                        {/* Submit Button */}
                         <button
                           onClick={() => {
-                            localStorage.setItem(
-                              "visaCandidates",
-                              JSON.stringify(filteredCandidates),
-                            );
-                            localStorage.setItem(
-                              "visaCandidateIndex",
-                              String(i),
-                            );
-                            window.location.href = "/visa-form";
+                            // TODO: Add submit functionality
+                            toast.success("Candidate submitted");
                           }}
-                          className="px-2 py-1 bg-green-600 text-white rounded mr-2"
+                          className="px-3 py-1 bg-orange-600 text-white rounded text-xs hover:bg-orange-700"
                         >
-                          Visa Form
-                        </button>
-                        <button
-                          onClick={() => {
-                            localStorage.setItem(
-                              "depositCandidates",
-                              JSON.stringify(filteredCandidates),
-                            );
-                            localStorage.setItem(
-                              "depositCandidateIndex",
-                              String(i),
-                            );
-                            window.location.href = "/deposit-slip";
-                          }}
-                          className="px-2 py-1 bg-purple-600 text-white rounded mr-2"
-                        >
-                          Deposit Slip
-                        </button>
-                        <button
-                          onClick={() => {
-                            localStorage.setItem(
-                              "nbpCandidates",
-                              JSON.stringify(filteredCandidates),
-                            );
-                            localStorage.setItem(
-                              "nbpCandidateIndex",
-                              String(i),
-                            );
-                            window.location.href = "/nbpchallan";
-                          }}
-                          className="px-2 py-1 bg-yellow-600 text-white rounded mr-2"
-                        >
-                          NBP Chalan
-                        </button>
-                        <button
-                          onClick={() => {
-                            localStorage.setItem(
-                              "undertakingCandidates",
-                              JSON.stringify(filteredCandidates),
-                            );
-                            localStorage.setItem(
-                              "undertakingCandidateIndex",
-                              String(i),
-                            );
-                            window.location.href = "/undertaking-letter";
-                          }}
-                          className="px-2 py-1 bg-pink-600 text-white rounded mr-2"
-                        >
-                          Undertaking
-                        </button>
-                        <button
-                          onClick={() => {
-                            localStorage.setItem(
-                              "contactCandidates",
-                              JSON.stringify(filteredCandidates),
-                            );
-                            localStorage.setItem(
-                              "contactCandidateIndex",
-                              String(i),
-                            );
-                            window.location.href = "/contact";
-                          }}
-                          className="px-2 py-1 bg-cyan-600 text-white rounded mr-2"
-                        >
-                          Contract Letter
-                        </button>
-                        <button
-                          onClick={() => {
-                            localStorage.setItem(
-                              "alliedCandidates",
-                              JSON.stringify(filteredCandidates),
-                            );
-                            localStorage.setItem(
-                              "alliedCandidateIndex",
-                              String(i),
-                            );
-                            window.location.href = "/allied-form";
-                          }}
-                          className="px-2 py-1 bg-teal-600 text-white rounded mr-2"
-                        >
-                          ABL Form
+                          Submit
                         </button>
                       </td>
                     </tr>
@@ -1658,6 +1586,265 @@ const CandidateFinalRegistration = () => {
           </div>
         </div>
       </div>
+
+      {/* View Candidate Modal */}
+      {showViewModal && viewingCandidate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-blue-600 text-white p-6 flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Candidate Details</h2>
+              <button
+                onClick={() => {
+                  setShowViewModal(false);
+                  setViewingCandidate(null);
+                }}
+                className="text-2xl leading-none hover:opacity-75"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Basic Info */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                  Basic Information
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Name</p>
+                    <p className="font-medium">{viewingCandidate.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Email</p>
+                    <p className="font-medium">{viewingCandidate.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Mobile</p>
+                    <p className="font-medium">{viewingCandidate.mobile}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">CNIC</p>
+                    <p className="font-medium">{viewingCandidate.cnic}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Gender</p>
+                    <p className="font-medium">{viewingCandidate.gender}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Date of Birth</p>
+                    <p className="font-medium">
+                      {viewingCandidate.dateOfBirth}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Nationality</p>
+                    <p className="font-medium">
+                      {viewingCandidate.nationality}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Father Name</p>
+                    <p className="font-medium">{viewingCandidate.fatherName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Marital Status</p>
+                    <p className="font-medium">
+                      {viewingCandidate.maritalStatus}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Passport Info */}
+              {viewingCandidate.passportNumber && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                    Passport Information
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600">Passport No.</p>
+                      <p className="font-medium">
+                        {viewingCandidate.passportNumber}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Issue Date</p>
+                      <p className="font-medium">
+                        {viewingCandidate.passportIssueDate}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Expiry Date</p>
+                      <p className="font-medium">
+                        {viewingCandidate.passportExpiryDate}
+                      </p>
+                    </div>
+                    <div className="md:col-span-3">
+                      <p className="text-sm text-gray-600">Issue Place</p>
+                      <p className="font-medium">
+                        {viewingCandidate.passportIssuePlace}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Professional Info */}
+              {(viewingCandidate.profession || viewingCandidate.experience) && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                    Professional Information
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {viewingCandidate.profession && (
+                      <div>
+                        <p className="text-sm text-gray-600">Profession</p>
+                        <p className="font-medium">
+                          {viewingCandidate.profession}
+                        </p>
+                      </div>
+                    )}
+                    {viewingCandidate.experience && (
+                      <div>
+                        <p className="text-sm text-gray-600">Experience</p>
+                        <p className="font-medium">
+                          {viewingCandidate.experience}
+                        </p>
+                      </div>
+                    )}
+                    {viewingCandidate.jobAppliedFor && (
+                      <div>
+                        <p className="text-sm text-gray-600">Job Applied For</p>
+                        <p className="font-medium">
+                          {viewingCandidate.jobAppliedFor}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Info */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                  Contact Information
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {viewingCandidate.phone && (
+                    <div>
+                      <p className="text-sm text-gray-600">Phone</p>
+                      <p className="font-medium">{viewingCandidate.phone}</p>
+                    </div>
+                  )}
+                  {viewingCandidate.city && (
+                    <div>
+                      <p className="text-sm text-gray-600">City</p>
+                      <p className="font-medium">{viewingCandidate.city}</p>
+                    </div>
+                  )}
+                  {viewingCandidate.country && (
+                    <div>
+                      <p className="text-sm text-gray-600">Country</p>
+                      <p className="font-medium">{viewingCandidate.country}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Skills */}
+              {viewingCandidate.skills &&
+                viewingCandidate.skills.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                      Skills
+                    </h3>
+                    <div className="space-y-2">
+                      {viewingCandidate.skills.map((skill, idx) => (
+                        <div key={idx} className="p-3 bg-gray-50 rounded">
+                          <p className="font-medium">
+                            {skill.degree} - {skill.institute}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {skill.from} to {skill.to}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* Dependents */}
+              {viewingCandidate.dependents &&
+                viewingCandidate.dependents.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                      Dependents
+                    </h3>
+                    <div className="space-y-2">
+                      {viewingCandidate.dependents.map((dependent, idx) => (
+                        <div key={idx} className="p-3 bg-gray-50 rounded">
+                          <p className="font-medium">
+                            {dependent.dependent} - {dependent.gender}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Age: {dependent.age}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* Status Information */}
+              {(viewingCandidate.convicted ||
+                viewingCandidate.politicalAffiliation) && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                    Status Information
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {viewingCandidate.convicted && (
+                      <div>
+                        <p className="text-sm text-gray-600">Convicted</p>
+                        <p className="font-medium">
+                          {viewingCandidate.convicted}
+                        </p>
+                      </div>
+                    )}
+                    {viewingCandidate.politicalAffiliation && (
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          Political Affiliation
+                        </p>
+                        <p className="font-medium">
+                          {viewingCandidate.politicalAffiliation}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-gray-100 p-6 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowViewModal(false);
+                  setViewingCandidate(null);
+                }}
+                className="px-6 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

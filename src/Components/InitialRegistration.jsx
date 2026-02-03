@@ -72,16 +72,24 @@ const InitialRegistration = () => {
 
     try {
       const token = localStorage.getItem("token");
+      const candidateData = {
+        ...formData,
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        status: editingCandidate
+          ? editingCandidate.status
+          : "Initial Registration",
+      };
+
       if (editingCandidate) {
         await axios.put(
           `${API_BASE_URL}/api/candidates/${editingCandidate._id}`,
-          formData,
+          candidateData,
           { headers: { Authorization: `Bearer ${token}` } },
         );
         toast.success("Candidate updated successfully");
         setEditingCandidate(null);
       } else {
-        await axios.post(`${API_BASE_URL}/api/candidates`, formData, {
+        await axios.post(`${API_BASE_URL}/api/candidates`, candidateData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Candidate registered successfully");
